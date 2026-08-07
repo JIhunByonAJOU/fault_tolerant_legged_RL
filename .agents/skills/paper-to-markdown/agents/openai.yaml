@@ -1,0 +1,4 @@
+interface:
+  display_name: "Paper to Markdown (p2m)"
+  short_description: "논문·공개 코드·인용 트리를 중복 없이 기록"
+  default_prompt: "Use $paper-to-markdown (p2m) to ingest this paper, record official code, and update the citation graph without duplicates."

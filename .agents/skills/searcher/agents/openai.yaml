@@ -1,0 +1,4 @@
+interface:
+  display_name: "Searcher"
+  short_description: "논문·인용·공개 코드에서 구현 근거와 파라미터 추적"
+  default_prompt: "Use $searcher to trace this equation or parameter through papers, citations, and official public code."
