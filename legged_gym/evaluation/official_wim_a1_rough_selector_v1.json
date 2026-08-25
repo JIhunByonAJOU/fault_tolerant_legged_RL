@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "name": "official_wim_a1_rough_selector_v1",
+  "task": "a1_official_wim_rough",
+  "paper_explicit": {
+    "terrain_class_count": 5,
+    "terrain_length_m": 8.0,
+    "command_x_mps": 0.75,
+    "command_y_range_mps": [-0.1, 0.1],
+    "episode_constant_commands": true,
+    "success": "cross_8m_finish_plane_before_base_contact"
+  },
+  "implementation_choice_agent_recommendation": {
+    "terrain_cells": [
+      {"name": "slope", "generator": "pyramid_sloped_terrain", "arguments": {"slope": 0.2, "platform_size": 3.0}},
+      {"name": "rough_slope", "generator": "pyramid_sloped_plus_random_uniform", "arguments": {"slope": 0.2, "min_height": -0.05, "max_height": 0.05, "step": 0.005, "downsampled_scale": 0.2, "platform_size": 3.0}},
+      {"name": "stairs_up", "generator": "pyramid_stairs_terrain", "arguments": {"step_width": 0.31, "step_height": 0.14, "platform_size": 3.0}},
+      {"name": "stairs_down", "generator": "pyramid_stairs_terrain", "arguments": {"step_width": 0.31, "step_height": -0.14, "platform_size": 3.0}},
+      {"name": "discrete_obstacles", "generator": "discrete_obstacles_terrain", "arguments": {"max_height": 0.15, "min_size": 1.0, "max_size": 2.0, "num_rects": 20, "platform_size": 3.0}}
+    ],
+    "seeds": [1, 2, 3],
+    "num_envs_per_cell": 64,
+    "episode_horizon_seconds": 20.0,
+    "lateral_command_assignment": "deterministic_linear_stratification_inclusive",
+    "heading_command": false,
+    "yaw_command": 0.0,
+    "eligibility": {"aggregate_wilson_lower_bound_min": 0.8, "per_terrain_point_success_min": 0.7, "confidence": 0.95, "one_sided": true},
+    "selection_order": ["maximize_aggregate_wilson_lower_bound", "minimize_base_contact_rate", "maximize_median_progress_ratio", "minimize_command_velocity_rmse", "earlier_iteration"]
+  },
+  "official_legged_gym_revision": "ae614c029977157123225f538ecdd3f873e54bd4",
+  "official_rsl_rl_revision": "2ad79cf0caa85b91721abfe358105f869a784121"
+}

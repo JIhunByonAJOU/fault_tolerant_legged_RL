@@ -51,6 +51,8 @@ def test_env(args):
         obs, _, rew, done, info = env.step(actions)
     print("Done")
 
+test_env.__test__ = False
+
 if __name__ == '__main__':
     args = get_args()
     test_env(args)

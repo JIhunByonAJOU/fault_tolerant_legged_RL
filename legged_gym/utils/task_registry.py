@@ -135,21 +135,54 @@ class TaskRegistry():
         # override cfg from args (if specified)
         _, train_cfg = update_cfg_from_args(None, train_cfg, args)
 
-        if log_root=="default":
-            log_root = os.path.join(LEGGED_GYM_ROOT_DIR, 'logs', train_cfg.runner.experiment_name)
+        default_log_root = os.path.join(
+            LEGGED_GYM_ROOT_DIR, 'logs', train_cfg.runner.experiment_name
+        )
+        if getattr(args, "log_dir", None) is not None:
+            log_dir = os.path.abspath(args.log_dir)
+            resume_root = default_log_root
+        elif log_root=="default":
+            log_root = default_log_root
+            resume_root = log_root
             log_dir = os.path.join(log_root, datetime.now().strftime('%b%d_%H-%M-%S') + '_' + train_cfg.runner.run_name)
         elif log_root is None:
             log_dir = None
+            resume_root = default_log_root
         else:
+            resume_root = log_root
             log_dir = os.path.join(log_root, datetime.now().strftime('%b%d_%H-%M-%S') + '_' + train_cfg.runner.run_name)
-        
-        train_cfg_dict = class_to_dict(train_cfg)
-        runner = OnPolicyRunner(env, train_cfg_dict, log_dir, device=args.rl_device)
-        #save resume path before creating a new log_dir
+
+        # Resolve the source before the destination runner creates its new
+        # directory; otherwise a "latest" resume can select that empty run.
         resume = train_cfg.runner.resume
+        resume_path = None
         if resume:
-            # load previously trained model
-            resume_path = get_load_path(log_root, load_run=train_cfg.runner.load_run, checkpoint=train_cfg.runner.checkpoint)
+            resume_path = get_load_path(
+                resume_root,
+                load_run=train_cfg.runner.load_run,
+                checkpoint=train_cfg.runner.checkpoint,
+            )
+
+        train_cfg_dict = class_to_dict(train_cfg)
+        runner_class_name = getattr(train_cfg, "runner_class_name", "OnPolicyRunner")
+        if runner_class_name == "OnPolicyRunner":
+            runner_class = OnPolicyRunner
+        elif runner_class_name == "TeacherOnPolicyRunner":
+            # Lazy import avoids a cycle while base environments import utils.
+            from legged_gym.learning.teacher_runner import TeacherOnPolicyRunner
+            runner_class = TeacherOnPolicyRunner
+        elif runner_class_name == "OfficialWimOnPolicyRunner":
+            from legged_gym.learning.official_wim_runner import OfficialWimOnPolicyRunner
+            runner_class = OfficialWimOnPolicyRunner
+        elif runner_class_name == "JointTeacherStudentRunner":
+            from legged_gym.learning.joint_teacher_student_runner import JointTeacherStudentRunner
+            runner_class = JointTeacherStudentRunner
+        else:
+            raise ValueError("Unknown runner class: {}".format(runner_class_name))
+        runner = runner_class(
+            env, train_cfg_dict, log_dir, device=args.rl_device
+        )
+        if resume:
             print(f"Loading model from: {resume_path}")
             runner.load(resume_path)
         return runner, train_cfg

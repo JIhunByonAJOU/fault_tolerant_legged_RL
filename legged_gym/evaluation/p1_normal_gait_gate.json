@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "name": "p1_normal_gait_gate_v1",
+  "protocol": {
+    "action": "deterministic_tanh_actor_mean",
+    "contact_filter": {
+      "force_threshold_n": 1.0,
+      "one_step_or": true
+    },
+    "action_near_bound_threshold": 0.98,
+    "duration_seconds": 20.0,
+    "falls_counted_seconds": 20.0,
+    "friction_range": [0.5, 1.25],
+    "fresh_process_per_cell": true,
+    "heldout_command_generator": {
+      "lin_vel_x_range": [0.20, 0.50],
+      "lin_vel_y_range": [-0.12, 0.12],
+      "namespace": "p1-normal-gait-heldout-v1",
+      "num_segments": 7,
+      "segment_seconds": 3.0,
+      "trajectory_rmse_normalization_floor_m": 1.0,
+      "yaw_rate_range": [-0.18, 0.18]
+    },
+    "noise": false,
+    "pushes": false,
+    "terrain": "plane",
+    "warmup_seconds": 2.0
+  },
+  "num_envs": 512,
+  "scenarios": [
+    "stand",
+    "forward_slow",
+    "forward_nominal",
+    "lateral_left",
+    "lateral_right",
+    "arc_left",
+    "arc_right",
+    "heldout_randomized"
+  ],
+  "seeds": [1, 2, 3],
+  "thresholds": {
+    "survival_rate_min": 0.99,
+    "stand_max": {
+      "abs_yaw_rate_radps": {"median": 0.05, "p90": 0.10},
+      "action_near_bound_rate": {"median": 0.05, "p90": 0.10},
+      "drift_m": {"median": 0.5, "p90": 1.0},
+      "planar_speed_mps": {"median": 0.05, "p90": 0.10},
+      "vertical_velocity_rms_mps": {"median": 0.12, "p90": 0.20}
+    },
+    "moving_max": {
+      "action_near_bound_rate": {"median": 0.10, "p90": 0.20},
+      "airborne_rate": {"median": 0.10, "p90": 0.20},
+      "base_height_peak_to_peak_m": {"median": 0.15, "p90": 0.20},
+      "foot_slip_cost": {"median": 0.20, "p90": 0.35},
+      "four_feet_contact_rate": {"median": 0.25, "p90": 0.40},
+      "planar_command_rmse_mps": {"median": 0.15, "p90": 0.25},
+      "vertical_velocity_rms_mps": {"median": 0.30, "p90": 0.40},
+      "yaw_rate_rmse_radps": {"median": 0.12, "p90": 0.20}
+    },
+    "arc": {
+      "abs_integrated_yaw_error_rad_max": {"median": 1.0, "p90": 1.5},
+      "correct_yaw_sign_rate_min": 0.95
+    },
+    "gait_cycle": {
+      "duty_factor_population_median_max": 0.85,
+      "duty_factor_population_median_min": 0.45,
+      "env_foot_duty_range": {"max": 0.90, "min": 0.30},
+      "env_foot_duty_in_0p30_0p90_rate_min": 0.90,
+      "four_foot_cycle_pass_rate_min": 0.90,
+      "valid_swing_count_median_min": 4,
+      "valid_swing_count_p10_min": 2,
+      "valid_swing_duration_seconds": {"max": 1.50, "min": 0.08}
+    },
+    "heldout_randomized_max": {
+      "normalized_trajectory_rmse": {"median": 0.15, "p90": 0.25}
+    },
+    "zero_yaw_max": {
+      "abs_net_yaw_rad": {"median": 0.35, "p90": 0.75}
+    },
+    "zero_yaw_min": {
+      "command_direction_progress_ratio": {"median": 0.70, "p10": 0.60},
+      "path_efficiency": {"median": 0.80, "p10": 0.65}
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "name": "p1_baseenv_checkpoint_selector_v1",
+  "task": "a1_limping_base_v2",
+  "seed": 1,
+  "num_envs": 512,
+  "duration_seconds": 20.0,
+  "warmup_seconds": 2.0,
+  "control_dt_seconds": 0.02,
+  "action_near_bound_threshold": 0.98,
+  "command_groups": [
+    {"name": "forward_025", "command": [0.25, 0.0, 0.0]},
+    {"name": "forward_050", "command": [0.50, 0.0, 0.0]},
+    {"name": "lateral_left", "command": [0.0, 0.25, 0.0]},
+    {"name": "lateral_right", "command": [0.0, -0.25, 0.0]},
+    {"name": "arc_left", "command": [0.35, 0.0, 0.25]},
+    {"name": "arc_right", "command": [0.35, 0.0, -0.25]},
+    {"name": "diagonal_left", "command": [0.35, 0.15, 0.0]},
+    {"name": "diagonal_right", "command": [0.35, -0.15, 0.0]}
+  ],
+  "nominal_environment": {
+    "terrain_mesh_type": "plane",
+    "terrain_curriculum": false,
+    "command_curriculum": false,
+    "observation_noise": false,
+    "pushes": false,
+    "heading_command": false,
+    "friction": 1.0,
+    "added_mass": 0.0,
+    "motor_strength": 1.0,
+    "kp_scale": 1.0,
+    "kd_scale": 1.0
+  },
+  "resolved_contract": {
+    "clip_observations": 100.0,
+    "clip_actions": 1.0,
+    "observation_scales": {"lin_vel": 2.0, "ang_vel": 0.25, "dof_pos": 1.0, "dof_vel": 0.05, "height_measurements": 5.0},
+    "action_scale": 0.25,
+    "decimation": 4,
+    "stiffness": 20.0,
+    "damping": 0.5,
+    "actor_observation_dim": 45,
+    "privileged_observation_dim": 45,
+    "actor_input_dim": 53,
+    "critic_input_dim": 53,
+    "teacher_latent_dim": 8,
+    "action_coordinate": "raw deterministic actor mean; environment-only clip"
+  },
+  "eligibility": {
+    "survival_rate_min": 0.99,
+    "planar_command_rmse_mps_max": {"median": 0.15, "p90": 0.25},
+    "four_feet_contact_rate_max": {"median": 0.25, "p90": 0.40},
+    "command_direction_progress_ratio_min": {"median": 0.70, "p10": 0.60},
+    "zero_yaw_path_efficiency_min": {"median": 0.80, "p10": 0.65},
+    "arc_yaw_rate_rmse_radps_max": {"median": 0.12, "p90": 0.20},
+    "arc_correct_yaw_sign_rate_min": 0.95,
+    "applied_action_near_bound_rate_max": {"median": 0.10, "p90": 0.20}
+  },
+  "ranking": [
+    "worst_command_p90_planar_command_rmse_mps",
+    "worst_command_p90_yaw_rate_rmse_radps",
+    "worst_command_p90_four_feet_contact_rate",
+    "negative_minimum_command_survival_rate",
+    "iteration"
+  ],
+  "expected_inventory": [
+    {"iteration": 0, "file": "model_0.pt", "size_bytes": 5176043, "sha256": "eeb45e5f0e3afde563bea805774127d52e013dbb37b21b5686dcf4b8e72f9cec"},
+    {"iteration": 100, "file": "model_100.pt", "size_bytes": 5176231, "sha256": "5cd2b52f9c9ec75365ec771f7dfd16d17c6b8523ec7b005be76053030c376336"},
+    {"iteration": 200, "file": "model_200.pt", "size_bytes": 5176231, "sha256": "9d477376410103482bd0b531e82f2dad141edecf069eb7c263158a85c632d52e"},
+    {"iteration": 300, "file": "model_300.pt", "size_bytes": 5176231, "sha256": "5e35f64f696fb0d1e3ac230d2ea328f07c5a7452030e539a9112f9209170f791"},
+    {"iteration": 400, "file": "model_400.pt", "size_bytes": 5176231, "sha256": "52162000e336057b87af93c34b908f522a683aaab2bf00412a959e675441d486"},
+    {"iteration": 500, "file": "model_500.pt", "size_bytes": 5176231, "sha256": "f99443e538895b63b91b547834b49cf0a255c73c15068c436edc372318b8b2d9"},
+    {"iteration": 600, "file": "model_600.pt", "size_bytes": 5176231, "sha256": "000a1eff8edbedad06f85ed2be1c5f8251bd41614eb56490d814e29102e35b4c"},
+    {"iteration": 700, "file": "model_700.pt", "size_bytes": 5176231, "sha256": "14cdff13676668a5bf3557d4d8dd4546bcb03c5e859e6c6e8669e86200d746e2"},
+    {"iteration": 800, "file": "model_800.pt", "size_bytes": 5176231, "sha256": "7195910b8a74ec061b42dbaca8244ad1d1daf3ce5eb7cecba71165c7853be6b5"},
+    {"iteration": 900, "file": "model_900.pt", "size_bytes": 5176231, "sha256": "40c3c688faaca5d0e790e0d1e1f68fe6c722b71a0c2658c9f5c073dc8404d81c"},
+    {"iteration": 1000, "file": "model_1000.pt", "size_bytes": 5176325, "sha256": "def6430bcef7263510235a8a64f9043841b5143ce8d33c0848e29cf79df01869"},
+    {"iteration": 1100, "file": "model_1100.pt", "size_bytes": 5176325, "sha256": "8cf57a56ffaeab2488c1e7214c123763c72585cf687446cb8437027e0b589c20"},
+    {"iteration": 1185, "file": "model_1185.pt", "size_bytes": 5176325, "sha256": "a6b7f3e6f7c0a4276721184d344c0588f877b0a21f6d52ca0f54accecaedeb35", "treatment": "stop_save_after_completed_iteration_1184"}
+  ]
+}

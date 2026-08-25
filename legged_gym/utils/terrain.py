@@ -100,8 +100,8 @@ class Terrain:
             terrain = terrain_utils.SubTerrain("terrain",
                               width=self.width_per_env_pixels,
                               length=self.width_per_env_pixels,
-                              vertical_scale=self.vertical_scale,
-                              horizontal_scale=self.horizontal_scale)
+                              vertical_scale=self.cfg.vertical_scale,
+                              horizontal_scale=self.cfg.horizontal_scale)
 
             eval(terrain_type)(terrain, **self.cfg.terrain_kwargs.terrain_kwargs)
             self.add_terrain_to_map(terrain, i, j)

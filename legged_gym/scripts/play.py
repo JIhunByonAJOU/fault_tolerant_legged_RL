@@ -55,6 +55,10 @@ def play(args):
     obs = env.get_observations()
     # load policy
     train_cfg.runner.resume = True
+    # Interactive playback is inference-only and must not require the managed
+    # training runner's active W&B context.
+    if args.task == "a1_official_wim_rough":
+        train_cfg.runner_class_name = "OnPolicyRunner"
     ppo_runner, train_cfg = task_registry.make_alg_runner(env=env, name=args.task, args=args, train_cfg=train_cfg)
     policy = ppo_runner.get_inference_policy(device=env.device)
     
