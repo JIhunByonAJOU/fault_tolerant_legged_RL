@@ -86,7 +86,7 @@ train.py
 | 파라미터 | 짧은 설명 | 확인된 사실·값 | 근거 분류·정확한 위치 | 이번 구현 선택 | 선택 근거 |
 |---|---|---|---|---|---|
 | 로봇·시뮬레이터 | 학습 대상 robot asset과 physics backend | Unitree A1, Isaac Gym 및 IsaacGymEnvs | `Paper Explicit — Saving`, Sec. IV-A, pp. 4–5 | 현재 A1 URDF와 Isaac Gym Preview 3 사용 | `Implementation choice`; 현재 [WIM A1 Code Default](/home/jihun/legged_gym/legged_gym/envs/a1/a1_config.py:63). target asset과 완전히 같다는 근거는 없음 |
-| 본 학습 병렬 환경 수 | GPU 한 장에서 동시에 돌릴 environment 개수 | GPU당 4,096개, NVIDIA A6000 두 장 | `Paper Explicit — Saving`, Sec. IV-A, p. 4 | GPU당 4,096개 | 논문 그대로; 별도 선택 없음 |
+| 본 학습 병렬 환경 수 | GPU 한 장에서 동시에 돌릴 environment 개수 | GPU당 4,096개, NVIDIA A6000 두 장 | `Paper Explicit — Saving`, Sec. IV-A, p. 4 | RTX 4090에서 32,768개 | `Implementation choice — throughput 우선`; 논문값과 다르며 측정값은 약 327–340k FPS, active util 78.2%, VRAM 12.5 GB |
 | smoke-test 환경 수 | 구현 오류를 빠르게 찾기 위한 소규모 환경 수 | 논문에 없음 | `Unspecified — Saving` | 64개 | `Implementation choice — Agent recommendation` |
 | simulation rate | physics integration 빈도 | $f_{\mathrm{sim}}=200\,\mathrm{Hz}$ | `Paper Explicit — Saving`, Sec. IV-A, p. 4 | $\Delta t_{\mathrm{sim}}=1/200=0.005\,\mathrm{s}$ | `Derived`; [WIM sim default](/home/jihun/legged_gym/legged_gym/envs/base/legged_robot_config.py:183)와도 일치 |
 | control rate | policy action을 새로 계산하는 빈도 | $f_{\mathrm{ctrl}}=50\,\mathrm{Hz}$ | `Paper Explicit — Saving`, Sec. IV-A, p. 4 | decimation $=200/50=4$ | `Derived`; [WIM A1 Code Default](/home/jihun/legged_gym/legged_gym/envs/a1/a1_config.py:53)와 일치 |
@@ -174,7 +174,7 @@ train.py
 | $\beta$ schedule 값 | 각 학습 시점의 실제 adaptation weight | 함수·최댓값 없음 | `Unspecified — Saving` | transition에서 $\beta=1-\alpha$, 이후 $0$ | `Implementation choice — Agent recommendation` |
 | critic input·architecture | PPO value function이 볼 정보와 network 크기 | Saving에는 전혀 명시 없음. Rapid 공식 코드는 $V([\mathbf o_t,\mu(\mathbf e_t)])$와 hidden $[512,256,128]$ 사용 | `Unspecified — Saving`; `Inherited/Code Experiment — Rapid official` | $V([\mathbf o_t,\mu(\mathbf e_t)])$, MLP $[512,256,128]\rightarrow1$ 권장 | target 직접값은 아님. symmetric $V([\mathbf o_t,\mathbf z'_t])$는 ablation |
 | RL algorithm | policy optimization 방법 | PPO 사용 | `Paper Explicit — Saving`, Sec. III-C–IV-A | PPO 유지 | 논문 그대로; 숫자는 다음 행에서 별도 결정 |
-| PPO hyperparameters | rollout, epoch, clip, entropy, discount, learning-rate 값 | target 숫자 없음 | `Unspecified — Saving` | rollout 24, epochs 5, minibatches 4, clip 0.2, entropy 0.01, $\gamma=0.99$, $\lambda=0.95$, adaptive LR $10^{-3}$, KL 0.01 | `Implementation choice`; [WIM/rsl_rl Code Default](/home/jihun/legged_gym/legged_gym/envs/base/legged_robot_config.py:202), target 값 아님 |
+| PPO hyperparameters | rollout, epoch, clip, entropy, discount, learning-rate 값 | target 숫자 없음 | `Unspecified — Saving` | 공통 throughput 값은 rollout 24, minibatches 8. Main은 RMA 계승 epochs 4, entropy 0, $\gamma=0.998$, fixed LR $5\times10^{-4}$; WIM control은 나머지 stock WIM 값 | `Implementation choice`; 32,768 env 기준 batch 786,432, minibatch 98,304. target 직접값 아님 |
 | 논문 teacher 학습량 | 논문 비교에서 teacher에 제공한 simulation step 수 | $600\,\mathrm{M}$ steps | `Paper Explicit — Saving`, Sec. IV-B, p. 5 | 최종 허용 상한 $600\,\mathrm{M}$ | 논문 수치를 상한으로 사용 |
 | 중간 학습 gates | 큰 학습 전에 중단·확장 여부를 판단할 step 수 | 논문에 없음 | `Unspecified — Saving` | $25\,\mathrm{M}$ smoke $\rightarrow150\,\mathrm{M}$ trend $\rightarrow600\,\mathrm{M}$ | `Implementation choice — Agent recommendation` |
 
@@ -433,6 +433,8 @@ Gate: 2회 실행의 first 100-step observation/failure trace가 bitwise 또는 
 - flat gate 후 세 terrain과 conservative DR을 하나씩 켜서 teacher encoder가 privileged variation을 실제로 이용하는지 확인한다.
 
 Gate: failure 없는 evaluation에서 $20\,\mathrm{s}$ survival $\ge90\%$, warm-up 이후 median $v_x\ge0.35\,\mathrm{m/s}$, PPO/critic/teacher gradient와 latent가 finite. 미달이면 FailureEnv teacher나 joint training으로 넘어가지 않는다.
+
+구현 상태(2026-08-07): [`a1_limping_base` teacher vertical slice](base-teacher-implementation.md)는 구현됐고 64-env/4,096-env smoke, 150M-transition main run, 256-env×20초 evaluation까지 실행했다. 최종 생존율 1.56%, 중앙 $v_x=0.082\,\mathrm{m/s}$로 locomotion gate는 미통과다. 따라서 계획대로 FailureEnv로 넘어가지 않고 BaseEnv reward/optimization 이식을 먼저 교정한다.
 
 ### 2. joint-lock mechanics를 학습 없이 검증하기
 

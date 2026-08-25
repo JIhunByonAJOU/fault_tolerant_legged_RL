@@ -50,9 +50,10 @@ Thumbs.db
 
 # VS Code
 .vscode
-# logs
-logs
-runs
+# Training and harness runtime artifacts (local-only, potentially very large)
+/logs/
+/runs/
+/wandb/
 
 # other
 *.egg-info
