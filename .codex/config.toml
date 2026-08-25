@@ -1,0 +1,5 @@
+[agents]
+# One primary supervisor plus at most three specialists matches this workspace's
+# four-thread execution budget and prevents write-heavy agents from piling up.
+max_concurrent_threads_per_session = 3
+interrupt_message = true
