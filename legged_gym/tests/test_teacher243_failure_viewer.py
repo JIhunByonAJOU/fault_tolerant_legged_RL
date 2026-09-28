@@ -9,9 +9,11 @@ from legged_gym.evaluation.teacher243_viewer_overlay import (
     TARGET_PATH_COLOR,
     advance_reference,
     panel_rows,
+    remap_draw_excluding_previous,
     rigid_body_name_for_dof,
     severity_style,
     terrain_heights_at_xy,
+    translated_follow_camera_pose,
 )
 
 
@@ -39,6 +41,23 @@ class Teacher243FailureViewerTest(unittest.TestCase):
         self.assertEqual(rigid_body_name_for_dof("FR_calf_joint", bodies), "FR_calf")
         with self.assertRaises(ValueError):
             rigid_body_name_for_dof("RL_calf_joint", bodies)
+
+    def test_joint_draw_excludes_previous_joint(self):
+        mapped = [remap_draw_excluding_previous(draw, 5) for draw in range(11)]
+        self.assertEqual(len(set(mapped)), 11)
+        self.assertNotIn(5, mapped)
+        self.assertEqual(mapped[:5], [0, 1, 2, 3, 4])
+        self.assertEqual(mapped[5:], [6, 7, 8, 9, 10, 11])
+
+    def test_follow_camera_preserves_user_selected_orbit_offset(self):
+        position, target = translated_follow_camera_pose(
+            camera_position=[-2.0, -3.0, 2.0],
+            previous_target=[0.0, 0.0, 0.4],
+            current_target=[1.5, -0.5, 0.4],
+        )
+        np.testing.assert_allclose(position, [-0.5, -3.5, 2.0], atol=1e-8)
+        np.testing.assert_allclose(target, [1.5, -0.5, 0.4], atol=1e-8)
+        np.testing.assert_allclose(position - target, [-2.0, -3.0, 1.6], atol=1e-8)
 
     def test_reference_integration_uses_body_frame_command(self):
         xy, yaw = advance_reference(

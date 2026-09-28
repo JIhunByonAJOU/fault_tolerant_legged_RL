@@ -60,6 +60,7 @@ class JointTeacherStudentActorCritic(nn.Module):
         student_embedding_dim=32,
         student_latent_dim=8,
         joint_schedule_iterations=10000,
+        adaptation_beta_floor=0.0,
         **kwargs
     ):
         super().__init__()
@@ -91,6 +92,9 @@ class JointTeacherStudentActorCritic(nn.Module):
         self.std = nn.Parameter(init_noise_std * torch.ones(num_actions))
         self.distribution = None
         self.joint_schedule_iterations = int(joint_schedule_iterations)
+        self.adaptation_beta_floor = float(adaptation_beta_floor)
+        if not 0.0 <= self.adaptation_beta_floor < 1.0:
+            raise ValueError("adaptation_beta_floor must be in [0, 1)")
         self.schedule_origin_iteration = 0
         self.adaptation_alpha = 0.0
         self.adaptation_beta = 1.0
@@ -110,7 +114,9 @@ class JointTeacherStudentActorCritic(nn.Module):
             self.joint_schedule_iterations, 1
         )
         self.adaptation_alpha = min(max(progress, 0.0), 1.0)
-        self.adaptation_beta = 1.0 - self.adaptation_alpha
+        self.adaptation_beta = self.adaptation_beta_floor + (
+            1.0 - self.adaptation_beta_floor
+        ) * (1.0 - self.adaptation_alpha)
 
     def _split(self, observations):
         if observations.shape[-1] != JOINT_OBSERVATION_DIM:
@@ -184,3 +190,29 @@ class JointTeacherStudentActorCritic(nn.Module):
         current, _ = self._split(observations)
         latent = self.encode_history(observations)
         return self.actor(torch.cat((current, latent), dim=-1))
+
+
+class FrozenTeacherStudentActorCritic(JointTeacherStudentActorCritic):
+    """Diagnostic baseline: keep the TF policy fixed while learning its student."""
+
+    def __init__(
+        self,
+        *args,
+        teacher_only_iterations=2000,
+        student_transition_iterations=8000,
+        **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        if teacher_only_iterations < 0 or student_transition_iterations <= 0:
+            raise ValueError("invalid frozen-teacher transition schedule")
+        self.teacher_only_iterations = int(teacher_only_iterations)
+        self.student_transition_iterations = int(student_transition_iterations)
+        self.teacher_encoder.requires_grad_(False)
+        self.actor.requires_grad_(False)
+        self.std.requires_grad_(False)
+
+    def set_training_iteration(self, iteration):
+        elapsed = int(iteration) - self.schedule_origin_iteration
+        progress = (elapsed - self.teacher_only_iterations) / self.student_transition_iterations
+        self.adaptation_alpha = min(max(progress, 0.0), 1.0)
+        self.adaptation_beta = 1.0

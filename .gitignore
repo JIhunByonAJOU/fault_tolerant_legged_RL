@@ -61,3 +61,16 @@ __pycache__
 
 # Local paper corpus (large generated/research data)
 /docs/papers/
+
+# Local presentation drafts and generated assets
+/docs/present_first/
+
+# Local scratch launch notes and accidental CLI marker files
+/How to Launch.md
+/--
+/--authority
+/--experiment
+/--label
+/--parent-run-id
+/--phase
+/--trend-min-iteration

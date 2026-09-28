@@ -9,16 +9,22 @@ from legged_gym.envs.a1_official_wim_teacher import (
     A1OfficialWimJointFailureOnset,
     A1OfficialWimJointFailureOnsetCfg,
     A1OfficialWimJointFailureOnsetCfgPPO,
+    A1OfficialWimJointBetaFloorCfg,
+    A1OfficialWimJointBetaFloorCfgPPO,
+    A1OfficialWimFrozenTeacherStudentCfg,
+    A1OfficialWimFrozenTeacherStudentCfgPPO,
 )
 from legged_gym.envs.a1_official_wim_teacher.joint_schema import (
     JOINT_OBSERVATION_DIM,
 )
 from legged_gym.learning.joint_teacher_student_actor_critic import (
     JointTeacherStudentActorCritic,
+    FrozenTeacherStudentActorCritic,
 )
 from legged_gym.learning.official_wim_teacher_actor_critic import (
     OfficialWimTeacherActorCritic,
 )
+from legged_gym.utils import task_registry
 from legged_gym.utils.helpers import class_to_dict
 
 
@@ -62,6 +68,39 @@ class JointTeacherStudentTest(unittest.TestCase):
         self.assertGreater(student_grad, 0.0)
         self.assertEqual(teacher_grad, 0.0)
 
+    def test_beta_floor_ablation_keeps_canonical_schedule_unchanged(self):
+        registered_env, registered_train = task_registry.get_cfgs(
+            "a1_official_wim_jt_beta_floor_onset"
+        )
+        self.assertIsInstance(registered_env, A1OfficialWimJointBetaFloorCfg)
+        self.assertIsInstance(registered_train, A1OfficialWimJointBetaFloorCfgPPO)
+        canonical_env = class_to_dict(A1OfficialWimJointFailureOnsetCfg())
+        ablation_env = class_to_dict(A1OfficialWimJointBetaFloorCfg())
+        ablation_env["env"]["task_name"] = canonical_env["env"]["task_name"]
+        self.assertEqual(ablation_env, canonical_env)
+
+        canonical_train = class_to_dict(A1OfficialWimJointFailureOnsetCfgPPO())
+        ablation_train = class_to_dict(A1OfficialWimJointBetaFloorCfgPPO())
+        self.assertEqual(ablation_train["policy"]["adaptation_beta_floor"], 0.1)
+        ablation_train["policy"].pop("adaptation_beta_floor")
+        ablation_train["runner"]["experiment_name"] = canonical_train["runner"]["experiment_name"]
+        self.assertEqual(ablation_train, canonical_train)
+
+        baseline = JointTeacherStudentActorCritic(2635, 45, 12)
+        trial = JointTeacherStudentActorCritic(2635, 45, 12, adaptation_beta_floor=0.1)
+        for model in (baseline, trial):
+            model.set_schedule_origin(43000)
+            model.set_training_iteration(43000)
+            self.assertEqual(model.adaptation_beta, 1.0)
+            model.set_training_iteration(48000)
+            self.assertEqual(model.adaptation_alpha, 0.5)
+            model.set_training_iteration(53000)
+            self.assertEqual(model.adaptation_alpha, 1.0)
+        self.assertEqual(baseline.adaptation_beta, 0.0)
+        self.assertAlmostEqual(trial.adaptation_beta, 0.1)
+        with self.assertRaises(ValueError):
+            JointTeacherStudentActorCritic(2635, 45, 12, adaptation_beta_floor=1.0)
+
     def test_teacher_checkpoint_initializes_policy_exactly_at_alpha_zero(self):
         torch.manual_seed(11)
         teacher = OfficialWimTeacherActorCritic(235, 45, 12)
@@ -79,6 +118,34 @@ class JointTeacherStudentTest(unittest.TestCase):
             expected = teacher.act_inference(current, privileged)
             actual = joint.act_inference(obs, privileged)
         self.assertEqual((expected - actual).abs().max().item(), 0.0)
+
+    def test_frozen_teacher_baseline_schedule_and_gradients(self):
+        env_cfg, train_cfg = task_registry.get_cfgs(
+            "a1_official_wim_frozen_tf_student_onset"
+        )
+        self.assertIsInstance(env_cfg, A1OfficialWimFrozenTeacherStudentCfg)
+        self.assertIsInstance(train_cfg, A1OfficialWimFrozenTeacherStudentCfgPPO)
+        self.assertEqual(train_cfg.runner.policy_class_name, "FrozenTeacherStudentActorCritic")
+        model = FrozenTeacherStudentActorCritic(2635, 45, 12)
+        model.set_schedule_origin(43000)
+        for iteration, expected_alpha in ((43000, 0.0), (45000, 0.0),
+                                          (49000, 0.5), (53000, 1.0)):
+            model.set_training_iteration(iteration)
+            self.assertEqual(model.adaptation_alpha, expected_alpha)
+            self.assertEqual(model.adaptation_beta, 1.0)
+        self.assertFalse(any(p.requires_grad for p in model.teacher_encoder.parameters()))
+        self.assertFalse(any(p.requires_grad for p in model.actor.parameters()))
+        self.assertFalse(model.std.requires_grad)
+        self.assertTrue(all(p.requires_grad for p in model.student_encoder.parameters()))
+        self.assertTrue(all(p.requires_grad for p in model.critic.parameters()))
+        obs = torch.randn(4, 2635)
+        privileged = torch.randn(4, 45)
+        model.set_training_iteration(45000)
+        model.adaptation_loss(obs, privileged).backward()
+        student_grad = sum(p.grad.abs().sum().item() for p in model.student_encoder.parameters())
+        self.assertGreater(student_grad, 0.0)
+        self.assertTrue(all(p.grad is None for p in model.teacher_encoder.parameters()))
+        self.assertTrue(all(p.grad is None for p in model.actor.parameters()))
 
     def test_student_only_matches_alpha_one_without_privileged_input(self):
         torch.manual_seed(19)

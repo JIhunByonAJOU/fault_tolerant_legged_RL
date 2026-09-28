@@ -1,4 +1,4 @@
-"""Small sidecar control panel for the Isaac Gym Teacher243 viewer."""
+"""Small sidecar control panel for the Isaac Gym failure inference viewer."""
 
 import queue
 import tkinter as tk
@@ -17,12 +17,12 @@ def _rgb_hex(rgb):
 
 def run_panel(control_queue, status_queue, num_envs):
     root = tk.Tk()
-    root.title("Teacher243 Failure Viewer")
+    root.title("Failure Inference Viewer")
     root.update_idletasks()
     panel_width = 430
     panel_x = max(0, root.winfo_screenwidth() - panel_width - 24)
-    root.geometry("{}x650+{}+70".format(panel_width, panel_x))
-    root.minsize(410, 560)
+    root.geometry("{}x700+{}+60".format(panel_width, panel_x))
+    root.minsize(410, 610)
 
     style = ttk.Style(root)
     if "clam" in style.theme_names():
@@ -36,6 +36,7 @@ def run_panel(control_queue, status_queue, num_envs):
         "show_degradation": tk.BooleanVar(value=True),
         "selected_only": tk.BooleanVar(value=False),
         "selected_env": tk.IntVar(value=0),
+        "robot_count": tk.IntVar(value=int(num_envs)),
     }
 
     def send_state(extra=None):
@@ -55,7 +56,7 @@ def run_panel(control_queue, status_queue, num_envs):
 
     outer = ttk.Frame(root, padding=12)
     outer.pack(fill="both", expand=True)
-    ttk.Label(outer, text="Teacher243 Failure Viewer", style="Header.TLabel").pack(anchor="w")
+    ttk.Label(outer, text="Failure Inference Viewer", style="Header.TLabel").pack(anchor="w")
     ttk.Label(
         outer,
         text="Green: commanded-motion reference   Blue: robot trajectory",
@@ -77,9 +78,34 @@ def run_panel(control_queue, status_queue, num_envs):
     ).pack(fill="x", pady=(7, 0))
     ttk.Button(
         controls,
-        text="Focus selected robot",
+        text="Center camera on selected robot",
         command=lambda: send_state({"focus": True}),
     ).pack(fill="x", pady=(4, 0))
+
+    simulator = ttk.LabelFrame(outer, text="Simulation", padding=8)
+    simulator.pack(fill="x", pady=(10, 0))
+    count_row = ttk.Frame(simulator)
+    count_row.pack(fill="x")
+    ttk.Label(count_row, text="Robot count").pack(side="left")
+    count_picker = ttk.Combobox(
+        count_row,
+        width=6,
+        state="readonly",
+        values=tuple(range(1, 9)),
+        textvariable=state["robot_count"],
+    )
+    count_picker.pack(side="right")
+    ttk.Button(
+        simulator,
+        text="Restart simulation with selected count",
+        command=lambda: send_state(
+            {"restart_num_envs": int(state["robot_count"].get())}
+        ),
+    ).pack(fill="x", pady=(6, 0))
+    ttk.Label(
+        simulator,
+        text="Robot count changes require a simulator restart.",
+    ).pack(anchor="w", pady=(4, 0))
 
     ttk.Label(outer, text="Robots", style="Section.TLabel").pack(anchor="w", pady=(12, 4))
     tree = ttk.Treeview(

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "name": "jt_student_transition_43000_47000_500_v1",
+  "description": "Student-only fixed and onset evaluation every 500 iterations during early JT transfer.",
+  "models": [
+    {"id": "jt43000", "role": "alpha_0p00", "policy_mode": "student", "task": "a1_official_wim_jt_failure_fullrange_onset", "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_43000.pt", "checkpoint_sha256": "64768e5aa61ed9daa722abdb7cae1d0ebcb4cafd4957c3f356106dbc95d07806", "required": true},
+    {"id": "jt43500", "role": "alpha_0p05", "policy_mode": "student", "task": "a1_official_wim_jt_failure_fullrange_onset", "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_43500.pt", "checkpoint_sha256": "396ce4f3cdebbc0c714a09a11e28804f272f3a57e913e21f30df5903f80dbcb5", "required": true},
+    {"id": "jt44000", "role": "alpha_0p10", "policy_mode": "student", "task": "a1_official_wim_jt_failure_fullrange_onset", "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_44000.pt", "checkpoint_sha256": "2339f2f6932f5bd9f3af53f4d8d43d51e2b1430ad8439b151f3465eaa639baa8", "required": true},
+    {"id": "jt44500", "role": "alpha_0p15", "policy_mode": "student", "task": "a1_official_wim_jt_failure_fullrange_onset", "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_44500.pt", "checkpoint_sha256": "f575b7549dc7880f6dd588f66df976a8d45999cd29e355b1c58c36b340bcc361", "required": true},
+    {"id": "jt45000", "role": "alpha_0p20", "policy_mode": "student", "task": "a1_official_wim_jt_failure_fullrange_onset", "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_45000.pt", "checkpoint_sha256": "1099fb35304cce451363b7d804eed87b5436182275f02c7ef5741ec26e5b4952", "required": true},
+    {"id": "jt45500", "role": "alpha_0p25", "policy_mode": "student", "task": "a1_official_wim_jt_failure_fullrange_onset", "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_45500.pt", "checkpoint_sha256": "ce1b59e12bc564054289bb734c2e59ca8a5d001d09a86eb8fbc4bb50ee22d5c8", "required": true},
+    {"id": "jt46000", "role": "alpha_0p30", "policy_mode": "student", "task": "a1_official_wim_jt_failure_fullrange_onset", "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_46000.pt", "checkpoint_sha256": "c0b78d0b842a8b0932194179d40a4e34ce428ebcc46b22244fcebcca595129ca", "required": true},
+    {"id": "jt46500", "role": "alpha_0p35", "policy_mode": "student", "task": "a1_official_wim_jt_failure_fullrange_onset", "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_46500.pt", "checkpoint_sha256": "118025fa01490ddf0dcc0ceecb26bd3347043cecf94e19e7b3013e67b94c4b0e", "required": true},
+    {"id": "jt47000", "role": "alpha_0p40", "policy_mode": "student", "task": "a1_official_wim_jt_failure_fullrange_onset", "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_47000.pt", "checkpoint_sha256": "2713df14de07c0a43bc182240a099e28d946a3368ca845f74595a099a8a7b97f", "required": true}
+  ],
+  "seeds": [1, 2, 3],
+  "command_x_mps": 0.5,
+  "fixed": {"steps": 1000, "replicates_per_condition": 16, "degradation_rates": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]},
+  "onset": {"onset_seconds": [2.0, 5.0, 10.0], "post_seconds": 20.0, "replicates_per_condition": 16, "degradation_rates": [0.2, 0.4, 0.6, 0.8, 1.0], "recovery_window_seconds": 1.0, "recovery_vx_error_mps": 0.1, "recovery_yaw_rate_radps": 0.2}
+}

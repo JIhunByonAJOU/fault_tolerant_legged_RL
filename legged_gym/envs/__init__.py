@@ -53,6 +53,10 @@ from .a1_official_wim_teacher import (
     A1OfficialWimJointFailureOnset,
     A1OfficialWimJointFailureOnsetCfg,
     A1OfficialWimJointFailureOnsetCfgPPO,
+    A1OfficialWimJointBetaFloorCfg,
+    A1OfficialWimJointBetaFloorCfgPPO,
+    A1OfficialWimFrozenTeacherStudentCfg,
+    A1OfficialWimFrozenTeacherStudentCfgPPO,
 )
 from .a1_limping import (
     A1LimpingBase,
@@ -109,6 +113,18 @@ task_registry.register(
     A1OfficialWimJointFailureOnset,
     A1OfficialWimJointFailureOnsetCfg(),
     A1OfficialWimJointFailureOnsetCfgPPO(),
+)
+task_registry.register(
+    "a1_official_wim_jt_beta_floor_onset",
+    A1OfficialWimJointFailureOnset,
+    A1OfficialWimJointBetaFloorCfg(),
+    A1OfficialWimJointBetaFloorCfgPPO(),
+)
+task_registry.register(
+    "a1_official_wim_frozen_tf_student_onset",
+    A1OfficialWimJointFailureOnset,
+    A1OfficialWimFrozenTeacherStudentCfg(),
+    A1OfficialWimFrozenTeacherStudentCfgPPO(),
 )
 task_registry.register(
     "a1_limping_base",

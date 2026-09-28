@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "name": "jt_student_transition_43000_53000_v1",
+  "description": "Student-only evaluation every 2000 iterations across the JT teacher-to-student latent transition.",
+  "models": [
+    {
+      "id": "jt43000",
+      "role": "alpha_0_student_diagnostic",
+      "policy_mode": "student",
+      "task": "a1_official_wim_jt_failure_fullrange_onset",
+      "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_43000.pt",
+      "checkpoint_sha256": "64768e5aa61ed9daa722abdb7cae1d0ebcb4cafd4957c3f356106dbc95d07806",
+      "required": true
+    },
+    {
+      "id": "jt45000",
+      "role": "alpha_0p2_student_diagnostic",
+      "policy_mode": "student",
+      "task": "a1_official_wim_jt_failure_fullrange_onset",
+      "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_45000.pt",
+      "checkpoint_sha256": "1099fb35304cce451363b7d804eed87b5436182275f02c7ef5741ec26e5b4952",
+      "required": true
+    },
+    {
+      "id": "jt47000",
+      "role": "alpha_0p4_student_diagnostic",
+      "policy_mode": "student",
+      "task": "a1_official_wim_jt_failure_fullrange_onset",
+      "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_47000.pt",
+      "checkpoint_sha256": "2713df14de07c0a43bc182240a099e28d946a3368ca845f74595a099a8a7b97f",
+      "required": true
+    },
+    {
+      "id": "jt49000",
+      "role": "alpha_0p6_student_diagnostic",
+      "policy_mode": "student",
+      "task": "a1_official_wim_jt_failure_fullrange_onset",
+      "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_49000.pt",
+      "checkpoint_sha256": "2b0864522fa63b48f65c75fb1def532836c16dc74f4e3a7ee56277a994b21432",
+      "required": true
+    },
+    {
+      "id": "jt51000",
+      "role": "alpha_0p8_student_diagnostic",
+      "policy_mode": "student",
+      "task": "a1_official_wim_jt_failure_fullrange_onset",
+      "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_51000.pt",
+      "checkpoint_sha256": "ba51ebaf3c4e87c72bcef2ac540b4603fc4f3121f964b2e5dc5e281e30ef3f34",
+      "required": true
+    },
+    {
+      "id": "jt53000",
+      "role": "alpha_1p0_student_diagnostic",
+      "policy_mode": "student",
+      "task": "a1_official_wim_jt_failure_fullrange_onset",
+      "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_53000.pt",
+      "checkpoint_sha256": "8a1937dedb4dcadb60fc1d9230feaf92aa038f3df888f3d706c7623ae4b4d927",
+      "required": true
+    }
+  ],
+  "seeds": [1, 2, 3],
+  "command_x_mps": 0.5,
+  "fixed": {
+    "steps": 1000,
+    "replicates_per_condition": 16,
+    "degradation_rates": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  },
+  "onset": {
+    "onset_seconds": [2.0, 5.0, 10.0],
+    "post_seconds": 20.0,
+    "replicates_per_condition": 16,
+    "degradation_rates": [0.2, 0.4, 0.6, 0.8, 1.0],
+    "recovery_window_seconds": 1.0,
+    "recovery_vx_error_mps": 0.1,
+    "recovery_yaw_rate_radps": 0.2
+  }
+}

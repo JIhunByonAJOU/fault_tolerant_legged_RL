@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "name": "p5_tf43000_vs_jt_students_v1",
+  "description": "Same-protocol P5 comparison of the canonical Failure Teacher and deployed Joint-Training Students.",
+  "models": [
+    {
+      "id": "tf43000",
+      "role": "canonical_failure_teacher",
+      "policy_mode": "teacher",
+      "task": "a1_official_wim_teacher243_failure_fullrange",
+      "checkpoint": "logs/official_wim_teacher243_failure_fullrange_fromscratch/Aug13_03-44-07_seed1-50000iter-fromscratch-fullrange/model_43000.pt",
+      "checkpoint_sha256": "944a697abb30dfc8023e15544d0909acfcdaa4d8c4c0f930656847398f150635",
+      "required": true
+    },
+    {
+      "id": "jt71500",
+      "role": "selected_deployment_student",
+      "policy_mode": "student",
+      "task": "a1_official_wim_jt_failure_fullrange_onset",
+      "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_71500.pt",
+      "checkpoint_sha256": "1887f9b5abeea72ca87e0c92172687462714793f91c9011490a170cffe42e1f0",
+      "required": true
+    },
+    {
+      "id": "jt45000",
+      "role": "early_student_diagnostic",
+      "policy_mode": "student",
+      "task": "a1_official_wim_jt_failure_fullrange_onset",
+      "checkpoint": "logs/jt_wim243_failure_fullrange_onset/Aug14_00-37-37_/model_45000.pt",
+      "checkpoint_sha256": "1099fb35304cce451363b7d804eed87b5436182275f02c7ef5741ec26e5b4952",
+      "required": false
+    }
+  ],
+  "seeds": [1, 2, 3],
+  "command_x_mps": 0.5,
+  "fixed": {
+    "steps": 1000,
+    "replicates_per_condition": 16,
+    "degradation_rates": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  },
+  "onset": {
+    "onset_seconds": [2.0, 5.0, 10.0],
+    "post_seconds": 20.0,
+    "replicates_per_condition": 16,
+    "degradation_rates": [0.2, 0.4, 0.6, 0.8, 1.0],
+    "recovery_window_seconds": 1.0,
+    "recovery_vx_error_mps": 0.1,
+    "recovery_yaw_rate_radps": 0.2
+  }
+}

@@ -16,7 +16,10 @@ from legged_gym.utils.helpers import class_to_dict
 
 from .teacher_actor_critic import TeacherActorCritic
 from .official_wim_teacher_actor_critic import OfficialWimTeacherActorCritic
-from .joint_teacher_student_actor_critic import JointTeacherStudentActorCritic
+from .joint_teacher_student_actor_critic import (
+    JointTeacherStudentActorCritic,
+    FrozenTeacherStudentActorCritic,
+)
 from .teacher_ppo import TeacherPPO
 
 
@@ -36,6 +39,7 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
             "TeacherActorCritic": TeacherActorCritic,
             "OfficialWimTeacherActorCritic": OfficialWimTeacherActorCritic,
             "JointTeacherStudentActorCritic": JointTeacherStudentActorCritic,
+            "FrozenTeacherStudentActorCritic": FrozenTeacherStudentActorCritic,
         }
         policy_class_name = self.cfg["policy_class_name"]
         if policy_class_name not in policy_classes:
@@ -84,13 +88,34 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
     def _resolved_config(self, train_cfg):
         """Return the provenance-explicit baseline/deviation contract."""
         runner_cfg = getattr(self, "cfg", train_cfg["runner"])
-        if runner_cfg.get("policy_class_name") == "JointTeacherStudentActorCritic":
+        policy_class_name = runner_cfg.get("policy_class_name")
+        if policy_class_name in (
+            "JointTeacherStudentActorCritic",
+            "FrozenTeacherStudentActorCritic",
+        ):
             from legged_gym.envs.a1_official_wim_teacher.joint_schema import (
                 schema_manifest as joint_schema_manifest,
             )
+            frozen_teacher = policy_class_name == "FrozenTeacherStudentActorCritic"
+            beta_floor = float(self.policy_cfg.get("adaptation_beta_floor", 0.0))
+            if frozen_teacher:
+                schedule_description = (
+                    "teacher-only {} iterations, then alpha 0->1 over {} iterations; "
+                    "beta=1; Teacher encoder, actor, and action std frozen"
+                ).format(
+                    self.policy_cfg["teacher_only_iterations"],
+                    self.policy_cfg["student_transition_iterations"],
+                )
+            else:
+                schedule_description = (
+                    "linear alpha 0->1 and beta 1->{:.3g} over configured JT iterations"
+                ).format(beta_floor)
             return {
                 "task": getattr(self.env.cfg.env, "task_name", "unknown"),
-                "mode": "joint_teacher_student_random_onset",
+                "mode": (
+                    "frozen_teacher_student_random_onset"
+                    if frozen_teacher else "joint_teacher_student_random_onset"
+                ),
                 "experiment_name": runner_cfg["experiment_name"],
                 "attribution": {
                     "teacher": "selected [TF] warm-full checkpoint",
@@ -98,7 +123,7 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
                     "fusion": "Saving alpha*z_student + (1-alpha)*z_teacher",
                     "implementation_choices": [
                         "history uses first 48 WIM observation values",
-                        "linear alpha 0->1 and beta 1->0 over configured JT iterations",
+                        schedule_description,
                         "random degradation onset uniformly sampled from 2 to 10 seconds",
                     ],
                 },

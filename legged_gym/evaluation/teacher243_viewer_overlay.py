@@ -50,6 +50,30 @@ def rigid_body_name_for_dof(dof_name, body_names):
     raise ValueError("cannot map DOF {!r} to one rigid body".format(dof_name))
 
 
+def remap_draw_excluding_previous(draw, previous_joint, num_joints=12):
+    """Map a draw in [0, N-2] to a joint other than ``previous_joint``."""
+    draw = int(draw)
+    previous_joint = int(previous_joint)
+    num_joints = int(num_joints)
+    if num_joints < 2:
+        raise ValueError("num_joints must be at least two")
+    if not 0 <= previous_joint < num_joints:
+        raise ValueError("previous_joint is out of range")
+    if not 0 <= draw < num_joints - 1:
+        raise ValueError("draw must be in [0, num_joints - 2]")
+    return draw + int(draw >= previous_joint)
+
+
+def translated_follow_camera_pose(camera_position, previous_target, current_target):
+    """Translate an interactively positioned camera with its moving target."""
+    camera = np.asarray(camera_position, dtype=np.float64)
+    previous = np.asarray(previous_target, dtype=np.float64)
+    current = np.asarray(current_target, dtype=np.float64)
+    if camera.shape != (3,) or previous.shape != (3,) or current.shape != (3,):
+        raise ValueError("camera position and targets must contain xyz")
+    return camera + (current - previous), current.copy()
+
+
 def advance_reference(target_xy, target_yaw, commands, dt, body_heading=None):
     """Integrate body-frame velocity commands into world coordinates.
 

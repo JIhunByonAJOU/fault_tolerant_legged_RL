@@ -3,6 +3,7 @@
 import argparse
 import math
 import multiprocessing as mp
+import os
 import queue
 import sys
 from collections import deque
@@ -24,14 +25,17 @@ from legged_gym.evaluation.teacher243_viewer_overlay import (
     rigid_body_name_for_dof,
     severity_style,
     terrain_heights_at_xy,
+    translated_follow_camera_pose,
 )
 from legged_gym.evaluation.teacher243_viewer_panel import run_panel
+from legged_gym.evaluation.robot_orbit_camera import RobotOrbitCamera
 from legged_gym.utils import get_args, task_registry
 
 
 SUPPORTED_TASKS = (
     "a1_official_wim_teacher243_failure",
     "a1_official_wim_teacher243_failure_fullrange",
+    "a1_official_wim_jt_failure_fullrange_onset",
 )
 
 
@@ -43,6 +47,9 @@ def parse_args():
     own.add_argument("--degradation-mode", choices=("sampled", "fixed"), default="sampled")
     own.add_argument("--fixed-joint-index", type=int, default=0)
     own.add_argument("--fixed-degradation-rate", type=float, default=0.8)
+    own.add_argument(
+        "--policy-mode", choices=("auto", "teacher", "student"), default="auto"
+    )
     known, remaining = own.parse_known_args()
     sys.argv = [sys.argv[0]] + remaining
     return known, get_args()
@@ -149,16 +156,20 @@ def _drain_controls(control_queue, controls):
     clear = False
     focus = False
     quit_requested = False
+    restart_num_envs = None
     try:
         while True:
             update = control_queue.get_nowait()
             clear = clear or bool(update.pop("clear", False))
             focus = focus or bool(update.pop("focus", False))
             quit_requested = quit_requested or bool(update.pop("quit", False))
+            requested_count = update.pop("restart_num_envs", None)
+            if requested_count is not None:
+                restart_num_envs = int(requested_count)
             controls.update(update)
     except queue.Empty:
         pass
-    return clear, focus, quit_requested
+    return clear, focus, quit_requested, restart_num_envs
 
 
 def _initial_reference(env):
@@ -204,16 +215,96 @@ def _focus_robot(env, env_index):
         [x - 2.2, y - 3.0, z + 1.55],
         [x, y, z + 0.15],
     )
+    return np.asarray([x, y, z + 0.15], dtype=np.float64)
+
+
+def _follow_robot_camera(env, env_index, previous_target):
+    """Follow one robot while preserving mouse-controlled orbit position."""
+    index = max(0, min(int(env_index), env.num_envs - 1))
+    x, y, z = env.root_states[index, :3].detach().cpu().tolist()
+    current_target = np.asarray([x, y, z + 0.15], dtype=np.float64)
+    camera_pose = env.gym.get_viewer_camera_transform(env.viewer, env.envs[index])
+    camera_position = np.asarray(
+        [camera_pose.p.x, camera_pose.p.y, camera_pose.p.z], dtype=np.float64
+    )
+    position, target = translated_follow_camera_pose(
+        camera_position, previous_target, current_target
+    )
+    env.set_camera(position.tolist(), target.tolist())
+    return target
+
+
+def _argv_with_num_envs(arguments, num_envs):
+    """Return viewer arguments with exactly one updated --num_envs option."""
+    count = int(num_envs)
+    if not 1 <= count <= 8:
+        raise ValueError("num_envs must be between 1 and 8")
+    updated = []
+    skip_next = False
+    for argument in arguments:
+        if skip_next:
+            skip_next = False
+            continue
+        if argument == "--num_envs":
+            skip_next = True
+            continue
+        if argument.startswith("--num_envs="):
+            continue
+        updated.append(argument)
+    updated.extend(("--num_envs", str(count)))
+    return updated
+
+
+def _sample_viewer_failures(env, env_ids, previous_joints=None):
+    """Sample visible failures, excluding each robot's previous joint."""
+    if len(env_ids) == 0:
+        return
+    levels = torch.as_tensor(
+        env.cfg.domain_rand.actuator_degradation_levels,
+        dtype=env.motor_strength_gt.dtype,
+        device=env.device,
+    )
+    levels = levels[levels > 0.0]
+    if levels.numel() == 0:
+        raise ValueError("sampled viewer mode requires a positive degradation level")
+    rates = levels[torch.randint(levels.numel(), (len(env_ids),), device=env.device)]
+    draws = torch.randint(env.num_actions, (len(env_ids),), device=env.device)
+    if previous_joints is not None:
+        previous = previous_joints.to(device=env.device, dtype=torch.long)
+        valid = (previous >= 0) & (previous < env.num_actions)
+        alternate_draws = torch.randint(
+            env.num_actions - 1, (len(env_ids),), device=env.device
+        )
+        alternate_draws += (alternate_draws >= previous).long()
+        draws = torch.where(valid, alternate_draws, draws)
+
+    if hasattr(env, "target_joint_index"):
+        # The JT environment remains intact until its configured random onset;
+        # only the failure assigned to that episode is replaced here.
+        env.target_joint_index[env_ids] = draws
+        env.target_degradation[env_ids] = rates
+    else:
+        for env_id, joint, rate in zip(env_ids.tolist(), draws.tolist(), rates.tolist()):
+            one_id = torch.as_tensor([env_id], dtype=torch.long, device=env.device)
+            env.set_actuator_degradation(one_id, joint, rate)
+    return draws
+
+
+def _set_fixed_viewer_failure(env, env_ids, joint_index, degradation_rate):
+    env.set_actuator_degradation(env_ids, joint_index, degradation_rate)
+    if hasattr(env, "failure_applied"):
+        env.failure_applied[env_ids] = True
 
 
 def main():
+    original_arguments = list(sys.argv[1:])
     own, args = parse_args()
     if args.headless:
         raise ValueError("viewer requires graphics; omit --headless")
     if args.task not in SUPPORTED_TASKS:
         raise ValueError("viewer requires one of {}".format(SUPPORTED_TASKS))
     if args.num_envs is None:
-        args.num_envs = 4
+        args.num_envs = 1
     if not 1 <= args.num_envs <= 8:
         raise ValueError("--num_envs must be between 1 and 8 for readable visualization")
     if own.trail_seconds <= 0.0 or own.trail_sample_dt <= 0.0:
@@ -245,6 +336,11 @@ def main():
     runner.load(str(checkpoint), load_optimizer=False)
     model = runner.alg.actor_critic
     model.eval()
+    policy_mode = own.policy_mode
+    if policy_mode == "auto":
+        policy_mode = "student" if hasattr(model, "act_inference_student") else "teacher"
+    if policy_mode == "student" and not hasattr(model, "act_inference_student"):
+        raise ValueError("student policy mode requires a joint teacher-student checkpoint/task")
 
     context = mp.get_context("spawn")
     control_queue = context.Queue(maxsize=16)
@@ -267,6 +363,12 @@ def main():
     max_points = max(2, int(math.ceil(own.trail_seconds / own.trail_sample_dt)))
     env_ids = torch.arange(env.num_envs, device=env.device)
     obs, privileged = env.reset()
+    assigned_joints = None
+    if own.degradation_mode == "sampled":
+        assigned_joints = _sample_viewer_failures(env, env_ids)
+        env.compute_observations()
+        obs = env.get_observations()
+        privileged = env.get_privileged_observations()
     # Bind both trails to the post-reset pose actually shown in the viewer.
     target_xy, target_yaw = _initial_reference(env)
     target_z = _target_reference_z(env, target_xy)
@@ -276,24 +378,37 @@ def main():
     for index in range(env.num_envs):
         targets[index].append((target_xy[index, 0], target_xy[index, 1], target_z[index]))
         actuals[index].append(tuple(float(value) for value in actual_xyz[index]))
-    _frame_all_robots(env)
+    camera = RobotOrbitCamera(env, gymapi)
+    camera.selected = int(controls["selected_env"])
+    env.render = camera.render
     sample_accumulator = 0.0
     last_snapshot = None
     last_highlight = None
+    restart_num_envs = None
     try:
         while panel.is_alive():
-            clear, focus, quit_requested = _drain_controls(control_queue, controls)
+            clear, focus, quit_requested, requested_count = _drain_controls(
+                control_queue, controls
+            )
             if quit_requested:
                 break
+            if requested_count is not None:
+                if not 1 <= requested_count <= 8:
+                    _send_status(status_queue, env, "Robot count must be between 1 and 8")
+                    continue
+                if requested_count != env.num_envs:
+                    restart_num_envs = requested_count
+                    break
             if focus:
-                _focus_robot(env, controls["selected_env"])
+                camera.selected = int(controls["selected_env"])
             if clear:
                 target_xy, target_yaw = _initial_reference(env)
                 for collection in targets + actuals:
                     collection.clear()
 
             if own.degradation_mode == "fixed":
-                env.set_actuator_degradation(
+                _set_fixed_viewer_failure(
+                    env,
                     env_ids, own.fixed_joint_index, own.fixed_degradation_rate
                 )
                 env.compute_observations()
@@ -322,7 +437,15 @@ def main():
             # while inference_mode would turn freshly assigned buffers into
             # immutable inference tensors across viewer iterations.
             with torch.no_grad():
-                actions = model.act_inference(obs, privileged)
+                if policy_mode == "student":
+                    actions = model.act_inference_student(obs)
+                elif hasattr(model, "encode_privileged") and hasattr(
+                    model, "act_inference_with_latent"
+                ):
+                    teacher_latent = model.encode_privileged(privileged)
+                    actions = model.act_inference_with_latent(obs, teacher_latent)
+                else:
+                    actions = model.act_inference(obs, privileged)
                 obs, privileged, _, dones, _ = env.step(actions)
 
             done_indices = torch.nonzero(dones > 0, as_tuple=False).flatten().cpu().tolist()
@@ -331,10 +454,22 @@ def main():
                     reset_ids = torch.as_tensor(
                         done_indices, dtype=torch.long, device=env.device
                     )
-                    env.set_actuator_degradation(
+                    _set_fixed_viewer_failure(
+                        env,
                         reset_ids,
                         own.fixed_joint_index,
                         own.fixed_degradation_rate,
+                    )
+                    env.compute_observations()
+                    obs = env.get_observations()
+                    privileged = env.get_privileged_observations()
+                else:
+                    reset_ids = torch.as_tensor(
+                        done_indices, dtype=torch.long, device=env.device
+                    )
+                    previous = assigned_joints[reset_ids].clone()
+                    assigned_joints[reset_ids] = _sample_viewer_failures(
+                        env, reset_ids, previous
                     )
                     env.compute_observations()
                     obs = env.get_observations()
@@ -371,8 +506,8 @@ def main():
                 _send_status(
                     status_queue,
                     env,
-                    "{} robots | {} degradation".format(
-                        env.num_envs, own.degradation_mode
+                    "{} robot(s) | {} degradation | {} policy".format(
+                        env.num_envs, own.degradation_mode, policy_mode
                     ),
                 )
                 last_snapshot = snapshot
@@ -391,6 +526,18 @@ def main():
             env.gym.destroy_viewer(env.viewer)
             env.viewer = None
         env.gym.destroy_sim(env.sim)
+    if restart_num_envs is not None:
+        updated_arguments = _argv_with_num_envs(original_arguments, restart_num_envs)
+        os.execv(
+            sys.executable,
+            [
+                sys.executable,
+                "-u",
+                "-m",
+                "legged_gym.scripts.view_teacher243_failure",
+            ]
+            + updated_arguments,
+        )
 
 
 if __name__ == "__main__":

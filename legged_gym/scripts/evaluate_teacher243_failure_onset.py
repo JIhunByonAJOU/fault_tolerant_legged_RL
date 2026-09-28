@@ -6,6 +6,7 @@ import json
 import math
 import os
 import sys
+from collections import deque
 from pathlib import Path
 
 import isaacgym  # noqa: F401; Isaac Gym must precede torch
@@ -32,10 +33,14 @@ def parse_args():
     own.add_argument("--replicates-per-condition", type=int, default=16)
     own.add_argument("--command-x", type=float, default=0.5)
     own.add_argument("--policy-mode", choices=("teacher", "student"), default="teacher")
+    own.add_argument("--history-mode", choices=("actual", "zero", "shuffled", "delayed"), default="actual")
+    own.add_argument("--history-delay-seconds", type=float, default=0.0)
     own.add_argument("--recovery-window-seconds", type=float, default=1.0)
     own.add_argument("--recovery-vx-error", type=float, default=0.1)
     own.add_argument("--recovery-yaw-rate", type=float, default=0.2)
     own.add_argument("--output", required=True)
+    own.add_argument("--trace-output", help="Optional per-step JSONL for selected robot IDs")
+    own.add_argument("--trace-env-ids", type=int, nargs="+", default=())
     known, remaining = own.parse_known_args()
     sys.argv = [sys.argv[0]] + remaining
     return known, get_args()
@@ -49,6 +54,26 @@ def condition_for_env(env_id, rates, onsets):
     return joint_index, rates[rate_index], onsets[onset_index]
 
 
+def intervene_history(observations, mode, shuffle_offset=1):
+    """Keep the current 235D observation intact; intervene on 50x48 history only."""
+    if mode == "actual":
+        return observations
+    used = observations.clone()
+    if mode == "zero":
+        used[:, 235:] = 0.0
+    elif mode == "shuffled":
+        used[:, 235:] = torch.roll(observations[:, 235:], shifts=shuffle_offset, dims=0)
+    else:
+        raise ValueError("unsupported history mode: {}".format(mode))
+    return used
+
+
+def delayed_history_at_step(buffer, history, lag_steps):
+    """Return this robot's history from exactly lag_steps decisions earlier."""
+    buffer.append(history.clone())
+    return buffer[0] if len(buffer) > lag_steps else history
+
+
 def sha256_file(path):
     digest = hashlib.sha256()
     with path.open("rb") as stream:
@@ -57,13 +82,13 @@ def sha256_file(path):
     return digest.hexdigest()
 
 
-def atomic_jsonl(path, metadata, rows):
+def atomic_jsonl(path, metadata, rows, row_record_type="robot"):
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
     with temporary.open("w", encoding="utf-8") as stream:
         stream.write(json.dumps({"record_type": "metadata", **metadata}, sort_keys=True) + "\n")
         for row in rows:
-            stream.write(json.dumps({"record_type": "robot", **row}, sort_keys=True) + "\n")
+            stream.write(json.dumps({"record_type": row_record_type, **row}, sort_keys=True) + "\n")
         stream.flush()
         os.fsync(stream.fileno())
     os.replace(str(temporary), str(path))
@@ -76,10 +101,17 @@ def main():
         "a1_official_wim_jt_failure_fullrange_onset",
     ) or not args.headless:
         raise ValueError("onset evaluation requires fullrange failure task with --headless")
+    if own.policy_mode != "student" and own.history_mode != "actual":
+        raise ValueError("history intervention requires --policy-mode student")
+    if own.history_mode == "delayed":
+        if own.history_delay_seconds <= 0.0:
+            raise ValueError("delayed history requires a positive --history-delay-seconds")
+    elif own.history_delay_seconds != 0.0:
+        raise ValueError("--history-delay-seconds requires --history-mode delayed")
     rates = tuple(float(value) for value in own.rates)
     onsets = tuple(float(value) for value in own.onset_seconds)
-    if not rates or any(value <= 0.0 or value > 1.0 for value in rates):
-        raise ValueError("rates must be unique values in (0, 1]")
+    if not rates or any(value < 0.0 or value > 1.0 for value in rates):
+        raise ValueError("rates must be unique values in [0, 1]")
     if len(set(rates)) != len(rates):
         raise ValueError("rates must be unique")
     if not onsets or any(value <= 0.0 for value in onsets):
@@ -94,6 +126,11 @@ def main():
 
     conditions = NUM_JOINTS * len(rates) * len(onsets)
     num_envs = conditions * own.replicates_per_condition
+    trace_ids = tuple(own.trace_env_ids)
+    if bool(own.trace_output) != bool(trace_ids):
+        raise ValueError("--trace-output and --trace-env-ids must be used together")
+    if len(set(trace_ids)) != len(trace_ids) or any(i < 0 or i >= num_envs for i in trace_ids):
+        raise ValueError("trace environment IDs must be unique and in range")
     env_cfg, train_cfg = task_registry.get_cfgs(args.task)
     env_cfg.env.num_envs = num_envs
     env_cfg.env.episode_length_s = max(onsets) + own.post_seconds + 1.0
@@ -115,6 +152,10 @@ def main():
     rigid_body_states = _acquire_rigid_body_states(env, gymtorch, torch)
 
     dt = float(env.dt)
+    delay_steps = int(round(own.history_delay_seconds / dt))
+    if own.history_mode == "delayed" and delay_steps < 1:
+        raise ValueError("history delay must be at least one simulation step")
+    history_buffer = deque(maxlen=delay_steps + 1) if delay_steps else None
     post_steps = int(round(own.post_seconds / dt))
     recovery_window_steps = max(1, int(round(own.recovery_window_seconds / dt)))
     env_ids = torch.arange(num_envs, device=env.device)
@@ -151,6 +192,7 @@ def main():
     stable_run = torch.zeros(num_envs, dtype=torch.long, device=env.device)
     recovery_step = torch.full((num_envs,), -1, dtype=torch.long, device=env.device)
     max_step = int(end_step_by_env.max().item())
+    trace_rows = []
 
     obs = privileged = None
     if own.policy_mode == "student":
@@ -173,7 +215,25 @@ def main():
                 obs = env.get_observations()
                 privileged = env.get_privileged_observations()
             if own.policy_mode == "student":
-                actions = model.act_inference_student(obs)
+                delayed_history = (
+                    delayed_history_at_step(history_buffer, obs[:, 235:], delay_steps)
+                    if history_buffer is not None else None
+                )
+                # Six joints apart preserves severity and onset assignment
+                # while exchanging each robot's history with another joint.
+                shuffle_offset = 6 * len(rates) * len(onsets)
+                if own.history_mode == "delayed":
+                    used_obs = obs.clone()
+                    used_obs[:, 235:] = delayed_history
+                else:
+                    used_obs = intervene_history(obs, own.history_mode, shuffle_offset)
+                if own.history_mode != "actual":
+                    # Preserve the same intact pre-failure rollout in every
+                    # condition. Only the assigned post-onset history changes.
+                    due_mask = (step >= onset_step_by_env).unsqueeze(1)
+                    used_obs = torch.where(due_mask, used_obs, obs)
+                student_latent = model.encode_history(used_obs)
+                actions = model.act_inference_with_latent(used_obs, student_latent)
             elif hasattr(model, "encode_privileged") and hasattr(
                 model, "act_inference_with_latent"
             ):
@@ -206,6 +266,23 @@ def main():
             stable_run = torch.where(stable_now, stable_run + 1, torch.zeros_like(stable_run))
             newly_recovered = (recovery_step < 0) & (stable_run >= recovery_window_steps)
             recovery_step[newly_recovered] = step + 1 - recovery_window_steps
+
+            for i in trace_ids:
+                if not bool(active[i]) or step >= int(end_step_by_env[i]):
+                    continue
+                trace_rows.append({
+                    "step": step,
+                    "time_seconds": step * dt,
+                    "env_id": i,
+                    "post_failure": bool(post[i]),
+                    "vx_mps": float(env.base_lin_vel[i, 0]),
+                    "vx_error_mps": float(vx_error[i]),
+                    "yaw_rate_radps": float(env.base_ang_vel[i, 2]),
+                    "stable_run_steps": int(stable_run[i]),
+                    "action": actions[i].detach().cpu().tolist(),
+                    **({"student_latent8": student_latent[i].detach().cpu().tolist()}
+                       if own.policy_mode == "student" else {}),
+                })
 
             next_obs, next_privileged, rewards, dones, _ = env.step(actions)
             if own.policy_mode == "student":
@@ -278,6 +355,11 @@ def main():
         "post_seconds": own.post_seconds,
         "replicates_per_condition": own.replicates_per_condition,
         "policy_mode": own.policy_mode,
+        "history_mode": own.history_mode,
+        "history_delay_seconds": own.history_delay_seconds,
+        "history_delay_steps": delay_steps,
+        "history_intervention_after_onset_only": True,
+        "shuffled_history_offset_envs": 6 * len(rates) * len(onsets),
         "recovery_definition": {
             "window_seconds": own.recovery_window_seconds,
             "max_abs_vx_error_mps": own.recovery_vx_error,
@@ -285,6 +367,29 @@ def main():
         },
     }
     atomic_jsonl(output, metadata, rows)
+    if own.trace_output:
+        trace_specs = [
+            {"env_id": i, "joint_index": specs[i][0], "joint_name": env.dof_names[specs[i][0]],
+             "degradation_rate": specs[i][1], "onset_seconds": specs[i][2],
+             "replicate": i // conditions}
+            for i in trace_ids
+        ]
+        atomic_jsonl(Path(own.trace_output).resolve(), {
+            "schema_version": 1,
+            "evaluation": "teacher243_random_onset_step_trace_v1",
+            "checkpoint_sha256": metadata["checkpoint_sha256"],
+            "task": args.task,
+            "policy_mode": own.policy_mode,
+            "history_mode": own.history_mode,
+            "history_delay_seconds": own.history_delay_seconds,
+            "history_delay_steps": delay_steps,
+            "history_intervention_after_onset_only": True,
+            "shuffled_history_offset_envs": 6 * len(rates) * len(onsets),
+            "seed": int(args.seed),
+            "dt": dt,
+            "command_x": own.command_x,
+            "trace_specs": trace_specs,
+        }, trace_rows, row_record_type="step")
     print(json.dumps({**metadata, "output": str(output), "robot_rows": len(rows)}, sort_keys=True))
     env.gym.destroy_sim(env.sim)
 

@@ -18,6 +18,10 @@ from .a1_official_wim_joint import A1OfficialWimJointFailureOnset
 from .a1_official_wim_joint_config import (
     A1OfficialWimJointFailureOnsetCfg,
     A1OfficialWimJointFailureOnsetCfgPPO,
+    A1OfficialWimJointBetaFloorCfg,
+    A1OfficialWimJointBetaFloorCfgPPO,
+    A1OfficialWimFrozenTeacherStudentCfg,
+    A1OfficialWimFrozenTeacherStudentCfgPPO,
 )
 
 __all__ = [
@@ -34,4 +38,8 @@ __all__ = [
     "A1OfficialWimJointFailureOnset",
     "A1OfficialWimJointFailureOnsetCfg",
     "A1OfficialWimJointFailureOnsetCfgPPO",
+    "A1OfficialWimJointBetaFloorCfg",
+    "A1OfficialWimJointBetaFloorCfgPPO",
+    "A1OfficialWimFrozenTeacherStudentCfg",
+    "A1OfficialWimFrozenTeacherStudentCfgPPO",
 ]
