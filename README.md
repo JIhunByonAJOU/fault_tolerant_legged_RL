@@ -54,10 +54,10 @@ Current observation 235D ──────────────────�
 $$
 z_t=(1-\alpha)z_t^T+\alpha z_t^S,
 \qquad
-\mathcal{L}=\mathcal{L}_{\mathrm{PPO}}+\beta\lVert z_t^S-\operatorname{sg}(z_t^T)\rVert_2.
+\mathcal{L}=\mathcal{L}_{\mathrm{PPO}}+\beta\lVert z_t^S-\bar{z}_t^T\rVert_2.
 $$
 
-10,000 iteration 동안 $\alpha:0\rightarrow1$, $\beta:1\rightarrow0$으로 변화합니다. 최종 Student는 privileged failure state 없이 현재 관측과 history만으로 행동합니다.
+여기서 $\bar{z}_t^T$는 gradient를 차단한 Teacher latent입니다. 10,000 iteration 동안 $\alpha:0\rightarrow1$, $\beta:1\rightarrow0$으로 변화합니다. 최종 Student는 privileged failure state 없이 현재 관측과 history만으로 행동합니다.
 
 ## 검증된 JT71500 결과
 
