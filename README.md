@@ -6,7 +6,7 @@ Isaac Gym에서 Unitree A1의 **단일 관절 모터 출력이 갑자기 저하�
   <img src="docs/assets/jt71500_fault_adaptation.gif" width="840" alt="JT71500 student policy walking with a degraded joint in Isaac Gym">
 </p>
 
-<p align="center"><em>JT71500 Student-only policy in Isaac Gym. 색상으로 표시된 관절이 출력 저하 대상입니다. 이 영상은 정성적 시연이며, 성능 수치는 아래의 전체 조건 평가에서 산출했습니다.</em></p>
+<p align="center"><em>무작위 시점에 왼쪽 뒷다리 관절의 모터 토크가 80% 저하되어도, JT71500 Student는 넘어지지 않고 보행을 유지합니다.</em></p>
 
 ## 연구 목적
 
