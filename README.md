@@ -3,10 +3,10 @@
 Isaac Gym에서 Unitree A1의 **단일 관절 모터 출력이 갑자기 저하되어도 계속 보행하는 정책**을 학습하고 평가하는 연구 프로젝트입니다. 고장 정보를 직접 사용하는 privileged Teacher와, 실제 배포 시 사용할 수 있도록 관측 history만 사용하는 Student를 공동 학습합니다.
 
 <p align="center">
-  <img src="docs/assets/jt71500_fault_adaptation.gif" width="840" alt="JT71500 student policy walking with a degraded joint in Isaac Gym">
+  <img src="docs/assets/base_vs_jt71500_rl_thigh_d08.gif" width="1000" alt="Base policy and JT71500 Student under the same RL thigh joint 80 percent torque-loss condition in Isaac Gym">
 </p>
 
-<p align="center"><em>무작위 시점에 왼쪽 뒷다리 관절의 모터 토크가 80% 저하되어도, JT71500 Student는 넘어지지 않고 보행을 유지합니다.</em></p>
+<p align="center"><em>동일한 RL thigh 관절의 80% 토크 저하 조건에서, 고장 미학습 Base 정책은 자세를 잃고 넘어지지만 JT71500 Student는 보행을 유지합니다. 왼쪽은 대표 실패 rollout이며 전체 성능은 아래 정량 평가를 따릅니다.</em></p>
 
 ## 연구 목적
 
