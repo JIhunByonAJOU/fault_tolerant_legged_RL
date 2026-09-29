@@ -62,6 +62,7 @@ class TeacherPPO(PPO):
         max_abs_log_ratio = 0.0
         mean_gradient_norm = 0.0
         mean_adaptation_loss = 0.0
+        mean_student_action_loss = 0.0
         completed_updates = 0
         early_stopped = False
         nonfinite_update_skipped = False
@@ -164,6 +165,13 @@ class TeacherPPO(PPO):
                     obs_batch, privileged_obs_batch
                 )
                 loss = loss + self.actor_critic.adaptation_beta * adaptation_loss
+            student_action_loss = None
+            action_beta = float(getattr(self.actor_critic, "student_action_beta", 0.0))
+            if action_beta > 0.0:
+                student_action_loss = self.actor_critic.student_action_loss(
+                    obs_batch, privileged_obs_batch
+                )
+                loss = loss + action_beta * student_action_loss
 
             self.optimizer.zero_grad()
             if not torch.isfinite(loss):
@@ -186,6 +194,8 @@ class TeacherPPO(PPO):
             mean_gradient_norm += gradient_norm.item()
             if adaptation_loss is not None:
                 mean_adaptation_loss += adaptation_loss.item()
+            if student_action_loss is not None:
+                mean_student_action_loss += student_action_loss.item()
             completed_updates += 1
 
         self.storage.clear()
@@ -204,6 +214,8 @@ class TeacherPPO(PPO):
             "max_policy_kl": None,
             "nonfinite_update_skipped": float(nonfinite_update_skipped),
             "adaptation_loss": mean_adaptation_loss / divisor,
+            "student_action_loss": mean_student_action_loss / divisor,
+            "student_action_beta": float(getattr(self.actor_critic, "student_action_beta", 0.0)),
             "adaptation_alpha": float(
                 getattr(self.actor_critic, "adaptation_alpha", 0.0)
             ),

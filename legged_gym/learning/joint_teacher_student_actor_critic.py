@@ -2,6 +2,7 @@
 
 import torch
 import torch.nn as nn
+from torch.nn.utils.stateless import functional_call
 from torch.distributions import Normal
 
 from legged_gym.envs.a1_official_wim_teacher.joint_schema import (
@@ -19,20 +20,22 @@ from .official_wim_teacher_actor_critic import _mlp
 class StudentHistoryEncoder(nn.Module):
     """RMA-lineage 50-frame 1-D CNN, projected to latent8."""
 
-    def __init__(self):
+    def __init__(self, embedding_dim=32):
         super().__init__()
+        if embedding_dim not in (32, 64):
+            raise ValueError("student embedding_dim must be 32 or 64")
         self.frame_encoder = nn.Sequential(
-            nn.Linear(HISTORY_FRAME_DIM, 32), nn.ELU()
+            nn.Linear(HISTORY_FRAME_DIM, embedding_dim), nn.ELU()
         )
         self.temporal = nn.Sequential(
-            nn.Conv1d(32, 32, kernel_size=8, stride=4),
+            nn.Conv1d(embedding_dim, embedding_dim, kernel_size=8, stride=4),
             nn.ELU(),
-            nn.Conv1d(32, 32, kernel_size=5, stride=1),
+            nn.Conv1d(embedding_dim, embedding_dim, kernel_size=5, stride=1),
             nn.ELU(),
-            nn.Conv1d(32, 32, kernel_size=5, stride=1),
+            nn.Conv1d(embedding_dim, embedding_dim, kernel_size=5, stride=1),
             nn.ELU(),
         )
-        self.projection = nn.Linear(32 * 3, LATENT_DIM)
+        self.projection = nn.Linear(embedding_dim * 3, LATENT_DIM)
 
     def forward(self, history):
         if history.shape[-2:] != (HISTORY_LENGTH, HISTORY_FRAME_DIM):
@@ -61,6 +64,7 @@ class JointTeacherStudentActorCritic(nn.Module):
         student_latent_dim=8,
         joint_schedule_iterations=10000,
         adaptation_beta_floor=0.0,
+        student_action_beta=0.0,
         **kwargs
     ):
         super().__init__()
@@ -73,7 +77,7 @@ class JointTeacherStudentActorCritic(nn.Module):
             and student_latent_dim == LATENT_DIM
             and history_frame_dim == HISTORY_FRAME_DIM
             and history_length == HISTORY_LENGTH
-            and student_embedding_dim == 32
+            and student_embedding_dim in (32, 64)
         )
         if not expected:
             raise ValueError("JT tensor contract mismatch")
@@ -86,13 +90,16 @@ class JointTeacherStudentActorCritic(nn.Module):
             LATENT_DIM,
             activation,
         )
-        self.student_encoder = StudentHistoryEncoder()
+        self.student_encoder = StudentHistoryEncoder(student_embedding_dim)
         self.actor = _mlp(POLICY_INPUT_DIM, actor_hidden_dims, num_actions, activation)
         self.critic = _mlp(POLICY_INPUT_DIM, critic_hidden_dims, 1, activation)
         self.std = nn.Parameter(init_noise_std * torch.ones(num_actions))
         self.distribution = None
         self.joint_schedule_iterations = int(joint_schedule_iterations)
         self.adaptation_beta_floor = float(adaptation_beta_floor)
+        self.student_action_beta = float(student_action_beta)
+        if self.student_action_beta < 0.0:
+            raise ValueError("student_action_beta must be nonnegative")
         if not 0.0 <= self.adaptation_beta_floor < 1.0:
             raise ValueError("adaptation_beta_floor must be in [0, 1)")
         self.schedule_origin_iteration = 0
@@ -144,6 +151,23 @@ class JointTeacherStudentActorCritic(nn.Module):
         target = self.encode_privileged(privileged_observations).detach()
         predicted = self.encode_history(observations)
         return torch.linalg.vector_norm(predicted - target, dim=-1).mean()
+
+    def student_action_loss(self, observations, privileged_observations):
+        """Match teacher-branch action means; update the student encoder only.
+
+        The detached actor parameters provide the action sensitivity to latent
+        changes without letting this auxiliary term collapse the shared actor.
+        """
+        current, _ = self._split(observations)
+        with torch.no_grad():
+            teacher_latent = self.encode_privileged(privileged_observations)
+            teacher_action = self.actor(torch.cat((current, teacher_latent), dim=-1))
+        student_latent = self.encode_history(observations)
+        actor_state = {name: tensor.detach() for name, tensor in self.actor.named_parameters()}
+        student_action = functional_call(
+            self.actor, actor_state, (torch.cat((current, student_latent), dim=-1),)
+        )
+        return (student_action - teacher_action).square().mean()
 
     def _policy_input(self, observations, privileged_observations):
         current, _ = self._split(observations)

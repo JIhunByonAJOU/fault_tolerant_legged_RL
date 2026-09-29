@@ -68,6 +68,27 @@ class JointTeacherStudentTest(unittest.TestCase):
         self.assertGreater(student_grad, 0.0)
         self.assertEqual(teacher_grad, 0.0)
 
+    def test_student_action_auxiliary_updates_only_student_encoder(self):
+        torch.manual_seed(13)
+        model = JointTeacherStudentActorCritic(2635, 45, 12, student_action_beta=10.0)
+        obs = torch.randn(8, JOINT_OBSERVATION_DIM)
+        privileged = torch.randn(8, 45)
+        loss = model.student_action_loss(obs, privileged)
+        self.assertTrue(torch.isfinite(loss))
+        loss.backward()
+        self.assertGreater(
+            sum(p.grad.abs().sum().item() for p in model.student_encoder.parameters() if p.grad is not None),
+            0.0,
+        )
+        self.assertTrue(all(p.grad is None for p in model.teacher_encoder.parameters()))
+        self.assertTrue(all(p.grad is None for p in model.actor.parameters()))
+
+    def test_wider_student_encoder_preserves_actor_contract(self):
+        model = JointTeacherStudentActorCritic(2635, 45, 12, student_embedding_dim=64)
+        obs = torch.randn(3, JOINT_OBSERVATION_DIM)
+        self.assertEqual(tuple(model.encode_history(obs).shape), (3, 8))
+        self.assertEqual(tuple(model.act_inference_student(obs).shape), (3, 12))
+
     def test_beta_floor_ablation_keeps_canonical_schedule_unchanged(self):
         registered_env, registered_train = task_registry.get_cfgs(
             "a1_official_wim_jt_beta_floor_onset"

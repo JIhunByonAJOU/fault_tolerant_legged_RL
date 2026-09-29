@@ -54,6 +54,7 @@ Thumbs.db
 /logs/
 /runs/
 /wandb/
+/*.launch.json
 
 # other
 *.egg-info

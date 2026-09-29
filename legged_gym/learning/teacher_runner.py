@@ -495,6 +495,8 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
                 "nonfinite_update_skipped", 0.0
             ),
             "Adaptation/loss": locs["ppo_metrics"].get("adaptation_loss"),
+            "Adaptation/student_action_loss": locs["ppo_metrics"].get("student_action_loss"),
+            "Adaptation/student_action_beta": locs["ppo_metrics"].get("student_action_beta"),
             "Adaptation/alpha": locs["ppo_metrics"].get("adaptation_alpha"),
             "Adaptation/beta": locs["ppo_metrics"].get("adaptation_beta"),
         }
