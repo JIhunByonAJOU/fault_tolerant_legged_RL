@@ -56,6 +56,11 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
         self.alg = TeacherPPO(actor_critic, device=self.device, **self.alg_cfg)
         self.num_steps_per_env = self.cfg["num_steps_per_env"]
         self.save_interval = self.cfg["save_interval"]
+        self.shared_gpu_step_sleep_ms = float(
+            self.cfg.get("shared_gpu_step_sleep_ms", 0.0)
+        )
+        if self.shared_gpu_step_sleep_ms < 0.0:
+            raise ValueError("shared_gpu_step_sleep_ms must be nonnegative")
         self.alg.init_storage(
             self.env.num_envs,
             self.num_steps_per_env,
@@ -315,6 +320,8 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
                     rewards = rewards.to(self.device)
                     dones = dones.to(self.device)
                     self.alg.process_env_step(rewards, dones, infos)
+                    if self.shared_gpu_step_sleep_ms > 0.0:
+                        time.sleep(self.shared_gpu_step_sleep_ms / 1000.0)
 
                     if self.log_dir is not None:
                         if "episode" in infos:
@@ -493,6 +500,10 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
             "PPO/max_policy_kl": locs["ppo_metrics"].get("max_policy_kl"),
             "PPO/nonfinite_update_skipped": locs["ppo_metrics"].get(
                 "nonfinite_update_skipped", 0.0
+            ),
+            "Pacing/step_sleep_ms": self.shared_gpu_step_sleep_ms,
+            "Pacing/minibatch_sleep_ms": getattr(
+                self.alg, "shared_gpu_minibatch_sleep_ms", 0.0
             ),
             "Adaptation/loss": locs["ppo_metrics"].get("adaptation_loss"),
             "Adaptation/student_action_loss": locs["ppo_metrics"].get("student_action_loss"),

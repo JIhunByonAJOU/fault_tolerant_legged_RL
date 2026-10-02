@@ -177,6 +177,12 @@ class TaskRegistry():
         elif runner_class_name == "JointTeacherStudentRunner":
             from legged_gym.learning.joint_teacher_student_runner import JointTeacherStudentRunner
             runner_class = JointTeacherStudentRunner
+        elif runner_class_name == "ComparisonJointTeacherStudentRunner":
+            from legged_gym.learning.comparison_runners import ComparisonJointTeacherStudentRunner
+            runner_class = ComparisonJointTeacherStudentRunner
+        elif runner_class_name == "SeparateStudentDistillationRunner":
+            from legged_gym.learning.comparison_runners import SeparateStudentDistillationRunner
+            runner_class = SeparateStudentDistillationRunner
         else:
             raise ValueError("Unknown runner class: {}".format(runner_class_name))
         runner = runner_class(

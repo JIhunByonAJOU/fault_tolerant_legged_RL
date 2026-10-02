@@ -14,7 +14,10 @@ from .a1_official_wim_teacher_failure_fromscratch_config import (
     A1OfficialWimTeacher243FailureFullRangeFromScratchCfg,
     A1OfficialWimTeacher243FailureFullRangeFromScratchCfgPPO,
 )
-from .a1_official_wim_joint import A1OfficialWimJointFailureOnset
+from .a1_official_wim_joint import (
+    A1OfficialWimCurrentRepeatOnset,
+    A1OfficialWimJointFailureOnset,
+)
 from .a1_official_wim_joint_config import (
     A1OfficialWimJointFailureOnsetCfg,
     A1OfficialWimJointFailureOnsetCfgPPO,
@@ -22,6 +25,10 @@ from .a1_official_wim_joint_config import (
     A1OfficialWimJointBetaFloorCfgPPO,
     A1OfficialWimFrozenTeacherStudentCfg,
     A1OfficialWimFrozenTeacherStudentCfgPPO,
+    A1OfficialWimCurrentRepeatOnsetCfg,
+    A1OfficialWimCurrentRepeatOnsetCfgPPO,
+    A1OfficialWimSeparateStudentOnsetCfg,
+    A1OfficialWimSeparateStudentOnsetCfgPPO,
 )
 
 __all__ = [
@@ -36,10 +43,15 @@ __all__ = [
     "A1OfficialWimTeacher243FailureFullRangeFromScratchCfg",
     "A1OfficialWimTeacher243FailureFullRangeFromScratchCfgPPO",
     "A1OfficialWimJointFailureOnset",
+    "A1OfficialWimCurrentRepeatOnset",
     "A1OfficialWimJointFailureOnsetCfg",
     "A1OfficialWimJointFailureOnsetCfgPPO",
     "A1OfficialWimJointBetaFloorCfg",
     "A1OfficialWimJointBetaFloorCfgPPO",
     "A1OfficialWimFrozenTeacherStudentCfg",
     "A1OfficialWimFrozenTeacherStudentCfgPPO",
+    "A1OfficialWimCurrentRepeatOnsetCfg",
+    "A1OfficialWimCurrentRepeatOnsetCfgPPO",
+    "A1OfficialWimSeparateStudentOnsetCfg",
+    "A1OfficialWimSeparateStudentOnsetCfgPPO",
 ]

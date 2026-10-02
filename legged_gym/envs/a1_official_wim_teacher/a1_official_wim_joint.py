@@ -162,3 +162,23 @@ class A1OfficialWimJointFailureOnset(A1OfficialWimTeacher243Failure):
             }
         )
         return values
+
+
+class A1OfficialWimCurrentRepeatOnset(A1OfficialWimJointFailureOnset):
+    """Current-repeat control with the canonical JT tensor shape.
+
+    The student still receives a 50x48 tensor, but every slot is the current
+    48-D frame.  Rebuilding it after the parent observation calculation also
+    gives resets exactly the same repeat-current semantics as ordinary steps.
+    """
+
+    def compute_observations(self):
+        super().compute_observations()
+        current = self.obs_buf[:, :CURRENT_OBSERVATION_DIM]
+        current_frame = current[:, :HISTORY_FRAME_DIM]
+        self.observation_history.copy_(
+            current_frame.unsqueeze(1).expand(-1, HISTORY_LENGTH, -1)
+        )
+        self.obs_buf = torch.cat(
+            (current, self.observation_history.flatten(start_dim=1)), dim=-1
+        )

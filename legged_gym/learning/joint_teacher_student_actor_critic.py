@@ -240,3 +240,25 @@ class FrozenTeacherStudentActorCritic(JointTeacherStudentActorCritic):
         progress = (elapsed - self.teacher_only_iterations) / self.student_transition_iterations
         self.adaptation_alpha = min(max(progress, 0.0), 1.0)
         self.adaptation_beta = 1.0
+
+
+class SeparateStudentActorCritic(JointTeacherStudentActorCritic):
+    """Frozen TF policy driven on-policy by the separately trained Student."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.teacher_encoder.requires_grad_(False)
+        self.actor.requires_grad_(False)
+        self.critic.requires_grad_(False)
+        self.std.requires_grad_(False)
+        self.adaptation_alpha = 1.0
+        self.adaptation_beta = 0.0
+
+    def set_training_iteration(self, iteration):
+        del iteration
+        self.adaptation_alpha = 1.0
+        self.adaptation_beta = 0.0
+
+    def fused_latent(self, observations, privileged_observations):
+        del privileged_observations
+        return self.encode_history(observations)

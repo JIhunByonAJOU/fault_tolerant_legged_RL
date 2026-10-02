@@ -163,6 +163,15 @@ def update_cfg_from_args(env_cfg, cfg_train, args):
             cfg_train.algorithm.num_mini_batches = args.num_mini_batches
         if args.save_interval is not None:
             cfg_train.runner.save_interval = args.save_interval
+        step_sleep_ms = getattr(args, "shared_gpu_step_sleep_ms", 0.0)
+        minibatch_sleep_ms = getattr(args, "shared_gpu_minibatch_sleep_ms", 0.0)
+        if step_sleep_ms < 0 or minibatch_sleep_ms < 0:
+            raise ValueError("shared GPU pacing values must be nonnegative")
+        cfg_train.runner.shared_gpu_step_sleep_ms = float(step_sleep_ms)
+        cfg_train.algorithm.shared_gpu_minibatch_sleep_ms = float(minibatch_sleep_ms)
+        cfg_train.runner.comparison_pilot = bool(
+            getattr(args, "comparison_pilot", False)
+        )
         if args.resume:
             cfg_train.runner.resume = args.resume
         if args.experiment_name is not None:
@@ -195,6 +204,9 @@ def get_args():
         {"name": "--num_steps_per_env", "type": int, "help": "Rollout steps collected per environment and PPO iteration."},
         {"name": "--num_mini_batches", "type": int, "help": "Number of PPO minibatches per epoch."},
         {"name": "--save_interval", "type": int, "help": "Checkpoint interval in training iterations."},
+        {"name": "--shared_gpu_step_sleep_ms", "type": float, "default": 0.0, "help": "Optional sleep after each environment control step."},
+        {"name": "--shared_gpu_minibatch_sleep_ms", "type": float, "default": 0.0, "help": "Optional sleep after each optimizer minibatch."},
+        {"name": "--comparison_pilot", "action": "store_true", "default": False, "help": "Opt in to a fresh-TF comparison preflight/pilot of at most 100 iterations."},
         {"name": "--wandb", "action": "store_true", "default": False, "help": "Stream TensorBoard metrics and system statistics to Weights & Biases."},
         {"name": "--wandb_project", "type": str, "default": "saving-the-limping", "help": "Weights & Biases project name."},
         {"name": "--wandb_entity", "type": str, "help": "Optional Weights & Biases entity. Defaults to the logged-in account."},

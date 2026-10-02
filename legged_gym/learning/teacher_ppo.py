@@ -1,3 +1,5 @@
+import time
+
 import torch
 import torch.nn as nn
 
@@ -13,6 +15,7 @@ class TeacherPPO(PPO):
         learning_rate=1.0e-3,
         min_learning_rate=1.0e-5,
         max_learning_rate=1.0e-2,
+        shared_gpu_minibatch_sleep_ms=0.0,
         **kwargs
     ):
         super().__init__(
@@ -23,6 +26,9 @@ class TeacherPPO(PPO):
         self.min_learning_rate = float(min_learning_rate)
         self.max_learning_rate = float(max_learning_rate)
         self.last_update_metrics = {}
+        self.shared_gpu_minibatch_sleep_ms = float(shared_gpu_minibatch_sleep_ms)
+        if self.shared_gpu_minibatch_sleep_ms < 0.0:
+            raise ValueError("shared_gpu_minibatch_sleep_ms must be nonnegative")
 
     def act(self, obs, privileged_obs):
         environment_actions, raw_actions = self.actor_critic.act_with_raw(
@@ -188,6 +194,8 @@ class TeacherPPO(PPO):
                 early_stopped = True
                 break
             self.optimizer.step()
+            if self.shared_gpu_minibatch_sleep_ms > 0.0:
+                time.sleep(self.shared_gpu_minibatch_sleep_ms / 1000.0)
 
             mean_value_loss += value_loss.item()
             mean_surrogate_loss += surrogate_loss.item()
@@ -222,5 +230,6 @@ class TeacherPPO(PPO):
             "adaptation_beta": float(
                 getattr(self.actor_critic, "adaptation_beta", 0.0)
             ),
+            "shared_gpu_minibatch_sleep_ms": self.shared_gpu_minibatch_sleep_ms,
         }
         return mean_value_loss / divisor, mean_surrogate_loss / divisor
