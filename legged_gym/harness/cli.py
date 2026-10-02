@@ -313,6 +313,7 @@ def _build_parser():
     launch.add_argument("--resource-topic", default="/Ego_topic")
     launch.add_argument("--resource-window-seconds", type=float, default=15.0)
     launch.add_argument("--resource-minimum-rate-hz", type=float, default=40.0)
+    launch.add_argument("--resource-long-gap-threshold-seconds", type=float, default=1.0)
     launch.add_argument("--resource-preflight-timeout", type=float, default=15.0)
     launch.add_argument("--mock", action="store_true", help=argparse.SUPPRESS)
     launch.add_argument("argv", nargs=argparse.REMAINDER)
@@ -419,6 +420,7 @@ def main(argv=None):
                 resource_topic=args.resource_topic,
                 resource_window_seconds=args.resource_window_seconds,
                 resource_minimum_rate_hz=args.resource_minimum_rate_hz,
+                resource_long_gap_threshold_seconds=args.resource_long_gap_threshold_seconds,
                 resource_preflight_timeout=args.resource_preflight_timeout,
             )
             _print(result)

@@ -27,6 +27,7 @@ from legged_gym.harness.manager import (
     _completion_artifact_error,
     _inject_managed_identity,
     _materialize_managed_identity,
+    _resource_guard_command,
     _validate_production_command,
     begin_verification,
     collect_run,
@@ -90,7 +91,9 @@ class TrainingHarnessTest(unittest.TestCase):
             guard.samples = [int(15e9 + index * 1e9 / 39.0) for index in range(585)]
             second = guard.close_window(int(30e9))
             self.assertEqual(second["consecutive_below_40"], 2)
-            self.assertEqual(guard.decision["reason"], "two_consecutive_below_rate")
+            self.assertEqual(
+                guard.decision["reason"], "two_consecutive_gap_free_below_rate"
+            )
 
             passing = EgoTopicRateGuard(temporary, "passing-fixture")
             passing.start_training_windows(0, identity)
@@ -103,6 +106,128 @@ class TrainingHarnessTest(unittest.TestCase):
             self.assertEqual(above["rate_hz"], 41.0)
             self.assertIsNone(passing.decision)
             self.assertTrue(partial["partial"])
+            self.assertEqual(partial["rate_gate_status"], "partial")
+
+    def test_resource_guard_external_gap_recovery_sequences_and_boundary(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+
+        def samples(start_s, count, rate):
+            return [int((start_s + index / rate) * 1e9) for index in range(count)]
+
+        with tempfile.TemporaryDirectory(prefix="resource-gap-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ):
+            recovered = EgoTopicRateGuard(temporary, "recovered")
+            recovered.start_training_windows(0, identity)
+            recovered.samples = samples(1.0, 585, 42.0)
+            candidate = recovered.close_window(int(15e9))
+            self.assertEqual(candidate["max_gap_s"], 1.0)
+            self.assertEqual(candidate["rate_gate_status"], "external_gap_candidate")
+            self.assertTrue(candidate["recovery_required"])
+            recovered.samples = samples(15.0, 600, 40.0)
+            recovery = recovered.close_window(int(30e9))
+            self.assertEqual(recovery["rate_gate_status"], "external_gap_recovered")
+            self.assertFalse(recovery["recovery_required"])
+            self.assertIsNone(recovered.decision)
+
+            low = EgoTopicRateGuard(temporary, "low-recovery")
+            low.start_training_windows(0, identity)
+            low.samples = samples(1.0, 585, 42.0)
+            low.close_window(int(15e9))
+            low.samples = samples(15.0, 585, 39.0)
+            failed = low.close_window(int(30e9))
+            self.assertEqual(failed["rate_gate_status"], "external_gap_not_recovered")
+            self.assertEqual(low.decision["reason"], "external_gap_not_recovered")
+
+            repeated = EgoTopicRateGuard(temporary, "repeated-gap")
+            repeated.start_training_windows(0, identity)
+            repeated.samples = samples(1.0, 585, 42.0)
+            repeated.close_window(int(15e9))
+            repeated.samples = samples(16.0, 585, 42.0)
+            second_candidate = repeated.close_window(int(30e9))
+            self.assertEqual(
+                second_candidate["rate_gate_status"], "external_gap_candidate"
+            )
+            self.assertEqual(
+                repeated.decision["reason"], "external_gap_not_recovered"
+            )
+
+            sustained = EgoTopicRateGuard(temporary, "sustained-38hz")
+            sustained.start_training_windows(0, identity)
+            sustained.samples = samples(0.0, 570, 38.0)
+            sustained.close_window(int(15e9))
+            sustained.samples = samples(15.0, 570, 38.0)
+            sustained.close_window(int(30e9))
+            self.assertEqual(
+                sustained.decision["reason"],
+                "two_consecutive_gap_free_below_rate",
+            )
+
+    def test_resource_guard_idle_gap_pattern_partial_and_no_message_recovery_fault(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+        with tempfile.TemporaryDirectory(prefix="resource-idle-pattern-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ):
+            guard = EgoTopicRateGuard(temporary, "idle-pattern")
+            guard.start_training_windows(0, identity)
+            guard.samples = [int(index * 1e9 / 42.0) for index in range(210)]
+            guard.samples += [int(10e9 + index * 1e9 / 42.0) for index in range(210)]
+            first = guard.close_window(int(15e9))
+            self.assertEqual(first["rate_gate_status"], "external_gap_candidate")
+            streak_before = guard.consecutive_below
+            partial = guard.close_window(int(16e9), partial=True)
+            self.assertEqual(guard.consecutive_below, streak_before)
+            self.assertTrue(partial["recovery_required"])
+            guard.samples = [int(16e9 + index * 1e9 / 41.0) for index in range(615)]
+            recovery = guard.close_window(int(31e9))
+            self.assertEqual(recovery["rate_gate_status"], "external_gap_recovered")
+
+            guard.samples = [int(31e9 + index * 1e9 / 42.0) for index in range(210)]
+            guard.samples += [int(41e9 + index * 1e9 / 42.0) for index in range(210)]
+            second = guard.close_window(int(46e9))
+            self.assertEqual(second["rate_gate_status"], "external_gap_candidate")
+            empty = guard.close_window(int(61e9))
+            self.assertEqual(empty["rate_gate_status"], "no_message_window")
+            self.assertEqual(guard.decision["reason"], "no_message_window")
+
+    def test_resource_guard_launch_manifest_and_argv_record_long_gap_threshold(self):
+        with tempfile.TemporaryDirectory(prefix="resource-launch-config-") as temporary:
+            output_root = Path(temporary) / "managed"
+            process = mock.Mock(pid=os.getpid())
+            with mock.patch(
+                "legged_gym.harness.manager.gpu_snapshot",
+                return_value={"available": True, "gpus": []},
+            ), mock.patch(
+                "legged_gym.harness.manager.disk_snapshot",
+                return_value={"free_gib": 100.0},
+            ), mock.patch(
+                "legged_gym.harness.manager._repo_snapshot",
+                return_value={"commit": "fixture"},
+            ), mock.patch(
+                "legged_gym.harness.manager.subprocess.Popen", return_value=process
+            ):
+                launched = launch_run(
+                    repo_root=REPO_ROOT,
+                    phase="fixture",
+                    experiment="resource-guard",
+                    label="threshold",
+                    command=[sys.executable, "-c", "pass"],
+                    authority="supervisor",
+                    output_root=output_root,
+                    require_rtx4090=False,
+                    mock=True,
+                    resource_guard=True,
+                    resource_long_gap_threshold_seconds=1.0,
+                )
+            manifest = json.loads(
+                (Path(launched["run_dir"]) / "manifest.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                manifest["resource_guard"]["long_gap_threshold_seconds"], 1.0
+            )
+            argv = _resource_guard_command(manifest)
+            option = argv.index("--long-gap-threshold-seconds")
+            self.assertEqual(argv[option + 1], "1.0")
 
     def test_resource_guard_no_message_and_subscriber_exception_fail_closed(self):
         with tempfile.TemporaryDirectory(prefix="resource-fault-") as temporary:
@@ -257,7 +382,9 @@ class TrainingHarnessTest(unittest.TestCase):
             guard.close_window(int(15e9))
             guard.samples = [int(15e9 + index * 1e9 / 39.0) for index in range(585)]
             guard.close_window(int(30e9))
-            self.assertEqual(guard.decision["reason"], "two_consecutive_below_rate")
+            self.assertEqual(
+                guard.decision["reason"], "two_consecutive_gap_free_below_rate"
+            )
             try:
                 with mock.patch("legged_gym.harness.manager.os.killpg") as killpg:
                     harness_manager._signal_training_group(store, manifest, 2)

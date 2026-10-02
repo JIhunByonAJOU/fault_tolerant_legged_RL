@@ -41,11 +41,21 @@ def _proc_start_ticks(pid):
 class EgoTopicRateGuard:
     """Deterministic window evaluator; this class never sends a signal."""
 
-    def __init__(self, run_dir, run_id, window_seconds=15.0, minimum_rate_hz=40.0):
+    def __init__(
+        self,
+        run_dir,
+        run_id,
+        window_seconds=15.0,
+        minimum_rate_hz=40.0,
+        long_gap_threshold_seconds=1.0,
+    ):
         self.run_dir = Path(run_dir)
         self.run_id = str(run_id)
         self.window_seconds = float(window_seconds)
         self.minimum_rate_hz = float(minimum_rate_hz)
+        self.long_gap_threshold_seconds = float(long_gap_threshold_seconds)
+        if self.long_gap_threshold_seconds <= 0.0:
+            raise ValueError("long gap threshold must be positive")
         self.guard_pid = os.getpid()
         self.guard_start_ticks = _proc_start_ticks(self.guard_pid)
         self.samples = []
@@ -53,6 +63,7 @@ class EgoTopicRateGuard:
         self.stage = "preflight"
         self.window_start_ns = None
         self.consecutive_below = 0
+        self.recovery_required = False
         self.window_sequence = 0
         self.subscriber_status = "starting"
         self.train_identity = {}
@@ -124,12 +135,37 @@ class EgoTopicRateGuard:
         end_wall = time.time()
         start_wall = end_wall - duration_s
         complete = not partial
-        if complete and rate_hz < self.minimum_rate_hz:
+        decision_reason = None
+        if not complete:
+            rate_gate_status = "partial"
+        elif not arrivals:
+            rate_gate_status = "no_message_window"
+            decision_reason = "no_message_window"
+        elif max_gap_s >= self.long_gap_threshold_seconds:
+            rate_gate_status = "external_gap_candidate"
+            decision_reason = (
+                "external_gap_not_recovered" if self.recovery_required else None
+            )
+            self.consecutive_below = 0
+            self.recovery_required = True
+        elif self.recovery_required:
+            if rate_hz >= self.minimum_rate_hz:
+                rate_gate_status = "external_gap_recovered"
+                self.consecutive_below = 0
+                self.recovery_required = False
+            else:
+                rate_gate_status = "external_gap_not_recovered"
+                decision_reason = "external_gap_not_recovered"
+        elif rate_hz < self.minimum_rate_hz:
+            rate_gate_status = "gap_free_below_rate"
             self.consecutive_below += 1
-        elif complete:
+            if self.consecutive_below >= 2:
+                decision_reason = "two_consecutive_gap_free_below_rate"
+        else:
+            rate_gate_status = "gap_free_rate_ok"
             self.consecutive_below = 0
         record = {
-            "schema_version": 1,
+            "schema_version": 2,
             "run_id": self.run_id,
             "sequence": self.window_sequence,
             "window_start_monotonic_ns": start_ns,
@@ -147,6 +183,10 @@ class EgoTopicRateGuard:
             "complete": complete,
             "partial": bool(partial),
             "consecutive_below_40": self.consecutive_below,
+            "rate_gate_status": rate_gate_status,
+            "long_gap_threshold_s": self.long_gap_threshold_seconds,
+            "gap_free_consecutive_below_40": self.consecutive_below,
+            "recovery_required": self.recovery_required,
             "subscriber_status": self.subscriber_status,
             "guard_pid": self.guard_pid,
             "guard_start_ticks": self.guard_start_ticks,
@@ -156,10 +196,8 @@ class EgoTopicRateGuard:
         _append_jsonl(self.run_dir / "resource_windows.jsonl", record)
         self.window_sequence += 1
         self.window_start_ns = end_ns
-        if complete and not arrivals:
-            self.write_decision("no_message_window", record)
-        elif complete and self.consecutive_below >= 2:
-            self.write_decision("two_consecutive_below_rate", record)
+        if decision_reason is not None:
+            self.write_decision(decision_reason, record)
         return record
 
     def write_decision(self, reason, evidence=None):
@@ -238,7 +276,11 @@ class EgoTopicRateGuard:
 
 def run_guard(args):
     guard = EgoTopicRateGuard(
-        args.run_dir, args.run_id, args.window_seconds, args.minimum_rate_hz
+        args.run_dir,
+        args.run_id,
+        args.window_seconds,
+        args.minimum_rate_hz,
+        args.long_gap_threshold_seconds,
     )
     if not guard.run_preflight(args.topic, args.preflight_timeout):
         return 2
@@ -283,6 +325,7 @@ def main(argv=None):
     parser.add_argument("--topic", default="/Ego_topic")
     parser.add_argument("--window-seconds", type=float, default=15.0)
     parser.add_argument("--minimum-rate-hz", type=float, default=40.0)
+    parser.add_argument("--long-gap-threshold-seconds", type=float, default=1.0)
     parser.add_argument("--preflight-timeout", type=float, default=15.0)
     return run_guard(parser.parse_args(argv))
 

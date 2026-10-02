@@ -1253,6 +1253,7 @@ def launch_run(
     resource_topic="/Ego_topic",
     resource_window_seconds=15.0,
     resource_minimum_rate_hz=40.0,
+    resource_long_gap_threshold_seconds=1.0,
     resource_preflight_timeout=15.0,
 ):
     """Launch a command under a durable supervisor and return its run directory."""
@@ -1313,6 +1314,7 @@ def launch_run(
             "topic": str(resource_topic),
             "window_seconds": float(resource_window_seconds),
             "minimum_rate_hz": float(resource_minimum_rate_hz),
+            "long_gap_threshold_seconds": float(resource_long_gap_threshold_seconds),
             "preflight_timeout_seconds": float(resource_preflight_timeout),
             "heartbeat_timeout_seconds": _RESOURCE_GUARD_HEARTBEAT_FRESH_SECONDS,
         },
@@ -1358,6 +1360,29 @@ def launch_run(
     return {"run_id": run_id, "run_dir": str(run_dir), "supervisor_pid": process.pid}
 
 
+def _resource_guard_command(manifest):
+    guard_config = manifest["resource_guard"]
+    return [
+        sys.executable,
+        "-m",
+        "legged_gym.harness.resource_guard",
+        "--run-dir",
+        manifest["run_dir"],
+        "--run-id",
+        manifest["run_id"],
+        "--topic",
+        guard_config["topic"],
+        "--window-seconds",
+        str(guard_config["window_seconds"]),
+        "--minimum-rate-hz",
+        str(guard_config["minimum_rate_hz"]),
+        "--long-gap-threshold-seconds",
+        str(guard_config["long_gap_threshold_seconds"]),
+        "--preflight-timeout",
+        str(guard_config["preflight_timeout_seconds"]),
+    ]
+
+
 def supervise(run_dir):
     """Internal child process: own command lifetime and persist its exit status."""
     store = RunStore(run_dir)
@@ -1378,23 +1403,7 @@ def supervise(run_dir):
 
     if guard_enabled:
         guard_log = (store.run_dir / "resource_guard.log").open("ab", buffering=0)
-        guard_command = [
-            sys.executable,
-            "-m",
-            "legged_gym.harness.resource_guard",
-            "--run-dir",
-            str(store.run_dir),
-            "--run-id",
-            manifest["run_id"],
-            "--topic",
-            guard_config["topic"],
-            "--window-seconds",
-            str(guard_config["window_seconds"]),
-            "--minimum-rate-hz",
-            str(guard_config["minimum_rate_hz"]),
-            "--preflight-timeout",
-            str(guard_config["preflight_timeout_seconds"]),
-        ]
+        guard_command = _resource_guard_command(manifest)
         guard = subprocess.Popen(
             guard_command,
             cwd=manifest["repo_root"],
