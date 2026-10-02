@@ -259,7 +259,12 @@ def _build_parser():
     validate_p0.add_argument("--run-dir", required=True)
     validate_p0.add_argument(
         "--profile",
-        choices=("teacher45", "official_wim_a1_rough_v1"),
+        choices=(
+            "teacher45",
+            "official_wim_a1_rough_v1",
+            "comparison_b1",
+            "comparison_b2",
+        ),
         default="teacher45",
     )
 

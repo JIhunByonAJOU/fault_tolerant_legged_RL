@@ -831,6 +831,9 @@ _PRODUCTION_ENTRYPOINT_TASKS = {
         "a1_limping_base_v2",
         "a1_limping_base_wim",
         "a1_official_wim_teacher243_failure",
+        "a1_official_wim_jt_failure_fullrange_onset",
+        "a1_official_wim_jt_history_free_onset",
+        "a1_official_wim_separate_student_onset",
     },
     "legged_gym/scripts/train_official_wim_managed.py": {"a1_official_wim_rough"},
 }
@@ -1602,6 +1605,206 @@ def _validate_official_wim_p0_gate(run_dir, profile):
     return report
 
 
+def _validate_comparison_p0_gate(run_dir, profile):
+    """Validate a fresh TF43000 two-iteration comparison pilot."""
+    run_dir = Path(run_dir).resolve()
+    failures = []
+
+    def fail(code, message, **details):
+        item = {"code": code, "message": message}
+        item.update(details)
+        failures.append(item)
+
+    artifacts = {}
+    for name in (
+        "manifest.json",
+        "comparison_manifest.json",
+        "resolved_config.json",
+        "exit_status.json",
+    ):
+        try:
+            value = _read_json(run_dir / name)
+        except (OSError, json.JSONDecodeError) as exc:
+            value = {}
+            fail("artifact_invalid", "{} is missing or invalid".format(name), artifact=name, error=str(exc))
+        if not isinstance(value, dict):
+            fail("artifact_invalid", "{} must contain a JSON object".format(name), artifact=name)
+            value = {}
+        artifacts[name] = value
+    manifest = artifacts["manifest.json"]
+    comparison = artifacts["comparison_manifest.json"]
+    resolved = artifacts["resolved_config.json"]
+    exit_record = artifacts["exit_status.json"]
+
+    if manifest.get("phase") != "p00-harness" or manifest.get("authority") != "supervisor" or manifest.get("mock") is not False:
+        fail("manifest_contract", "comparison P0 must be a non-mock supervisor p00-harness run")
+    gpu_names = [
+        item.get("name", "") for item in (manifest.get("gpu_preflight") or {}).get("gpus", [])
+        if isinstance(item, dict)
+    ]
+    if not any("RTX 4090" in name for name in gpu_names):
+        fail("gpu_preflight_mismatch", "comparison P0 requires RTX 4090 preflight", detected_gpu_names=gpu_names)
+    if exit_record.get("return_code") != 0 or exit_record.get("received_signal") is not None:
+        fail("exit_contract", "comparison P0 must exit normally", actual=exit_record)
+
+    command = manifest.get("command")
+    if not isinstance(command, list):
+        fail("command_contract", "manifest command must be an argv list")
+        command = []
+    else:
+        try:
+            _validate_production_command(command, manifest.get("repo_root") or Path(__file__).resolve().parents[2])
+        except HarnessError as exc:
+            fail("command_contract", "managed command is invalid", error=str(exc))
+    command_values = (
+        ("--task", profile["task"], str),
+        ("--num_envs", profile["num_envs"], int),
+        ("--seed", profile["seed"], int),
+        ("--max_iterations", profile["max_iterations"], int),
+        ("--num_steps_per_env", profile["num_steps_per_env"], int),
+        ("--num_mini_batches", profile["num_mini_batches"], int),
+        ("--save_interval", profile["save_interval"], int),
+        ("--shared_gpu_step_sleep_ms", profile["step_sleep_ms"], float),
+        ("--shared_gpu_minibatch_sleep_ms", profile["minibatch_sleep_ms"], float),
+    )
+    for option, expected, converter in command_values:
+        try:
+            raw = _single_option_value(command, option)
+            actual = converter(raw) if raw is not None else None
+        except (HarnessError, TypeError, ValueError):
+            actual = None
+        if actual != expected:
+            fail("command_option_mismatch", "{} must equal {!r}".format(option, expected), option=option, expected=expected, actual=actual)
+    if "--comparison_pilot" not in command or command.count("--comparison_pilot") != 1:
+        fail("command_pilot_mismatch", "command must opt into comparison pilot exactly once")
+
+    console_path = run_dir / "console.log"
+    console = console_path.read_text(encoding="utf-8", errors="replace") if console_path.is_file() else ""
+    if "Using GPU PhysX" not in console or "GPU Pipeline: enabled" not in console:
+        fail("console_gpu_evidence_missing", "console must record GPU PhysX and enabled GPU pipeline")
+    for pattern in _HARD_ERROR_PATTERNS:
+        match = pattern.search(console)
+        if match:
+            fail("console_hard_error", "console contains a hard-error signature", match=match.group(0))
+            break
+
+    checks = (
+        (("task",), profile["task"]),
+        (("profile_id",), profile["profile_id"]),
+        (("comparison_profile",), profile["comparison_name"]),
+        (("run_class",), "pilot"),
+        (("actual_invocation_max_iterations",), 2),
+        (("environment", "seed"), 1),
+        (("environment", "env", "num_envs"), 64),
+        (("training", "seed"), 1),
+        (("training", "runner", "policy_class_name"), profile["policy_class_name"]),
+        (("training", "runner", "algorithm_class_name"), profile["algorithm_class_name"]),
+        (("training", "runner_class_name"), profile["runner_class_name"]),
+        (("training", "runner", "num_steps_per_env"), 24),
+        (("training", "runner", "max_iterations"), 2),
+        (("training", "runner", "save_interval"), 1),
+        (("training", "runner", "comparison_pilot"), True),
+        (("training", "algorithm", "num_learning_epochs"), 5),
+        (("training", "algorithm", "num_mini_batches"), 4),
+        (("shared_gpu_pacing", "step_sleep_ms"), 30.0),
+        (("shared_gpu_pacing", "minibatch_sleep_ms"), 20.0),
+        (("source_checkpoint", "sha256"), profile["source_sha256"]),
+        (("initialization", "profile_id"), profile["profile_id"]),
+        (("initialization", "comparison_profile"), profile["comparison_name"]),
+        (("initialization", "run_class"), "pilot"),
+        (("initialization", "checkpoint_class"), "pilot_only_not_production"),
+        (("initialization", "original_tf_source_sha256"), profile["source_sha256"]),
+        (("initialization", "seed"), 1),
+        (("initialization", "student_width"), 64),
+        (("initialization", "optimizer_initialized_fresh_from_tf"), True),
+    )
+    for path, expected in checks:
+        actual = _nested(resolved, *path)
+        if actual != expected:
+            fail("config_mismatch", "{} must equal {!r}".format(".".join(path), expected), field=".".join(path), expected=expected, actual=actual)
+
+    comparison_checks = (
+        ("profile_id", profile["profile_id"]),
+        ("comparison_profile", profile["comparison_name"]),
+        ("run_class", "pilot"),
+        ("checkpoint_class", "pilot_only_not_production"),
+        ("original_tf_source_sha256", profile["source_sha256"]),
+        ("seed", 1),
+        ("student_width", 64),
+        ("origin_iteration", 43000),
+        ("target_next_iteration", 43002),
+        ("max_new_batches", 2),
+        ("invocation_max_iterations", 2),
+        ("optimizer_initialized_fresh_from_tf", True),
+        ("resume", False),
+        ("optimizer_state", "fresh"),
+        ("remaining_batches_at_launch", 2),
+    )
+    for key, expected in comparison_checks:
+        if comparison.get(key) != expected:
+            fail("lineage_mismatch", "comparison manifest {} must equal {!r}".format(key, expected), field=key, expected=expected, actual=comparison.get(key))
+    if comparison != resolved.get("initialization"):
+        fail("initialization_manifest_mismatch", "resolved initialization must exactly match comparison manifest")
+    module_hashes = comparison.get("initial_module_sha256")
+    required_hashes = {"student_encoder", "teacher_encoder", "actor", "critic", "action_std"}
+    if not isinstance(module_hashes, dict) or set(module_hashes) != required_hashes or any(
+        not isinstance(module_hashes.get(name), str) or not re.fullmatch(r"[0-9a-f]{64}", module_hashes[name])
+        for name in required_hashes
+    ):
+        fail("initial_hash_manifest", "all initialized module SHA256 fields must be present")
+    if comparison.get("rollout_exposure") != {"num_envs": 64, "steps_per_env": 24}:
+        fail("lineage_exposure", "comparison manifest must record 64 envs x 24 steps")
+    for key in ("configuration_sha256", "code_source_sha256"):
+        if not isinstance(comparison.get(key), str) or not re.fullmatch(r"[0-9a-f]{64}", comparison[key]):
+            fail("lineage_digest", "comparison manifest {} must be a SHA256".format(key), field=key)
+
+    records = []
+    try:
+        for line in (run_dir / "metrics.jsonl").read_text(encoding="utf-8").splitlines():
+            row = json.loads(line)
+            if not isinstance(row, dict):
+                raise ValueError("metric row is not an object")
+            records.append(row)
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        fail("metrics_invalid", "metrics.jsonl is missing or malformed", error=str(exc))
+    if [row.get("iteration") for row in records] != [43000, 43001]:
+        fail("metric_iterations", "metric iterations must be exactly [43000, 43001]")
+    if [row.get("total_transitions") for row in records] != [1536, 3072]:
+        fail("metric_transitions", "metric transitions must be exactly [1536, 3072]")
+    for index, row in enumerate(records):
+        nonfinite = [key for key, value in row.items() if isinstance(value, (int, float)) and not isinstance(value, bool) and not math.isfinite(float(value))]
+        if nonfinite:
+            fail("metric_nonfinite", "all numeric metrics must be finite", record_index=index, metrics=sorted(nonfinite))
+        if profile["update_kind"] == "ppo":
+            if row.get("PPO/planned_updates") != 20 or row.get("PPO/completed_updates") != 20 or row.get("PPO/nonfinite_update_skipped") != 0:
+                fail("ppo_updates", "B1 must complete 20 of 20 finite PPO updates", record_index=index)
+        else:
+            if any(key.startswith("PPO/") for key in row):
+                fail("b2_ppo_metric", "B2 must not report PPO metrics", record_index=index)
+            if row.get("Adaptation/planned_supervised_updates") != 20 or row.get("Adaptation/completed_supervised_updates") != 20 or row.get("Adaptation/nonfinite_update_skipped") != 0:
+                fail("supervised_updates", "B2 must complete 20 of 20 finite supervised updates", record_index=index)
+            step = row.get("Adaptation/student_parameter_step_l2")
+            if not isinstance(step, (int, float)) or isinstance(step, bool) or not math.isfinite(float(step)) or step <= 0:
+                fail("student_step", "B2 Student parameter step must be finite and positive", record_index=index, actual=step)
+
+    inventory = _checkpoint_inventory(run_dir)
+    labels = [item["iteration"] for item in inventory]
+    if labels != [43000, 43001, 43002]:
+        fail("checkpoint_inventory", "checkpoint inventory must be exactly model_43000/43001/43002.pt", actual=labels)
+    unexpected = sorted(path.name for path in run_dir.glob("model_*.pt") if not re.fullmatch(r"model_(?:43000|43001|43002)\.pt", path.name))
+    temporary = sorted(path.name for path in run_dir.iterdir() if ".tmp-" in path.name) if run_dir.is_dir() else []
+    if unexpected or temporary:
+        fail("checkpoint_artifacts", "unexpected or temporary checkpoints found", unexpected=unexpected, temporary=temporary)
+
+    hashes = {}
+    for path in run_dir.iterdir() if run_dir.is_dir() else []:
+        if path.is_file() and path.name in {"manifest.json", "comparison_manifest.json", "resolved_config.json", "metrics.jsonl"}:
+            hashes[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
+    report = {"run_dir": str(run_dir), "profile": profile["name"], "valid": not failures, "failures": failures, "artifact_sha256": hashes}
+    _atomic_write_json(run_dir / "p0_validation_report.json", report)
+    return report
+
+
 def validate_p0_gate(run_dir, profile="teacher45"):
     """Validate a named immutable P0 contract; teacher45 remains unchanged."""
     from legged_gym.harness.p0_profiles import P0_PROFILES
@@ -1610,6 +1813,8 @@ def validate_p0_gate(run_dir, profile="teacher45"):
     selected = P0_PROFILES[profile]
     if selected.get("validator") == "legacy":
         return _validate_teacher45_p0_gate(run_dir)
+    if selected.get("validator") == "comparison":
+        return _validate_comparison_p0_gate(run_dir, selected)
     return _validate_official_wim_p0_gate(run_dir, selected)
 
 

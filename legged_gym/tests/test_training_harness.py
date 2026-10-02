@@ -81,6 +81,9 @@ class TrainingHarnessTest(unittest.TestCase):
             ("legged_gym/scripts/train.py", "a1_limping_base_v2"),
             ("legged_gym/scripts/train.py", "a1_limping_base_wim"),
             ("legged_gym/scripts/train.py", "a1_official_wim_teacher243_failure"),
+            ("legged_gym/scripts/train.py", "a1_official_wim_jt_failure_fullrange_onset"),
+            ("legged_gym/scripts/train.py", "a1_official_wim_jt_history_free_onset"),
+            ("legged_gym/scripts/train.py", "a1_official_wim_separate_student_onset"),
             ("legged_gym/scripts/train_official_wim_managed.py", "a1_official_wim_rough"),
         )
         for entrypoint, task in allowed:
@@ -101,6 +104,7 @@ class TrainingHarnessTest(unittest.TestCase):
                 "legged_gym/scripts/train_official_wim_managed.py", "a1_limping_base"
             ),
             self._production_command("legged_gym/scripts/train.py", "a1_limping_fake"),
+            self._production_command("legged_gym/scripts/train.py", "a1_official_wim_jt_beta_floor_onset"),
             self._production_command("other/legged_gym/scripts/train.py", "a1_limping_base"),
             [sys.executable, "-m", "legged_gym.scripts.train", "--task", "a1_limping_base", "--headless"],
             [sys.executable, "legged_gym/scripts/train.py", "--headless"],
@@ -357,6 +361,169 @@ class TrainingHarnessTest(unittest.TestCase):
         for iteration in (0, 1, 2):
             (run_dir / "model_{}.pt".format(iteration)).write_bytes(b"checkpoint")
         return manifest, config, metrics
+
+    def _write_comparison_p0_fixture(self, run_dir, profile):
+        cases = {
+            "comparison_b1": {
+                "task": "a1_official_wim_jt_history_free_onset",
+                "profile_id": "b1_current_repeat_v1",
+                "comparison_name": "current-repeat / temporal-history control",
+                "policy": "JointTeacherStudentActorCritic",
+                "algorithm": "TeacherPPO",
+                "runner": "ComparisonJointTeacherStudentRunner",
+            },
+            "comparison_b2": {
+                "task": "a1_official_wim_separate_student_onset",
+                "profile_id": "b2_separate_student_v1",
+                "comparison_name": "RMA-style internal two-stage control",
+                "policy": "SeparateStudentActorCritic",
+                "algorithm": "StudentDistillation",
+                "runner": "SeparateStudentDistillationRunner",
+            },
+        }
+        case = cases[profile]
+        source_sha = "944a697abb30dfc8023e15544d0909acfcdaa4d8c4c0f930656847398f150635"
+        run_dir.mkdir(parents=True)
+        command = self._production_command(
+            "legged_gym/scripts/train.py", case["task"],
+            "--num_envs", "64", "--seed", "1", "--max_iterations", "2",
+            "--num_steps_per_env", "24", "--num_mini_batches", "4",
+            "--save_interval", "1", "--comparison_pilot",
+            "--shared_gpu_step_sleep_ms", "30",
+            "--shared_gpu_minibatch_sleep_ms", "20",
+        )
+        manifest = {
+            "run_id": "comparison-fixture", "phase": "p00-harness",
+            "mock": False, "authority": "supervisor", "repo_root": str(REPO_ROOT),
+            "command": command,
+            "gpu_preflight": {"available": True, "gpus": [{"name": "NVIDIA GeForce RTX 4090"}]},
+        }
+        module_hashes = {
+            name: hashlib.sha256((profile + name).encode()).hexdigest()
+            for name in ("student_encoder", "teacher_encoder", "actor", "critic", "action_std")
+        }
+        comparison = {
+            "schema_version": 1, "profile_id": case["profile_id"],
+            "comparison_profile": case["comparison_name"], "run_class": "pilot",
+            "checkpoint_class": "pilot_only_not_production",
+            "original_tf_source_path": "/fixture/model_43000.pt",
+            "original_tf_source_sha256": source_sha, "seed": 1,
+            "student_width": 64, "origin_iteration": 43000,
+            "target_next_iteration": 43002, "max_new_batches": 2,
+            "invocation_max_iterations": 2,
+            "rollout_exposure": {"num_envs": 64, "steps_per_env": 24},
+            "schedule": {"fixture": True}, "configuration_sha256": "a" * 64,
+            "code_source_sha256": "b" * 64,
+            "optimizer_initialized_fresh_from_tf": True,
+            "initial_module_sha256": module_hashes,
+            "seed1_width64_reference_sha256": {},
+            "initialization_distinction": "fixture", "resume": False,
+            "resumed_from": None, "optimizer_state": "fresh",
+            "actual_invocation_max_iterations": 2,
+            "remaining_batches_at_launch": 2,
+        }
+        training = {
+            "seed": 1, "runner_class_name": case["runner"],
+            "runner": {
+                "policy_class_name": case["policy"],
+                "algorithm_class_name": case["algorithm"],
+                "num_steps_per_env": 24, "max_iterations": 2,
+                "save_interval": 1, "comparison_pilot": True,
+            },
+            "algorithm": {"num_learning_epochs": 5, "num_mini_batches": 4},
+        }
+        resolved = {
+            "task": case["task"], "profile_id": case["profile_id"],
+            "comparison_profile": case["comparison_name"],
+            "run_class": "pilot", "actual_invocation_max_iterations": 2,
+            "environment": {"seed": 1, "env": {"num_envs": 64}},
+            "training": training,
+            "shared_gpu_pacing": {"step_sleep_ms": 30.0, "minibatch_sleep_ms": 20.0},
+            "source_checkpoint": {"path": "/fixture/model_43000.pt", "sha256": source_sha, "iteration": 43000},
+            "initialization": comparison,
+        }
+        metrics = []
+        for iteration, transitions in ((43000, 1536), (43001, 3072)):
+            row = {"iteration": iteration, "total_transitions": transitions, "loss": 0.5}
+            if profile == "comparison_b1":
+                row.update({"PPO/planned_updates": 20, "PPO/completed_updates": 20, "PPO/nonfinite_update_skipped": 0})
+            else:
+                row.update({
+                    "Adaptation/planned_supervised_updates": 20,
+                    "Adaptation/completed_supervised_updates": 20,
+                    "Adaptation/nonfinite_update_skipped": 0,
+                    "Adaptation/student_parameter_step_l2": 0.01,
+                })
+            metrics.append(row)
+        for name, value in (
+            ("manifest.json", manifest), ("comparison_manifest.json", comparison),
+            ("resolved_config.json", resolved),
+            ("exit_status.json", {"return_code": 0, "received_signal": None}),
+        ):
+            (run_dir / name).write_text(json.dumps(value), encoding="utf-8")
+        (run_dir / "console.log").write_text("Using GPU PhysX\nGPU Pipeline: enabled\n", encoding="utf-8")
+        (run_dir / "metrics.jsonl").write_text("".join(json.dumps(row) + "\n" for row in metrics), encoding="utf-8")
+        for iteration in (43000, 43001, 43002):
+            (run_dir / "model_{}.pt".format(iteration)).write_bytes(b"checkpoint")
+        return manifest, comparison, resolved, metrics
+
+    def test_comparison_p0_profiles_accept_exact_artifacts_and_cli_choices(self):
+        from legged_gym.harness.cli import _build_parser
+        from legged_gym.harness.p0_profiles import P0_PROFILES
+
+        self.assertEqual(
+            set(P0_PROFILES),
+            {"teacher45", "official_wim_a1_rough_v1", "comparison_b1", "comparison_b2"},
+        )
+        parser = _build_parser()
+        for profile in ("comparison_b1", "comparison_b2"):
+            parsed = parser.parse_args(["validate-p0", "--run-dir", "/fixture", "--profile", profile])
+            self.assertEqual(parsed.profile, profile)
+        with tempfile.TemporaryDirectory(prefix="harness-comparison-p0-") as temporary:
+            for profile in ("comparison_b1", "comparison_b2"):
+                run_dir = Path(temporary) / profile
+                self._write_comparison_p0_fixture(run_dir, profile)
+                report = validate_p0_gate(run_dir, profile=profile)
+                self.assertTrue(report["valid"], report["failures"])
+
+    def test_comparison_p0_rejects_wrong_task_profile_pacing_hash_and_checkpoints(self):
+        mutations = {
+            "task": lambda m, c, r, rows, d: r.update(task="wrong"),
+            "profile": lambda m, c, r, rows, d: c.update(profile_id="wrong"),
+            "pacing": lambda m, c, r, rows, d: r["shared_gpu_pacing"].update(step_sleep_ms=0.0),
+            "hash": lambda m, c, r, rows, d: c.update(original_tf_source_sha256="0" * 64),
+            "checkpoint": lambda m, c, r, rows, d: (d / "model_43002.pt").unlink(),
+        }
+        with tempfile.TemporaryDirectory(prefix="harness-comparison-reject-") as temporary:
+            for name, mutate in mutations.items():
+                run_dir = Path(temporary) / name
+                manifest, comparison, resolved, rows = self._write_comparison_p0_fixture(run_dir, "comparison_b1")
+                mutate(manifest, comparison, resolved, rows, run_dir)
+                (run_dir / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+                (run_dir / "comparison_manifest.json").write_text(json.dumps(comparison), encoding="utf-8")
+                # Preserve the expected equality except when profile/hash lineage itself is under test.
+                if name in {"profile", "hash"}:
+                    resolved["initialization"] = comparison
+                (run_dir / "resolved_config.json").write_text(json.dumps(resolved), encoding="utf-8")
+                report = validate_p0_gate(run_dir, profile="comparison_b1")
+                self.assertFalse(report["valid"], name)
+
+    def test_comparison_p0_rejects_wrong_updates_and_b2_ppo_metrics(self):
+        with tempfile.TemporaryDirectory(prefix="harness-comparison-metrics-") as temporary:
+            b1 = Path(temporary) / "b1"
+            _, _, _, rows = self._write_comparison_p0_fixture(b1, "comparison_b1")
+            rows[0]["PPO/completed_updates"] = 19
+            (b1 / "metrics.jsonl").write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+            self.assertFalse(validate_p0_gate(b1, "comparison_b1")["valid"])
+
+            b2 = Path(temporary) / "b2"
+            _, _, _, rows = self._write_comparison_p0_fixture(b2, "comparison_b2")
+            rows[0]["PPO/completed_updates"] = 20
+            rows[1]["Adaptation/student_parameter_step_l2"] = 0.0
+            (b2 / "metrics.jsonl").write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+            failures = validate_p0_gate(b2, "comparison_b2")["failures"]
+            self.assertIn("b2_ppo_metric", {item["code"] for item in failures})
+            self.assertIn("student_step", {item["code"] for item in failures})
 
     def test_launch_rejects_non_supervisor_before_initialization(self):
         with tempfile.TemporaryDirectory(prefix="harness-authority-") as temporary:
