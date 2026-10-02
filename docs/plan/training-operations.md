@@ -115,6 +115,50 @@ python3 -m legged_gym.harness.cli stop \
   --kind operator --reason "사용자 요청"
 ```
 
+### MORAI coexistence resource gate
+
+MORAI와 동시에 실행하는 승인된 pilot은 `launch`에 `--resource-guard`를 명시한다.
+이 옵션의 기본값은 비활성이며, 일반 managed run의 동작은 바뀌지 않는다. guard는 ROS
+`rospy.AnyMsg`로 `/Ego_topic`을 구독하므로 MORAI message package에 의존하지 않는다.
+ROS master 확인, topic resolve, subscriber 생성, 최소 한 개의 timestamped sample을 포함한
+`resource_preflight.json`이 먼저 durable write된 뒤에만 학습 process를 시작한다.
+
+```bash
+python3 -m legged_gym.harness.cli launch \
+  --authority supervisor --phase <phase> --experiment <experiment> --label <label> \
+  --morai-running --resource-guard \
+  --resource-topic /Ego_topic --resource-window-seconds 15 \
+  --resource-minimum-rate-hz 40 --resource-preflight-timeout 15 \
+  -- <managed-training-command>
+```
+
+guard는 각 callback의 wall-clock ISO timestamp와 `monotonic_ns`를
+`resource_samples.jsonl`에 기록한다. 학습 시작부터 연속된 15초 complete window마다
+`message_count / 15.0`으로 `rate_hz`를 계산하고, 양쪽 window boundary를 포함한 최대
+arrival gap을 `max_gap_s`로 기록한다. `resource_windows.jsonl`은 guard와 학습의 PID 및
+start ticks, subscriber 상태, 연속 저율 window 수를 함께 보존한다. 마지막 terminal
+window는 `partial=true`로 flush하며 저율 판정 횟수에는 포함하지 않는다.
+
+complete window 두 개가 연속으로 `rate_hz < 40.0`이면 hard stop을 요청한다. 정확히
+40.0 Hz는 저율이 아니다. complete no-message window와 subscriber exception은 즉시
+fail closed한다. manager는 guard PID/start ticks와 1초 heartbeat를 독립적으로 확인하며,
+guard 종료 또는 5초를 초과한 heartbeat에도 `resource_guard_decision.json`을 먼저 쓰고
+hard stop을 요청한다. `collect`와 `latest_snapshot.json`은 최신 heartbeat, 최신 complete
+window, terminal window, 결정을 노출하고, event-driven monitor는 `resource_window`,
+`resource_guard_fault`, `resource_stop`을 중복 없이 기록한다. raw sample과 window JSONL이
+rate 판단의 authoritative evidence다.
+
+학습은 supervisor 및 guard와 분리된 session/process group에서 실행된다. 모든 signal
+직전에 manager가 `process.json`의 run ID, boot ID, PID, PGID, SID, start ticks, 실제
+`/proc` command digest를 다시 검증하고 group의 모든 member가 기록된 학습 root의
+descendant인지 확인한다. group 안에서 `MORAI`, `Simulator.x86_64`, `AjouNice2026`,
+`roscore`, `roslaunch` command line이 하나라도 보이면 signal을 거부한다. guard 자체는
+signal 권한이 없고 manager만 검증된 학습 PGID에 SIGINT, bounded SIGTERM, SIGKILL을
+보낼 수 있다. identity mismatch는 signal 없이 durable incident로 남겨 슈퍼바이저가
+확인할 수 있게 하고, 학습 프로세스가 종료되면 harness는 terminal `BLOCKED`로 기록한다.
+modifier 검증은 production/GPU training을
+시작할 권한을 주지 않으며, guarded re-pilot은 슈퍼바이저만 시작한다.
+
 현재 graceful iteration-boundary checkpoint 보장은 `a1_limping*` teacher
 runner에 한정한다. GPU preflight는 실제 RTX 4090을 요구한다. 슈퍼바이저는 사용자가
 알려 준 Morai 동시 실행 여부와 실제 GPU 상태를 함께 보고 env 수를 정하며,

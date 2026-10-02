@@ -73,9 +73,29 @@ def _monitor_event(run_dir, snapshot, checkpoint_interval=0):
     ]
     checkpoints = snapshot.get("checkpoints", [])
     latest_checkpoint = checkpoints[-1] if checkpoints else None
+    resource = snapshot.get("resource_guard") or {}
+    latest_resource_window = resource.get("latest_window")
+    resource_decision = resource.get("decision")
     event_type = None
     if state["state"] in TERMINAL_STATES:
         event_type = "terminal"
+    elif resource_decision:
+        if resource_decision.get("reason") in {
+            "subscriber_exception",
+            "resource_guard_unhealthy",
+            "resource_preflight_failed",
+        }:
+            event_type = "resource_guard_fault"
+        else:
+            event_type = "resource_stop"
+    elif resource.get("enabled") and any(
+        item.get("kind") == "resource_guard_fault" for item in hard_alerts
+    ):
+        event_type = "resource_guard_fault"
+    elif latest_resource_window and latest_resource_window.get("complete"):
+        last_resource_sequence = monitor_state.get("last_resource_window_sequence")
+        if latest_resource_window.get("sequence") != last_resource_sequence:
+            event_type = "resource_window"
     elif hard_alerts:
         event_type = "hard_alert"
     elif snapshot.get("trend", {}).get("candidate_stop"):
@@ -93,6 +113,12 @@ def _monitor_event(run_dir, snapshot, checkpoint_interval=0):
         "checkpoint": latest_checkpoint["iteration"] if latest_checkpoint else None,
         "hard_alerts": sorted(item.get("kind") for item in hard_alerts),
         "trend_iteration": snapshot.get("trend", {}).get("latest_iteration"),
+        "resource_window_sequence": (
+            latest_resource_window.get("sequence") if latest_resource_window else None
+        ),
+        "resource_decision_reason": (
+            resource_decision.get("reason") if resource_decision else None
+        ),
     }
     fingerprint = json.dumps(fingerprint_value, sort_keys=True)
     event = None
@@ -109,6 +135,7 @@ def _monitor_event(run_dir, snapshot, checkpoint_interval=0):
             "latest_checkpoint": latest_checkpoint,
             "hard_alerts": hard_alerts,
             "trend": snapshot.get("trend"),
+            "resource_guard": resource,
         }
         temporary = run_dir / ("monitor_event.json.tmp-{}".format(os.getpid()))
         temporary.write_text(json.dumps(event, indent=2, sort_keys=True), encoding="utf-8")
@@ -120,6 +147,10 @@ def _monitor_event(run_dir, snapshot, checkpoint_interval=0):
         monitor_state["last_fingerprint"] = fingerprint
         if event_type == "checkpoint" and latest_checkpoint:
             monitor_state["last_notified_checkpoint"] = latest_checkpoint["iteration"]
+        if event_type == "resource_window" and latest_resource_window:
+            monitor_state["last_resource_window_sequence"] = latest_resource_window.get(
+                "sequence"
+            )
 
     monitor_state["last_collected_at"] = snapshot["collected_at"]
     temporary = run_dir / ("monitor_state.json.tmp-{}".format(os.getpid()))
@@ -278,6 +309,11 @@ def _build_parser():
     launch.add_argument("--repo-root", default=str(Path.cwd()))
     launch.add_argument("--morai-running", action="store_true")
     launch.add_argument("--trend-min-iteration", type=int, default=250)
+    launch.add_argument("--resource-guard", action="store_true")
+    launch.add_argument("--resource-topic", default="/Ego_topic")
+    launch.add_argument("--resource-window-seconds", type=float, default=15.0)
+    launch.add_argument("--resource-minimum-rate-hz", type=float, default=40.0)
+    launch.add_argument("--resource-preflight-timeout", type=float, default=15.0)
     launch.add_argument("--mock", action="store_true", help=argparse.SUPPRESS)
     launch.add_argument("argv", nargs=argparse.REMAINDER)
 
@@ -379,6 +415,11 @@ def main(argv=None):
                 mock=args.mock,
                 morai_reported_running=args.morai_running,
                 trend_min_iteration=args.trend_min_iteration,
+                resource_guard=args.resource_guard,
+                resource_topic=args.resource_topic,
+                resource_window_seconds=args.resource_window_seconds,
+                resource_minimum_rate_hz=args.resource_minimum_rate_hz,
+                resource_preflight_timeout=args.resource_preflight_timeout,
             )
             _print(result)
             return 0

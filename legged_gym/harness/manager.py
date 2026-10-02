@@ -60,6 +60,7 @@ _ALLOWED_TRANSITIONS = {
         RunState.STOPPED_TREND.value,
         RunState.STOPPED_OPERATOR.value,
         RunState.ERROR.value,
+        RunState.BLOCKED.value,
     },
     RunState.COMPLETED.value: {RunState.ANALYZING.value, RunState.BLOCKED.value},
     RunState.STOPPED_TREND.value: {RunState.ANALYZING.value, RunState.BLOCKED.value},
@@ -98,6 +99,14 @@ _LOCAL_SUPERVISOR_HANDLES = {}
 _HEARTBEAT_INTERVAL_SECONDS = 2.0
 _HEARTBEAT_FRESH_SECONDS = 10.0
 _LIVENESS_GRACE_SECONDS = 15.0
+_RESOURCE_GUARD_HEARTBEAT_FRESH_SECONDS = 5.0
+_FORBIDDEN_TRAIN_GROUP_TOKENS = (
+    "morai",
+    "simulator.x86_64",
+    "ajounice2026",
+    "roscore",
+    "roslaunch",
+)
 
 
 def _now_iso():
@@ -785,6 +794,161 @@ def _process_alive(pid, expected_start_ticks=None):
     return True
 
 
+def _proc_identity(pid):
+    try:
+        stat_fields = Path("/proc/{}/stat".format(pid)).read_text(encoding="utf-8").split()
+        command_bytes = Path("/proc/{}/cmdline".format(pid)).read_bytes()
+        return {
+            "pid": int(pid),
+            "ppid": int(stat_fields[3]),
+            "pgid": int(stat_fields[4]),
+            "sid": int(stat_fields[5]),
+            "start_ticks": int(stat_fields[21]),
+            "command_digest": hashlib.sha256(command_bytes).hexdigest(),
+            "cmdline": command_bytes.replace(b"\x00", b" ").decode(errors="replace").strip(),
+        }
+    except (OSError, ValueError, IndexError):
+        return None
+
+
+def _training_group_members(pgid):
+    members = []
+    for path in Path("/proc").iterdir():
+        if not path.name.isdigit():
+            continue
+        identity = _proc_identity(int(path.name))
+        if identity and identity["pgid"] == int(pgid):
+            members.append(identity)
+    return members
+
+
+def _is_descendant(pid, ancestor_pid):
+    current = int(pid)
+    seen = set()
+    while current > 1 and current not in seen:
+        if current == int(ancestor_pid):
+            return True
+        seen.add(current)
+        identity = _proc_identity(current)
+        if identity is None:
+            return False
+        current = identity["ppid"]
+    return False
+
+
+def _validate_train_identity(store, manifest):
+    record = _read_json(store.run_dir / "process.json")
+    if not isinstance(record, dict) or record.get("run_id") != manifest.get("run_id"):
+        raise HarnessError("Refusing signal: training run_id identity mismatch")
+    expected_boot_id = record.get("boot_id")
+    if expected_boot_id and expected_boot_id != _read_boot_id():
+        raise HarnessError("Refusing signal: host boot identity changed")
+    required = (
+        "train_pid",
+        "train_pgid",
+        "train_sid",
+        "train_start_ticks",
+        "command_digest",
+    )
+    if any(record.get(key) is None for key in required):
+        raise HarnessError("Refusing signal: incomplete training identity")
+    pid = int(record["train_pid"])
+    pgid = int(record["train_pgid"])
+    sid = int(record["train_sid"])
+    if pid <= 1 or pgid <= 1 or sid <= 1:
+        raise HarnessError("Refusing signal: invalid training pid/pgid/sid")
+    if pgid == os.getpgrp() or pid == os.getpid():
+        raise HarnessError("Refusing signal: training group contains the caller")
+    identity = _proc_identity(pid)
+    if identity is None:
+        raise HarnessError("Refusing signal: training PID is unavailable")
+    expected = {
+        "pgid": pgid,
+        "sid": sid,
+        "start_ticks": int(record["train_start_ticks"]),
+        "command_digest": record["command_digest"],
+    }
+    actual = {key: identity[key] for key in expected}
+    if actual != expected:
+        raise HarnessError("Refusing signal: exact training identity changed")
+    members = _training_group_members(pgid)
+    if not members:
+        raise HarnessError("Refusing signal: training process group is empty")
+    for member in members:
+        lowered = member["cmdline"].lower()
+        if any(token in lowered for token in _FORBIDDEN_TRAIN_GROUP_TOKENS):
+            raise HarnessError(
+                "Refusing signal: protected process found in training group pid={}".format(
+                    member["pid"]
+                )
+            )
+        if not _is_descendant(member["pid"], pid):
+            raise HarnessError(
+                "Refusing signal: process outside training ancestry pid={}".format(member["pid"])
+            )
+    return record
+
+
+def _resource_heartbeat(manifest, heartbeat, now=None):
+    config = manifest.get("resource_guard") or {}
+    if not config.get("enabled") or not isinstance(heartbeat, dict):
+        return None
+    process = _read_json(Path(manifest["run_dir"]) / "resource_guard_process.json", {})
+    expected = {
+        "run_id": manifest.get("run_id"),
+        "guard_pid": process.get("guard_pid"),
+        "guard_start_ticks": process.get("guard_start_ticks"),
+    }
+    actual = {key: heartbeat.get(key) for key in expected}
+    try:
+        wall_time = float(heartbeat["wall_time_unix"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    if actual != expected:
+        return None
+    return max(0.0, float(time.time() if now is None else now) - wall_time)
+
+
+def _resource_guard_fault(guard_process, heartbeat_age):
+    return_code = guard_process.poll()
+    dead = return_code is not None
+    stale = heartbeat_age is None or heartbeat_age > _RESOURCE_GUARD_HEARTBEAT_FRESH_SECONDS
+    if not dead and not stale:
+        return None
+    return {
+        "guard_dead": dead,
+        "guard_return_code": return_code,
+        "heartbeat_age_seconds": heartbeat_age,
+    }
+
+
+def _record_resource_fault(store, manifest, reason, evidence=None):
+    path = store.run_dir / "resource_guard_decision.json"
+    existing = _read_json(path)
+    if isinstance(existing, dict):
+        return existing
+    decision = {
+        "schema_version": 1,
+        "run_id": manifest["run_id"],
+        "requested_at": _now_iso(),
+        "wall_time_unix": time.time(),
+        "kind": "hard",
+        "reason": reason,
+        "evidence": evidence or {},
+    }
+    _atomic_write_json(path, decision)
+    return decision
+
+
+def _signal_training_group(store, manifest, signum):
+    identity = _validate_train_identity(store, manifest)
+    try:
+        os.killpg(int(identity["train_pgid"]), signum)
+    except OSError as exc:
+        raise HarnessError("Refusing signal: training group signal failed: {}".format(exc))
+    return identity
+
+
 def _supervisor_heartbeat(manifest, heartbeat, now=None):
     """Return heartbeat age only when it belongs to this exact supervisor."""
     if not isinstance(heartbeat, dict):
@@ -963,6 +1127,11 @@ def launch_run(
     mock=False,
     morai_reported_running=False,
     trend_min_iteration=250,
+    resource_guard=False,
+    resource_topic="/Ego_topic",
+    resource_window_seconds=15.0,
+    resource_minimum_rate_hz=40.0,
+    resource_preflight_timeout=15.0,
 ):
     """Launch a command under a durable supervisor and return its run directory."""
     if authority != "supervisor":
@@ -1017,6 +1186,14 @@ def launch_run(
         "disk_preflight": disk,
         "mock": bool(mock),
         "trend_min_iteration": max(int(trend_min_iteration), 0),
+        "resource_guard": {
+            "enabled": bool(resource_guard),
+            "topic": str(resource_topic),
+            "window_seconds": float(resource_window_seconds),
+            "minimum_rate_hz": float(resource_minimum_rate_hz),
+            "preflight_timeout_seconds": float(resource_preflight_timeout),
+            "heartbeat_timeout_seconds": _RESOURCE_GUARD_HEARTBEAT_FRESH_SECONDS,
+        },
     }
     store.initialize(manifest)
 
@@ -1064,6 +1241,8 @@ def supervise(run_dir):
     store = RunStore(run_dir)
     manifest = store.manifest()
     command = manifest["command"]
+    guard_config = manifest.get("resource_guard") or {}
+    guard_enabled = bool(guard_config.get("enabled"))
     received = {"signal": None}
 
     def remember_signal(signum, _frame):
@@ -1071,6 +1250,84 @@ def supervise(run_dir):
 
     signal.signal(signal.SIGINT, remember_signal)
     signal.signal(signal.SIGTERM, remember_signal)
+    guard = None
+    guard_log = None
+    return_code = 125
+
+    if guard_enabled:
+        guard_log = (store.run_dir / "resource_guard.log").open("ab", buffering=0)
+        guard_command = [
+            sys.executable,
+            "-m",
+            "legged_gym.harness.resource_guard",
+            "--run-dir",
+            str(store.run_dir),
+            "--run-id",
+            manifest["run_id"],
+            "--topic",
+            guard_config["topic"],
+            "--window-seconds",
+            str(guard_config["window_seconds"]),
+            "--minimum-rate-hz",
+            str(guard_config["minimum_rate_hz"]),
+            "--preflight-timeout",
+            str(guard_config["preflight_timeout_seconds"]),
+        ]
+        guard = subprocess.Popen(
+            guard_command,
+            cwd=manifest["repo_root"],
+            stdin=subprocess.DEVNULL,
+            stdout=guard_log,
+            stderr=subprocess.STDOUT,
+            start_new_session=True,
+            close_fds=True,
+        )
+        _atomic_write_json(
+            store.run_dir / "resource_guard_process.json",
+            {
+                "run_id": manifest["run_id"],
+                "guard_pid": guard.pid,
+                "guard_pgid": os.getpgid(guard.pid),
+                "guard_sid": os.getsid(guard.pid),
+                "guard_start_ticks": _proc_start_ticks(guard.pid),
+                "started_at": _now_iso(),
+            },
+        )
+        deadline = time.time() + float(guard_config["preflight_timeout_seconds"]) + 5.0
+        while time.time() < deadline:
+            preflight = _read_json(store.run_dir / "resource_preflight.json")
+            if isinstance(preflight, dict) and preflight.get("run_id") == manifest["run_id"]:
+                break
+            if guard.poll() is not None:
+                preflight = None
+                break
+            time.sleep(0.1)
+        if not isinstance(preflight, dict):
+            decision = _record_resource_fault(
+                store,
+                manifest,
+                "resource_preflight_failed",
+                {"guard_return_code": guard.poll() if guard else None},
+            )
+            exit_record = {
+                "return_code": return_code,
+                "received_signal": received["signal"],
+                "finished_at": _now_iso(),
+            }
+            _atomic_write_json(store.run_dir / "exit_status.json", exit_record)
+            store.transition(
+                RunState.ERROR,
+                reason=decision["reason"],
+                expected_states={RunState.RUNNING.value, RunState.PREFLIGHT.value},
+                exit=exit_record,
+                last_error={"kind": "resource_guard", "decision": decision},
+            )
+            if guard and guard.poll() is None:
+                guard.terminate()
+            if guard_log:
+                guard_log.close()
+            return return_code
+
     console_path = store.run_dir / "console.log"
     with console_path.open("ab", buffering=0) as console:
         child = subprocess.Popen(
@@ -1079,12 +1336,42 @@ def supervise(run_dir):
             stdin=subprocess.DEVNULL,
             stdout=console,
             stderr=subprocess.STDOUT,
+            start_new_session=True,
             close_fds=True,
         )
+        child_identity = _proc_identity(child.pid)
+        if child_identity is None:
+            child.kill()
+            raise HarnessError("Could not capture training process identity")
+        process_record = {
+            "schema_version": 2,
+            "run_id": manifest["run_id"],
+            "train_pid": child.pid,
+            "train_pgid": child_identity["pgid"],
+            "train_sid": child_identity["sid"],
+            "train_start_ticks": child_identity["start_ticks"],
+            "boot_id": _read_boot_id(),
+            "command_digest": child_identity["command_digest"],
+            "started_at": _now_iso(),
+            "command": command,
+        }
         _atomic_write_json(
             store.run_dir / "process.json",
-            {"train_pid": child.pid, "started_at": _now_iso(), "command": command},
+            process_record,
         )
+        if guard_enabled:
+            _atomic_write_json(
+                store.run_dir / "resource_guard_control.json",
+                {
+                    "schema_version": 1,
+                    "run_id": manifest["run_id"],
+                    "training_active": True,
+                    "terminal": False,
+                    "training_started_at": _now_iso(),
+                    "training_started_monotonic_ns": time.monotonic_ns(),
+                    "train_identity": process_record,
+                },
+            )
         supervisor_pid = os.getpid()
         supervisor_start_ticks = _proc_start_ticks(supervisor_pid)
 
@@ -1104,13 +1391,97 @@ def supervise(run_dir):
             )
 
         write_heartbeat(None)
+        stop_started = None
+        sent_signal = None
+        identity_refused = False
         while True:
             return_code = child.poll()
             if return_code is not None:
                 break
-            time.sleep(_HEARTBEAT_INTERVAL_SECONDS)
+            if guard_enabled:
+                decision = _read_json(store.run_dir / "resource_guard_decision.json")
+                guard_state = _read_json(store.run_dir / "resource_guard_state.json")
+                heartbeat_age = _resource_heartbeat(manifest, guard_state)
+                guard_fault = _resource_guard_fault(guard, heartbeat_age)
+                if not isinstance(decision, dict) and guard_fault is not None:
+                    decision = _record_resource_fault(
+                        store,
+                        manifest,
+                        "resource_guard_unhealthy",
+                        guard_fault,
+                    )
+                if isinstance(decision, dict) and not identity_refused:
+                    if stop_started is None:
+                        stop_started = time.time()
+                        state = store.state()
+                        if state["state"] in {RunState.RUNNING.value, RunState.PREFLIGHT.value}:
+                            stop_record = {
+                                "authority": "resource_guard",
+                                "kind": "hard",
+                                "reason": decision.get("reason", "resource guard stop"),
+                                "requested_at": _now_iso(),
+                                "decision": decision,
+                            }
+                            store.transition(
+                                RunState.STOPPING,
+                                reason=stop_record["reason"],
+                                expected_states={RunState.RUNNING.value, RunState.PREFLIGHT.value},
+                                stop=stop_record,
+                            )
+                        try:
+                            _signal_training_group(store, manifest, signal.SIGINT)
+                            sent_signal = signal.SIGINT
+                        except HarnessError as exc:
+                            mismatch = dict(decision)
+                            mismatch["identity_validation_error"] = str(exc)
+                            _atomic_write_json(
+                                store.run_dir / "resource_guard_decision.json", mismatch
+                            )
+                            identity_refused = True
+                    elif time.time() - stop_started > 5.0 and sent_signal == signal.SIGINT:
+                        try:
+                            _signal_training_group(store, manifest, signal.SIGTERM)
+                            sent_signal = signal.SIGTERM
+                        except HarnessError as exc:
+                            mismatch = dict(decision)
+                            mismatch["identity_validation_error"] = str(exc)
+                            _atomic_write_json(
+                                store.run_dir / "resource_guard_decision.json", mismatch
+                            )
+                            identity_refused = True
+                    elif time.time() - stop_started > 10.0 and sent_signal == signal.SIGTERM:
+                        try:
+                            _signal_training_group(store, manifest, signal.SIGKILL)
+                            sent_signal = signal.SIGKILL
+                        except HarnessError as exc:
+                            mismatch = dict(decision)
+                            mismatch["identity_validation_error"] = str(exc)
+                            _atomic_write_json(
+                                store.run_dir / "resource_guard_decision.json", mismatch
+                            )
+                            identity_refused = True
+            time.sleep(min(_HEARTBEAT_INTERVAL_SECONDS, 0.5))
             write_heartbeat(None)
         write_heartbeat(return_code)
+
+    if guard_enabled:
+        control = _read_json(store.run_dir / "resource_guard_control.json", {})
+        control.update(
+            {
+                "run_id": manifest["run_id"],
+                "training_active": False,
+                "terminal": True,
+                "terminal_at": _now_iso(),
+            }
+        )
+        _atomic_write_json(store.run_dir / "resource_guard_control.json", control)
+        try:
+            guard.wait(timeout=3.0)
+        except subprocess.TimeoutExpired:
+            guard.terminate()
+            guard.wait(timeout=2.0)
+        if guard_log:
+            guard_log.close()
 
     exit_record = {
         "return_code": return_code,
@@ -1121,7 +1492,10 @@ def supervise(run_dir):
     state = store.state()
     if state["state"] == RunState.STOPPING.value:
         kind = (state.get("stop") or {}).get("kind", "operator")
-        if kind == "trend":
+        durable_decision = _read_json(store.run_dir / "resource_guard_decision.json", {})
+        if durable_decision.get("identity_validation_error"):
+            target = RunState.BLOCKED
+        elif kind == "trend":
             target = RunState.STOPPED_TREND
         elif kind == "hard":
             target = RunState.ERROR
@@ -1129,9 +1503,17 @@ def supervise(run_dir):
             target = RunState.STOPPED_OPERATOR
         store.transition(
             target,
-            reason=(state.get("stop") or {}).get("reason"),
+            reason=(
+                durable_decision.get("identity_validation_error")
+                or (state.get("stop") or {}).get("reason")
+            ),
             expected_states={RunState.STOPPING.value},
             exit=exit_record,
+            blocked_reason=(
+                durable_decision.get("identity_validation_error")
+                if target == RunState.BLOCKED
+                else None
+            ),
         )
     elif state["state"] in {RunState.RUNNING.value, RunState.PREFLIGHT.value} and return_code == 0:
         completion_error = _completion_artifact_error(store.run_dir, bool(manifest.get("mock")))
@@ -1970,6 +2352,32 @@ def collect_run(run_dir, stale_seconds=600, trend_min_iteration=250):
     heartbeat_fresh = heartbeat_age is not None and heartbeat_age <= _HEARTBEAT_FRESH_SECONDS
     alive = bool(process_visible or heartbeat_fresh)
     alerts = []
+    resource_guard_state = _read_json(store.run_dir / "resource_guard_state.json")
+    resource_guard_decision = _read_json(store.run_dir / "resource_guard_decision.json")
+    resource_heartbeat_age = _resource_heartbeat(manifest, resource_guard_state)
+    resource_windows = []
+    resource_windows_path = store.run_dir / "resource_windows.jsonl"
+    if resource_windows_path.exists():
+        with resource_windows_path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(record, dict):
+                    resource_windows.append(record)
+    latest_resource_window = next(
+        (record for record in reversed(resource_windows) if record.get("complete")), None
+    )
+    terminal_resource_window = resource_windows[-1] if resource_windows else None
+    if resource_guard_decision:
+        alerts.append(
+            {
+                "severity": "hard",
+                "kind": "resource_guard_fault",
+                "reason": resource_guard_decision.get("reason"),
+            }
+        )
 
     if exit_record or (not process_visible and not heartbeat_fresh):
         local_handle = _LOCAL_SUPERVISOR_HANDLES.pop(int(pid or 0), None)
@@ -1982,14 +2390,23 @@ def collect_run(run_dir, stale_seconds=600, trend_min_iteration=250):
     if state["state"] in _ACTIVE_STATES and exit_record:
         if state["state"] == RunState.STOPPING.value:
             kind = (state.get("stop") or {}).get("kind", "operator")
-            target = RunState.STOPPED_TREND if kind == "trend" else RunState.STOPPED_OPERATOR
-            if kind == "hard":
+            identity_error = (resource_guard_decision or {}).get(
+                "identity_validation_error"
+            )
+            if identity_error:
+                target = RunState.BLOCKED
+            elif kind == "trend":
+                target = RunState.STOPPED_TREND
+            elif kind == "hard":
                 target = RunState.ERROR
+            else:
+                target = RunState.STOPPED_OPERATOR
             state = store.transition(
                 target,
-                reason="supervisor exited after stop request",
+                reason=identity_error or "supervisor exited after stop request",
                 expected_states={RunState.STOPPING.value},
                 exit=exit_record,
+                blocked_reason=identity_error if target == RunState.BLOCKED else None,
             )
         elif exit_record.get("return_code") == 0:
             completion_error = _completion_artifact_error(
@@ -2118,6 +2535,14 @@ def collect_run(run_dir, stale_seconds=600, trend_min_iteration=250):
         "checkpoints": checkpoints,
         "gpu": gpu_snapshot(),
         "exit": exit_record,
+        "resource_guard": {
+            "enabled": bool((manifest.get("resource_guard") or {}).get("enabled")),
+            "state": resource_guard_state,
+            "heartbeat_age_seconds": resource_heartbeat_age,
+            "latest_window": latest_resource_window,
+            "terminal_window": terminal_resource_window,
+            "decision": resource_guard_decision,
+        },
     }
     _atomic_write_json(store.run_dir / "latest_snapshot.json", snapshot)
     return snapshot
@@ -2209,7 +2634,11 @@ def stop_run(
     state = store.state()
     if state["state"] not in {RunState.RUNNING.value, RunState.PREFLIGHT.value}:
         raise HarnessError("Run is not stoppable from state {}".format(state["state"]))
-    pid, pgid, alive = _validate_supervisor_identity(store, manifest)
+    _validate_supervisor_identity(store, manifest)
+    train_identity = _validate_train_identity(store, manifest)
+    pid = int(train_identity["train_pid"])
+    pgid = int(train_identity["train_pgid"])
+    alive = _process_alive(pid, train_identity["train_start_ticks"])
     stop_record = {
         "authority": authority,
         "kind": kind,
@@ -2229,19 +2658,29 @@ def stop_run(
     if not alive:
         return collect_run(run_dir)
 
-    os.killpg(pgid, signal.SIGINT)
+    _signal_training_group(store, manifest, signal.SIGINT)
     deadline = time.time() + max(float(grace_seconds), 0.1)
     while time.time() < deadline:
-        if not _process_alive(pid, manifest.get("supervisor_start_ticks")):
+        if not _process_alive(pid, train_identity["train_start_ticks"]):
+            terminal_deadline = time.time() + 3.0
+            while time.time() < terminal_deadline and not (
+                store.run_dir / "exit_status.json"
+            ).exists():
+                time.sleep(0.05)
             return collect_run(run_dir)
         time.sleep(0.1)
-    os.killpg(pgid, signal.SIGTERM)
+    _signal_training_group(store, manifest, signal.SIGTERM)
     second_deadline = time.time() + min(max(float(grace_seconds), 1.0), 10.0)
     while time.time() < second_deadline:
-        if not _process_alive(pid, manifest.get("supervisor_start_ticks")):
+        if not _process_alive(pid, train_identity["train_start_ticks"]):
+            terminal_deadline = time.time() + 3.0
+            while time.time() < terminal_deadline and not (
+                store.run_dir / "exit_status.json"
+            ).exists():
+                time.sleep(0.05)
             return collect_run(run_dir)
         time.sleep(0.1)
-    os.killpg(pgid, signal.SIGKILL)
+    _signal_training_group(store, manifest, signal.SIGKILL)
     forced_target = RunState.ERROR if kind == "hard" else (
         RunState.STOPPED_TREND if kind == "trend" else RunState.STOPPED_OPERATOR
     )

@@ -19,6 +19,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from legged_gym.harness.cli import _monitor_event, smoke_loop
 import legged_gym.harness.manager as harness_manager
+from legged_gym.harness.resource_guard import EgoTopicRateGuard
 from legged_gym.harness.manager import (
     HarnessError,
     RunState,
@@ -74,6 +75,199 @@ class AgentConfigurationTest(unittest.TestCase):
 class TrainingHarnessTest(unittest.TestCase):
     def _production_command(self, entrypoint, task, *extra):
         return [sys.executable, entrypoint, "--task", task, "--headless", *extra]
+
+    def test_resource_guard_strict_rate_windows_and_terminal_partial(self):
+        with tempfile.TemporaryDirectory(prefix="resource-window-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ):
+            guard = EgoTopicRateGuard(temporary, "rate-fixture")
+            identity = {"train_pid": 123, "train_start_ticks": 456}
+            guard.start_training_windows(0, identity)
+            guard.samples = [int(index * 1e9 / 39.0) for index in range(585)]
+            first = guard.close_window(int(15e9))
+            self.assertAlmostEqual(first["rate_hz"], 39.0)
+            self.assertIsNone(guard.decision)
+            guard.samples = [int(15e9 + index * 1e9 / 39.0) for index in range(585)]
+            second = guard.close_window(int(30e9))
+            self.assertEqual(second["consecutive_below_40"], 2)
+            self.assertEqual(guard.decision["reason"], "two_consecutive_below_rate")
+
+            passing = EgoTopicRateGuard(temporary, "passing-fixture")
+            passing.start_training_windows(0, identity)
+            passing.samples = [int(index * 1e9 / 40.0) for index in range(600)]
+            exact = passing.close_window(int(15e9))
+            passing.samples = [int(15e9 + index * 1e9 / 41.0) for index in range(615)]
+            above = passing.close_window(int(30e9))
+            partial = passing.close_window(int(31e9), partial=True)
+            self.assertEqual(exact["rate_hz"], 40.0)
+            self.assertEqual(above["rate_hz"], 41.0)
+            self.assertIsNone(passing.decision)
+            self.assertTrue(partial["partial"])
+
+    def test_resource_guard_no_message_and_subscriber_exception_fail_closed(self):
+        with tempfile.TemporaryDirectory(prefix="resource-fault-") as temporary:
+            empty = EgoTopicRateGuard(temporary, "empty")
+            empty.start_training_windows(0, {"train_pid": 1, "train_start_ticks": 2})
+            empty.close_window(int(15e9))
+            self.assertEqual(empty.decision["reason"], "no_message_window")
+            decision_path = Path(temporary) / "resource_guard_decision.json"
+            self.assertTrue(decision_path.is_file())
+
+        with tempfile.TemporaryDirectory(prefix="resource-exception-") as temporary:
+            failed = EgoTopicRateGuard(temporary, "exception")
+            failed.subscriber_exception(RuntimeError("fixture"))
+            self.assertEqual(failed.decision["reason"], "subscriber_exception")
+
+    def test_resource_heartbeat_rejects_guard_death_and_staleness(self):
+        with tempfile.TemporaryDirectory(prefix="resource-heartbeat-") as temporary:
+            run_dir = Path(temporary)
+            manifest = {
+                "run_id": "heartbeat-fixture",
+                "run_dir": str(run_dir),
+                "resource_guard": {"enabled": True},
+            }
+            process = {
+                "guard_pid": 10,
+                "guard_start_ticks": 20,
+            }
+            (run_dir / "resource_guard_process.json").write_text(
+                json.dumps(process), encoding="utf-8"
+            )
+            heartbeat = {
+                "run_id": manifest["run_id"],
+                "guard_pid": 10,
+                "guard_start_ticks": 20,
+                "wall_time_unix": 100.0,
+            }
+            self.assertEqual(harness_manager._resource_heartbeat(manifest, heartbeat, now=106), 6.0)
+            alive_guard = mock.Mock()
+            alive_guard.poll.return_value = None
+            self.assertEqual(
+                harness_manager._resource_guard_fault(alive_guard, 6.0)[
+                    "heartbeat_age_seconds"
+                ],
+                6.0,
+            )
+            dead_guard = mock.Mock()
+            dead_guard.poll.return_value = 9
+            self.assertTrue(
+                harness_manager._resource_guard_fault(dead_guard, 0.1)["guard_dead"]
+            )
+            heartbeat["guard_start_ticks"] = 21
+            self.assertIsNone(harness_manager._resource_heartbeat(manifest, heartbeat, now=101))
+
+    def test_exact_training_identity_mutations_refuse_before_signal(self):
+        with tempfile.TemporaryDirectory(prefix="train-identity-") as temporary:
+            store = RunStore(Path(temporary))
+            manifest = {"run_id": "identity-fixture"}
+            store.initialize(manifest)
+            baseline = {
+                "run_id": "identity-fixture",
+                "boot_id": "boot",
+                "train_pid": 200,
+                "train_pgid": 200,
+                "train_sid": 200,
+                "train_start_ticks": 300,
+                "command_digest": "digest",
+            }
+            live = {
+                "pid": 200,
+                "ppid": 1,
+                "pgid": 200,
+                "sid": 200,
+                "start_ticks": 300,
+                "command_digest": "digest",
+                "cmdline": "python mock_training",
+            }
+            mutations = {
+                "train_start_ticks": 301,
+                "boot_id": "other-boot",
+                "train_pgid": 201,
+                "command_digest": "other-digest",
+                "run_id": "other-run",
+            }
+            for key, value in mutations.items():
+                with self.subTest(key=key):
+                    record = dict(baseline)
+                    record[key] = value
+                    (Path(temporary) / "process.json").write_text(
+                        json.dumps(record), encoding="utf-8"
+                    )
+                    with mock.patch(
+                        "legged_gym.harness.manager._read_boot_id", return_value="boot"
+                    ), mock.patch(
+                        "legged_gym.harness.manager._proc_identity", return_value=live
+                    ), mock.patch(
+                        "legged_gym.harness.manager._training_group_members", return_value=[live]
+                    ), mock.patch(
+                        "legged_gym.harness.manager._is_descendant", return_value=True
+                    ), mock.patch(
+                        "legged_gym.harness.manager.os.getpgrp", return_value=999
+                    ), mock.patch("legged_gym.harness.manager.os.killpg") as killpg:
+                        with self.assertRaises(HarnessError):
+                            harness_manager._signal_training_group(store, manifest, 2)
+                        killpg.assert_not_called()
+
+            (Path(temporary) / "process.json").write_text(
+                json.dumps(baseline), encoding="utf-8"
+            )
+            protected_member = dict(live, cmdline="Simulator.x86_64")
+            with mock.patch(
+                "legged_gym.harness.manager._read_boot_id", return_value="boot"
+            ), mock.patch(
+                "legged_gym.harness.manager._proc_identity", return_value=live
+            ), mock.patch(
+                "legged_gym.harness.manager._training_group_members",
+                return_value=[live, protected_member],
+            ), mock.patch(
+                "legged_gym.harness.manager._is_descendant", return_value=True
+            ), mock.patch(
+                "legged_gym.harness.manager.os.getpgrp", return_value=999
+            ), mock.patch("legged_gym.harness.manager.os.killpg") as killpg:
+                with self.assertRaisesRegex(HarnessError, "protected process"):
+                    harness_manager._signal_training_group(store, manifest, 2)
+                killpg.assert_not_called()
+
+    def test_training_group_signal_does_not_touch_protected_unrelated_processes(self):
+        with tempfile.TemporaryDirectory(prefix="train-group-") as temporary:
+            store = RunStore(Path(temporary))
+            manifest = {"run_id": "group-fixture"}
+            store.initialize(manifest)
+            training = subprocess.Popen(
+                [sys.executable, "-c", "import time; time.sleep(60)"],
+                start_new_session=True,
+            )
+            protected = [
+                subprocess.Popen(
+                    ["bash", "-c", "exec -a {} sleep 60".format(name)],
+                    start_new_session=True,
+                )
+                for name in ("MORAI", "AjouNice2026")
+            ]
+            try:
+                identity = harness_manager._proc_identity(training.pid)
+                record = {
+                    "run_id": manifest["run_id"],
+                    "boot_id": harness_manager._read_boot_id(),
+                    "train_pid": training.pid,
+                    "train_pgid": identity["pgid"],
+                    "train_sid": identity["sid"],
+                    "train_start_ticks": identity["start_ticks"],
+                    "command_digest": identity["command_digest"],
+                }
+                (Path(temporary) / "process.json").write_text(
+                    json.dumps(record), encoding="utf-8"
+                )
+                harness_manager._signal_training_group(store, manifest, 15)
+                training.wait(timeout=5)
+                self.assertTrue(all(process.poll() is None for process in protected))
+            finally:
+                if training.poll() is None:
+                    training.terminate()
+                for process in protected:
+                    if process.poll() is None:
+                        process.terminate()
+                    process.wait(timeout=5)
 
     def test_production_command_exact_allowlist(self):
         allowed = (
@@ -838,6 +1032,23 @@ class TrainingHarnessTest(unittest.TestCase):
             self.assertNotIn("latest_metrics", first)
             events = (run_dir / "monitor_events.jsonl").read_text(encoding="utf-8").splitlines()
             self.assertEqual(len(events), 1)
+
+            snapshot["collected_at"] = "2026-08-11T01:00:15+09:00"
+            snapshot["resource_guard"] = {
+                "enabled": True,
+                "latest_window": {"sequence": 0, "complete": True, "rate_hz": 41.0},
+                "decision": None,
+            }
+            resource_window = _monitor_event(run_dir, snapshot, checkpoint_interval=100)
+            self.assertEqual(resource_window["event_type"], "resource_window")
+            self.assertIsNone(_monitor_event(run_dir, snapshot, checkpoint_interval=100))
+
+            snapshot["collected_at"] = "2026-08-11T01:00:20+09:00"
+            snapshot["resource_guard"]["decision"] = {
+                "reason": "resource_guard_unhealthy"
+            }
+            resource_fault = _monitor_event(run_dir, snapshot, checkpoint_interval=100)
+            self.assertEqual(resource_fault["event_type"], "resource_guard_fault")
 
             snapshot["collected_at"] = "2026-08-11T01:01:00+09:00"
             snapshot["state"] = {
