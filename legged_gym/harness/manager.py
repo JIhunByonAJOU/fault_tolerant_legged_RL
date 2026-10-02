@@ -8,6 +8,7 @@ import json
 import math
 import os
 import re
+import shlex
 import signal
 import shutil
 import statistics
@@ -798,6 +799,10 @@ def _proc_identity(pid):
     try:
         stat_fields = Path("/proc/{}/stat".format(pid)).read_text(encoding="utf-8").split()
         command_bytes = Path("/proc/{}/cmdline".format(pid)).read_bytes()
+        argv = [
+            value.decode(errors="replace")
+            for value in command_bytes.rstrip(b"\x00").split(b"\x00")
+        ] if command_bytes else []
         return {
             "pid": int(pid),
             "ppid": int(stat_fields[3]),
@@ -805,6 +810,7 @@ def _proc_identity(pid):
             "sid": int(stat_fields[5]),
             "start_ticks": int(stat_fields[21]),
             "command_digest": hashlib.sha256(command_bytes).hexdigest(),
+            "argv": argv,
             "cmdline": command_bytes.replace(b"\x00", b" ").decode(errors="replace").strip(),
         }
     except (OSError, ValueError, IndexError):
@@ -836,6 +842,81 @@ def _is_descendant(pid, ancestor_pid):
     return False
 
 
+def _argv_digest(argv):
+    command_bytes = b"\x00".join(value.encode() for value in argv) + b"\x00"
+    return hashlib.sha256(command_bytes).hexdigest()
+
+
+def _authorized_exec_transitions(command):
+    """Return the exact argv states authorized by the recorded wrapper chain."""
+    if not isinstance(command, list) or not command or not all(
+        isinstance(value, str) and value and "\x00" not in value for value in command
+    ):
+        raise HarnessError("Refusing signal: invalid recorded launch command")
+    if command[:4] != ["/usr/bin/nice", "-n", "10", "/usr/bin/env"]:
+        raise HarnessError("Refusing signal: unauthorized training wrapper chain")
+
+    executable_index = 4
+    assignment = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=.*$")
+    while executable_index < len(command) and assignment.fullmatch(command[executable_index]):
+        executable_index += 1
+    if executable_index == 4 or executable_index >= len(command):
+        raise HarnessError("Refusing signal: invalid recorded environment assignments")
+    executable = command[executable_index]
+    if not os.path.isabs(executable) or Path(executable).name != "conda":
+        raise HarnessError("Refusing signal: authorized conda executable is invalid")
+
+    try:
+        with Path(executable).open("rb") as handle:
+            first_line = handle.readline(4096)
+    except OSError as exc:
+        raise HarnessError("Refusing signal: cannot validate conda shebang: {}".format(exc))
+    if not first_line.startswith(b"#!") or len(first_line) >= 4096:
+        raise HarnessError("Refusing signal: conda executable has no bounded shebang")
+    try:
+        interpreter = shlex.split(first_line[2:].decode("utf-8").strip())
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise HarnessError("Refusing signal: invalid conda shebang: {}".format(exc))
+    if not interpreter or not os.path.isabs(interpreter[0]):
+        raise HarnessError("Refusing signal: conda shebang interpreter is not absolute")
+
+    executable_argv = command[executable_index:]
+    transitions = [
+        ("recorded_launch", command),
+        ("nice_exec_to_env", command[3:]),
+        ("env_exec_to_conda", executable_argv),
+        ("conda_shebang_exec", interpreter + executable_argv),
+    ]
+    if len({tuple(argv) for _name, argv in transitions}) != len(transitions):
+        raise HarnessError("Refusing signal: ambiguous authorized exec transitions")
+    return transitions
+
+
+def _validate_authorized_argv(record, identity):
+    command = record.get("command")
+    if not isinstance(command, list) or not command or not all(
+        isinstance(value, str) and value and "\x00" not in value for value in command
+    ):
+        raise HarnessError("Refusing signal: invalid recorded launch command")
+    if _argv_digest(command) != record.get("command_digest"):
+        raise HarnessError("Refusing signal: recorded launch command digest mismatch")
+    actual_argv = identity.get("argv")
+    if actual_argv == command:
+        transitions = [("recorded_launch", command)]
+    else:
+        transitions = _authorized_exec_transitions(command)
+    for transition, authorized_argv in transitions:
+        if actual_argv == authorized_argv:
+            return {
+                "accepted_transition": transition,
+                "actual_argv": actual_argv,
+                "actual_command_digest": identity["command_digest"],
+                "canonical_launch_argv": command,
+                "canonical_launch_command_digest": record["command_digest"],
+            }
+    raise HarnessError("Refusing signal: authorized training command changed")
+
+
 def _validate_train_identity(store, manifest):
     record = _read_json(store.run_dir / "process.json")
     if not isinstance(record, dict) or record.get("run_id") != manifest.get("run_id"):
@@ -843,12 +924,16 @@ def _validate_train_identity(store, manifest):
     expected_boot_id = record.get("boot_id")
     if expected_boot_id and expected_boot_id != _read_boot_id():
         raise HarnessError("Refusing signal: host boot identity changed")
+    recorded_run_dir = manifest.get("run_dir")
+    if recorded_run_dir is None or Path(recorded_run_dir).resolve() != store.run_dir:
+        raise HarnessError("Refusing signal: exact training run_dir identity mismatch")
     required = (
         "train_pid",
         "train_pgid",
         "train_sid",
         "train_start_ticks",
         "command_digest",
+        "command",
     )
     if any(record.get(key) is None for key in required):
         raise HarnessError("Refusing signal: incomplete training identity")
@@ -863,14 +948,33 @@ def _validate_train_identity(store, manifest):
     if identity is None:
         raise HarnessError("Refusing signal: training PID is unavailable")
     expected = {
+        "pid": pid,
         "pgid": pgid,
         "sid": sid,
         "start_ticks": int(record["train_start_ticks"]),
-        "command_digest": record["command_digest"],
     }
     actual = {key: identity[key] for key in expected}
     if actual != expected:
         raise HarnessError("Refusing signal: exact training identity changed")
+    if record["command"] != manifest.get("command"):
+        raise HarnessError("Refusing signal: immutable launch command identity mismatch")
+    command_validation = _validate_authorized_argv(record, identity)
+    try:
+        command_run_dirs = [
+            value
+            for value in (
+                _single_option_value(record["command"], "--log_dir"),
+                _single_option_value(record["command"], "--run-dir"),
+            )
+            if value is not None
+        ]
+        command_run_id = _single_option_value(record["command"], "--run_name")
+    except HarnessError as exc:
+        raise HarnessError("Refusing signal: invalid managed command identity: {}".format(exc))
+    if len(command_run_dirs) != 1 or Path(command_run_dirs[0]).resolve() != store.run_dir:
+        raise HarnessError("Refusing signal: exact training command run_dir mismatch")
+    if command_run_id is not None and command_run_id != manifest.get("run_id"):
+        raise HarnessError("Refusing signal: exact training command run_id mismatch")
     members = _training_group_members(pgid)
     if not members:
         raise HarnessError("Refusing signal: training process group is empty")
@@ -886,7 +990,9 @@ def _validate_train_identity(store, manifest):
             raise HarnessError(
                 "Refusing signal: process outside training ancestry pid={}".format(member["pid"])
             )
-    return record
+    validated = dict(record)
+    validated["identity_validation"] = command_validation
+    return validated
 
 
 def _resource_heartbeat(manifest, heartbeat, now=None):
@@ -942,6 +1048,22 @@ def _record_resource_fault(store, manifest, reason, evidence=None):
 
 def _signal_training_group(store, manifest, signum):
     identity = _validate_train_identity(store, manifest)
+    _atomic_write_json(
+        store.run_dir / "signal_identity_validation.json",
+        {
+            "schema_version": 1,
+            "validated_at": _now_iso(),
+            "run_id": identity["run_id"],
+            "run_dir": str(store.run_dir),
+            "train_pid": identity["train_pid"],
+            "train_pgid": identity["train_pgid"],
+            "train_sid": identity["train_sid"],
+            "train_start_ticks": identity["train_start_ticks"],
+            "boot_id": identity.get("boot_id"),
+            "signal": int(signum),
+            "identity_validation": identity["identity_validation"],
+        },
+    )
     try:
         os.killpg(int(identity["train_pgid"]), signum)
     except OSError as exc:
@@ -1351,7 +1473,7 @@ def supervise(run_dir):
             "train_sid": child_identity["sid"],
             "train_start_ticks": child_identity["start_ticks"],
             "boot_id": _read_boot_id(),
-            "command_digest": child_identity["command_digest"],
+            "command_digest": _argv_digest(command),
             "started_at": _now_iso(),
             "command": command,
         }

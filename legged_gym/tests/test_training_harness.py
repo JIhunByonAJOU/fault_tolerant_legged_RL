@@ -156,87 +156,263 @@ class TrainingHarnessTest(unittest.TestCase):
             heartbeat["guard_start_ticks"] = 21
             self.assertIsNone(harness_manager._resource_heartbeat(manifest, heartbeat, now=101))
 
-    def test_exact_training_identity_mutations_refuse_before_signal(self):
+    def _wrapped_process_fixture(self, run_dir):
+        executable = run_dir / "conda"
+        executable.write_text(
+            "#!{}\nimport time\ntime.sleep(60)\n".format(sys.executable),
+            encoding="utf-8",
+        )
+        executable.chmod(0o755)
+        command = [
+            "/usr/bin/nice",
+            "-n",
+            "10",
+            "/usr/bin/env",
+            "PYTHONNOUSERSITE=1",
+            "OMP_NUM_THREADS=1",
+            str(executable),
+            "run",
+            "--no-capture-output",
+            "--payload=exact",
+            "--log_dir",
+            str(run_dir),
+            "--run_name",
+            "identity-fixture",
+        ]
+        process = subprocess.Popen(command, start_new_session=True)
+        deadline = time.monotonic() + 5.0
+        identity = None
+        while time.monotonic() < deadline:
+            identity = harness_manager._proc_identity(process.pid)
+            if identity and identity["argv"][:2] == [sys.executable, str(executable)]:
+                break
+            time.sleep(0.01)
+        self.assertIsNotNone(identity)
+        self.assertEqual(identity["argv"][:2], [sys.executable, str(executable)])
+        return process, command, identity
+
+    def test_actual_nice_env_conda_shebang_exec_is_accepted_exactly(self):
         with tempfile.TemporaryDirectory(prefix="train-identity-") as temporary:
-            store = RunStore(Path(temporary))
-            manifest = {"run_id": "identity-fixture"}
-            store.initialize(manifest)
-            baseline = {
+            run_dir = Path(temporary).resolve()
+            store = RunStore(run_dir)
+            manifest = {
                 "run_id": "identity-fixture",
-                "boot_id": "boot",
-                "train_pid": 200,
-                "train_pgid": 200,
-                "train_sid": 200,
-                "train_start_ticks": 300,
-                "command_digest": "digest",
+                "run_dir": str(run_dir),
             }
-            live = {
-                "pid": 200,
-                "ppid": 1,
-                "pgid": 200,
-                "sid": 200,
-                "start_ticks": 300,
-                "command_digest": "digest",
-                "cmdline": "python mock_training",
+            store.initialize(manifest)
+            process, command, identity = self._wrapped_process_fixture(run_dir)
+            manifest["command"] = command
+            try:
+                record = {
+                    "run_id": manifest["run_id"],
+                    "boot_id": harness_manager._read_boot_id(),
+                    "train_pid": process.pid,
+                    "train_pgid": identity["pgid"],
+                    "train_sid": identity["sid"],
+                    "train_start_ticks": identity["start_ticks"],
+                    "command_digest": harness_manager._argv_digest(command),
+                    "command": command,
+                }
+                (run_dir / "process.json").write_text(json.dumps(record), encoding="utf-8")
+                with mock.patch("legged_gym.harness.manager.os.killpg") as killpg:
+                    validated = harness_manager._signal_training_group(store, manifest, 2)
+                killpg.assert_called_once_with(identity["pgid"], 2)
+                evidence = validated["identity_validation"]
+                self.assertEqual(evidence["accepted_transition"], "conda_shebang_exec")
+                self.assertEqual(evidence["canonical_launch_argv"], command)
+                self.assertEqual(evidence["actual_argv"], identity["argv"])
+                durable = json.loads(
+                    (run_dir / "signal_identity_validation.json").read_text(encoding="utf-8")
+                )
+                self.assertEqual(
+                    durable["identity_validation"]["accepted_transition"],
+                    "conda_shebang_exec",
+                )
+            finally:
+                process.terminate()
+                process.wait(timeout=5)
+
+    def test_two_low_windows_dispatch_exact_group_and_guard_faults_fail_closed(self):
+        with tempfile.TemporaryDirectory(prefix="guard-dispatch-") as temporary:
+            run_dir = Path(temporary).resolve()
+            store = RunStore(run_dir)
+            manifest = {"run_id": "identity-fixture", "run_dir": str(run_dir)}
+            store.initialize(manifest)
+            process, command, identity = self._wrapped_process_fixture(run_dir)
+            manifest["command"] = command
+            record = {
+                "run_id": manifest["run_id"],
+                "boot_id": harness_manager._read_boot_id(),
+                "train_pid": process.pid,
+                "train_pgid": identity["pgid"],
+                "train_sid": identity["sid"],
+                "train_start_ticks": identity["start_ticks"],
+                "command_digest": harness_manager._argv_digest(command),
+                "command": command,
             }
-            mutations = {
-                "train_start_ticks": 301,
-                "boot_id": "other-boot",
-                "train_pgid": 201,
-                "command_digest": "other-digest",
-                "run_id": "other-run",
+            (run_dir / "process.json").write_text(json.dumps(record), encoding="utf-8")
+            guard = EgoTopicRateGuard(run_dir, manifest["run_id"])
+            guard.start_training_windows(0, record)
+            guard.samples = [int(index * 1e9 / 39.0) for index in range(585)]
+            guard.close_window(int(15e9))
+            guard.samples = [int(15e9 + index * 1e9 / 39.0) for index in range(585)]
+            guard.close_window(int(30e9))
+            self.assertEqual(guard.decision["reason"], "two_consecutive_below_rate")
+            try:
+                with mock.patch("legged_gym.harness.manager.os.killpg") as killpg:
+                    harness_manager._signal_training_group(store, manifest, 2)
+                killpg.assert_called_once_with(identity["pgid"], 2)
+
+                alive_guard = mock.Mock()
+                alive_guard.poll.return_value = None
+                for name, age in (("missing", None), ("stale", 6.0)):
+                    with self.subTest(name=name):
+                        fault = harness_manager._resource_guard_fault(alive_guard, age)
+                        self.assertIsNotNone(fault)
+                        decision_path = run_dir / "resource_guard_decision.json"
+                        decision_path.unlink()
+                        decision = harness_manager._record_resource_fault(
+                            store, manifest, "resource_guard_unhealthy", fault
+                        )
+                        self.assertEqual(decision["kind"], "hard")
+                        self.assertEqual(decision["reason"], "resource_guard_unhealthy")
+            finally:
+                process.terminate()
+                process.wait(timeout=5)
+
+    def test_identity_command_run_dir_and_kernel_mutations_refuse_before_signal(self):
+        with tempfile.TemporaryDirectory(prefix="train-mutation-") as temporary:
+            run_dir = Path(temporary).resolve()
+            store = RunStore(run_dir)
+            manifest = {"run_id": "identity-fixture", "run_dir": str(run_dir)}
+            store.initialize(manifest)
+            process, command, identity = self._wrapped_process_fixture(run_dir)
+            manifest["command"] = command
+            baseline = {
+                "run_id": manifest["run_id"],
+                "boot_id": harness_manager._read_boot_id(),
+                "train_pid": process.pid,
+                "train_pgid": identity["pgid"],
+                "train_sid": identity["sid"],
+                "train_start_ticks": identity["start_ticks"],
+                "command_digest": harness_manager._argv_digest(command),
+                "command": command,
             }
-            for key, value in mutations.items():
-                with self.subTest(key=key):
-                    record = dict(baseline)
-                    record[key] = value
-                    (Path(temporary) / "process.json").write_text(
-                        json.dumps(record), encoding="utf-8"
-                    )
-                    with mock.patch(
-                        "legged_gym.harness.manager._read_boot_id", return_value="boot"
+            cases = {
+                "run_id": (dict(baseline, run_id="other-run"), manifest),
+                "boot_id": (dict(baseline, boot_id="other-boot"), manifest),
+                "pid": (dict(baseline, train_pid=process.pid + 1), manifest),
+                "start_ticks": (dict(baseline, train_start_ticks=identity["start_ticks"] + 1), manifest),
+                "pgid": (dict(baseline, train_pgid=identity["pgid"] + 1), manifest),
+                "sid": (dict(baseline, train_sid=identity["sid"] + 1), manifest),
+                "digest": (dict(baseline, command_digest="0" * 64), manifest),
+                "wrong_run_dir": (baseline, dict(manifest, run_dir=str(run_dir / "other"))),
+            }
+            changed = list(command)
+            changed[10] = "--payload=changed"
+            cases["payload"] = (
+                dict(baseline, command=changed, command_digest=harness_manager._argv_digest(changed)),
+                manifest,
+            )
+            extra = command + ["--extra"]
+            cases["extra_arg"] = (
+                dict(baseline, command=extra, command_digest=harness_manager._argv_digest(extra)),
+                manifest,
+            )
+            wrong_env = list(command)
+            wrong_env[4] = "PYTHONNOUSERSITE=0"
+            cases["environment"] = (
+                dict(
+                    baseline,
+                    command=wrong_env,
+                    command_digest=harness_manager._argv_digest(wrong_env),
+                ),
+                manifest,
+            )
+            interpreter_changed = dict(identity, argv=["/bin/sh"] + identity["argv"][1:])
+            source_changed = dict(identity, argv=[identity["argv"][0], str(run_dir / "other-conda")] + identity["argv"][2:])
+            try:
+                for name, (record, case_manifest) in cases.items():
+                    with self.subTest(name=name):
+                        (run_dir / "process.json").write_text(json.dumps(record), encoding="utf-8")
+                        with mock.patch("legged_gym.harness.manager.os.killpg") as killpg:
+                            with self.assertRaises(HarnessError):
+                                harness_manager._signal_training_group(store, case_manifest, 2)
+                        killpg.assert_not_called()
+                (run_dir / "process.json").write_text(json.dumps(baseline), encoding="utf-8")
+                for name, mutated_identity in (
+                    ("interpreter", interpreter_changed),
+                    ("source", source_changed),
+                ):
+                    with self.subTest(name=name), mock.patch(
+                        "legged_gym.harness.manager._proc_identity",
+                        return_value=mutated_identity,
                     ), mock.patch(
-                        "legged_gym.harness.manager._proc_identity", return_value=live
-                    ), mock.patch(
-                        "legged_gym.harness.manager._training_group_members", return_value=[live]
+                        "legged_gym.harness.manager._training_group_members",
+                        return_value=[mutated_identity],
                     ), mock.patch(
                         "legged_gym.harness.manager._is_descendant", return_value=True
-                    ), mock.patch(
-                        "legged_gym.harness.manager.os.getpgrp", return_value=999
                     ), mock.patch("legged_gym.harness.manager.os.killpg") as killpg:
-                        with self.assertRaises(HarnessError):
+                        with self.assertRaisesRegex(HarnessError, "command changed"):
                             harness_manager._signal_training_group(store, manifest, 2)
                         killpg.assert_not_called()
+            finally:
+                process.terminate()
+                process.wait(timeout=5)
 
-            (Path(temporary) / "process.json").write_text(
-                json.dumps(baseline), encoding="utf-8"
-            )
-            protected_member = dict(live, cmdline="Simulator.x86_64")
-            with mock.patch(
-                "legged_gym.harness.manager._read_boot_id", return_value="boot"
-            ), mock.patch(
-                "legged_gym.harness.manager._proc_identity", return_value=live
-            ), mock.patch(
-                "legged_gym.harness.manager._training_group_members",
-                return_value=[live, protected_member],
-            ), mock.patch(
-                "legged_gym.harness.manager._is_descendant", return_value=True
-            ), mock.patch(
-                "legged_gym.harness.manager.os.getpgrp", return_value=999
-            ), mock.patch("legged_gym.harness.manager.os.killpg") as killpg:
-                with self.assertRaisesRegex(HarnessError, "protected process"):
-                    harness_manager._signal_training_group(store, manifest, 2)
-                killpg.assert_not_called()
+    def test_protected_member_and_unrelated_ancestry_refuse_before_signal(self):
+        with tempfile.TemporaryDirectory(prefix="train-protected-") as temporary:
+            run_dir = Path(temporary).resolve()
+            store = RunStore(run_dir)
+            manifest = {"run_id": "identity-fixture", "run_dir": str(run_dir)}
+            store.initialize(manifest)
+            process, command, live = self._wrapped_process_fixture(run_dir)
+            manifest["command"] = command
+            baseline = {
+                "run_id": manifest["run_id"],
+                "boot_id": harness_manager._read_boot_id(),
+                "train_pid": process.pid,
+                "train_pgid": live["pgid"],
+                "train_sid": live["sid"],
+                "train_start_ticks": live["start_ticks"],
+                "command_digest": harness_manager._argv_digest(command),
+                "command": command,
+            }
+            (run_dir / "process.json").write_text(json.dumps(baseline), encoding="utf-8")
+            protected = dict(live, pid=process.pid + 1, cmdline="roslaunch MORAI Simulator.x86_64 AjouNice2026")
+            try:
+                with mock.patch(
+                    "legged_gym.harness.manager._training_group_members",
+                    return_value=[live, protected],
+                ), mock.patch(
+                    "legged_gym.harness.manager._is_descendant", return_value=True
+                ), mock.patch("legged_gym.harness.manager.os.killpg") as killpg:
+                    with self.assertRaisesRegex(HarnessError, "protected process"):
+                        harness_manager._signal_training_group(store, manifest, 2)
+                    killpg.assert_not_called()
+                unrelated = dict(live, pid=process.pid + 2)
+                with mock.patch(
+                    "legged_gym.harness.manager._training_group_members",
+                    return_value=[live, unrelated],
+                ), mock.patch(
+                    "legged_gym.harness.manager._is_descendant",
+                    side_effect=lambda pid, _ancestor: pid == process.pid,
+                ), mock.patch("legged_gym.harness.manager.os.killpg") as killpg:
+                    with self.assertRaisesRegex(HarnessError, "outside training ancestry"):
+                        harness_manager._signal_training_group(store, manifest, 2)
+                    killpg.assert_not_called()
+            finally:
+                process.terminate()
+                process.wait(timeout=5)
 
     def test_training_group_signal_does_not_touch_protected_unrelated_processes(self):
         with tempfile.TemporaryDirectory(prefix="train-group-") as temporary:
-            store = RunStore(Path(temporary))
-            manifest = {"run_id": "group-fixture"}
+            run_dir = Path(temporary).resolve()
+            store = RunStore(run_dir)
+            manifest = {"run_id": "identity-fixture", "run_dir": str(run_dir)}
             store.initialize(manifest)
-            training = subprocess.Popen(
-                [sys.executable, "-c", "import time; time.sleep(60)"],
-                start_new_session=True,
-            )
+            training, command, identity = self._wrapped_process_fixture(run_dir)
+            manifest["command"] = command
             protected = [
                 subprocess.Popen(
                     ["bash", "-c", "exec -a {} sleep 60".format(name)],
@@ -245,7 +421,6 @@ class TrainingHarnessTest(unittest.TestCase):
                 for name in ("MORAI", "AjouNice2026")
             ]
             try:
-                identity = harness_manager._proc_identity(training.pid)
                 record = {
                     "run_id": manifest["run_id"],
                     "boot_id": harness_manager._read_boot_id(),
@@ -253,9 +428,10 @@ class TrainingHarnessTest(unittest.TestCase):
                     "train_pgid": identity["pgid"],
                     "train_sid": identity["sid"],
                     "train_start_ticks": identity["start_ticks"],
-                    "command_digest": identity["command_digest"],
+                    "command_digest": harness_manager._argv_digest(command),
+                    "command": command,
                 }
-                (Path(temporary) / "process.json").write_text(
+                (run_dir / "process.json").write_text(
                     json.dumps(record), encoding="utf-8"
                 )
                 harness_manager._signal_training_group(store, manifest, 15)
