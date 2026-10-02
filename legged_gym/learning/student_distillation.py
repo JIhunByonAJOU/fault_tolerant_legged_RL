@@ -1,9 +1,12 @@
 """Adaptation-only optimizer for the separate Student comparison pipeline."""
 
+import time
+
 import torch
 from torch.nn.utils import clip_grad_norm_
 
 from .teacher_ppo import TeacherPPO
+from .shared_gpu_pacing import synchronize_active_cuda
 
 
 class StudentDistillation(TeacherPPO):
@@ -32,6 +35,8 @@ class StudentDistillation(TeacherPPO):
         action_mse_total = 0.0
         gradient_norm_total = 0.0
         completed_updates = 0
+        minibatch_sync_count = 0
+        minibatch_sync_seconds = 0.0
         nonfinite_update_skipped = False
         generator = self.storage.mini_batch_generator(
             self.num_mini_batches, self.num_learning_epochs
@@ -59,8 +64,8 @@ class StudentDistillation(TeacherPPO):
                 break
             self.optimizer.step()
             if self.shared_gpu_minibatch_sleep_ms > 0.0:
-                import time
-
+                minibatch_sync_seconds += synchronize_active_cuda(self.device)
+                minibatch_sync_count += 1
                 time.sleep(self.shared_gpu_minibatch_sleep_ms / 1000.0)
             adaptation_total += adaptation_loss.item()
             action_mse_total += action_mse.item()
@@ -92,5 +97,7 @@ class StudentDistillation(TeacherPPO):
             "student_parameter_step_l2": parameter_step_l2,
             "nonfinite_update_skipped": bool(nonfinite_update_skipped),
             "shared_gpu_minibatch_sleep_ms": self.shared_gpu_minibatch_sleep_ms,
+            "minibatch_sync_count": minibatch_sync_count,
+            "minibatch_sync_seconds": minibatch_sync_seconds,
         }
         return 0.0, 0.0

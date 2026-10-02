@@ -14,6 +14,7 @@ from .joint_teacher_student_actor_critic import SeparateStudentActorCritic
 from .joint_teacher_student_runner import JointTeacherStudentRunner
 from .student_distillation import StudentDistillation
 from .teacher_runner import TeacherOnPolicyRunner
+from .shared_gpu_pacing import SharedGpuIterationPacer
 from legged_gym.utils.helpers import class_to_dict
 
 
@@ -32,6 +33,7 @@ _SOURCE_FILES = (
     "legged_gym/learning/joint_teacher_student_actor_critic.py",
     "legged_gym/learning/comparison_runners.py",
     "legged_gym/learning/student_distillation.py",
+    "legged_gym/learning/shared_gpu_pacing.py",
     "legged_gym/learning/teacher_ppo.py",
     "legged_gym/learning/teacher_runner.py",
     "legged_gym/utils/helpers.py",
@@ -376,6 +378,9 @@ class ComparisonJointTeacherStudentRunner(_StrictTF43000Mixin, JointTeacherStude
                     "minibatch_sleep_ms": float(
                         self.alg_cfg.get("shared_gpu_minibatch_sleep_ms", 0.0)
                     ),
+                    "iteration_sleep_ms": float(
+                        self.cfg.get("shared_gpu_iteration_sleep_ms", 0.0)
+                    ),
                 },
                 "run_class": self._comparison_run_class,
                 "actual_invocation_max_iterations": self._invocation_max_iterations,
@@ -448,6 +453,13 @@ class SeparateStudentDistillationRunner(_StrictTF43000Mixin, TeacherOnPolicyRunn
         )
         if self.shared_gpu_step_sleep_ms < 0.0:
             raise ValueError("shared_gpu_step_sleep_ms must be nonnegative")
+        self.shared_gpu_iteration_sleep_ms = self.cfg.get(
+            "shared_gpu_iteration_sleep_ms", 0.0
+        )
+        self._shared_gpu_pacer = SharedGpuIterationPacer(
+            self.shared_gpu_iteration_sleep_ms, self.device, log_dir
+        )
+        self.shared_gpu_iteration_sleep_ms = self._shared_gpu_pacer.sleep_ms
         self.alg.init_storage(
             self.env.num_envs,
             self.num_steps_per_env,
@@ -507,6 +519,13 @@ class SeparateStudentDistillationRunner(_StrictTF43000Mixin, TeacherOnPolicyRunn
             "shared_gpu_pacing": {
                 "step_sleep_ms": self.shared_gpu_step_sleep_ms,
                 "minibatch_sleep_ms": self.alg.shared_gpu_minibatch_sleep_ms,
+                "iteration_sleep_ms": float(
+                    getattr(
+                        self,
+                        "shared_gpu_iteration_sleep_ms",
+                        self.cfg.get("shared_gpu_iteration_sleep_ms", 0.0),
+                    )
+                ),
             },
             "run_class": self._comparison_run_class,
             "actual_invocation_max_iterations": self._invocation_max_iterations,
@@ -605,6 +624,15 @@ class SeparateStudentDistillationRunner(_StrictTF43000Mixin, TeacherOnPolicyRunn
             "Optimization/learning_rate": self.alg.learning_rate,
             "Pacing/step_sleep_ms": self.shared_gpu_step_sleep_ms,
             "Pacing/minibatch_sleep_ms": self.alg.shared_gpu_minibatch_sleep_ms,
+            "Pacing/iteration_boundary_sleep_ms_requested": (
+                self.shared_gpu_iteration_sleep_ms
+            ),
+            "Pacing/step_sync_count": locs.get("step_sync_count", 0),
+            "Pacing/step_sync_seconds": locs.get("step_sync_seconds", 0.0),
+            "Pacing/minibatch_sync_count": update.get("minibatch_sync_count", 0),
+            "Pacing/minibatch_sync_seconds": update.get(
+                "minibatch_sync_seconds", 0.0
+            ),
             "Rollout/student_driven": True,
             "Rollout/mean_forward_velocity": locs["rollout_forward_velocity"],
             "Rollout/reset_rate_per_step": locs["rollout_reset_rate"],
@@ -613,6 +641,7 @@ class SeparateStudentDistillationRunner(_StrictTF43000Mixin, TeacherOnPolicyRunn
             ),
             "Perf/collection_time": locs["collection_time"],
             "Perf/learning_time": locs["learn_time"],
+            "Perf/iteration_time": iteration_time,
         }
         if len(locs["rewbuffer"]) > 0:
             metrics["Train/mean_reward"] = statistics.mean(locs["rewbuffer"])

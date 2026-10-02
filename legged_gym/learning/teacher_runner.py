@@ -21,6 +21,7 @@ from .joint_teacher_student_actor_critic import (
     FrozenTeacherStudentActorCritic,
 )
 from .teacher_ppo import TeacherPPO
+from .shared_gpu_pacing import SharedGpuIterationPacer, synchronize_active_cuda
 
 
 class TeacherOnPolicyRunner(OnPolicyRunner):
@@ -61,6 +62,13 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
         )
         if self.shared_gpu_step_sleep_ms < 0.0:
             raise ValueError("shared_gpu_step_sleep_ms must be nonnegative")
+        self.shared_gpu_iteration_sleep_ms = self.cfg.get(
+            "shared_gpu_iteration_sleep_ms", 0.0
+        )
+        self._shared_gpu_pacer = SharedGpuIterationPacer(
+            self.shared_gpu_iteration_sleep_ms, self.device, log_dir
+        )
+        self.shared_gpu_iteration_sleep_ms = self._shared_gpu_pacer.sleep_ms
         self.alg.init_storage(
             self.env.num_envs,
             self.num_steps_per_env,
@@ -282,6 +290,8 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
         total_iterations = self.current_learning_iteration + num_learning_iterations
         completed_iterations = 0
         for iteration in range(self.current_learning_iteration, total_iterations):
+            if self._stop_requested:
+                break
             if hasattr(self.alg.actor_critic, "set_training_iteration"):
                 self.alg.actor_critic.set_training_iteration(iteration)
             if hasattr(self.env, "set_training_iteration"):
@@ -294,6 +304,8 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
             rollout_forward_velocity = torch.zeros((), device=self.device)
             rollout_reset_rate = torch.zeros((), device=self.device)
             rollout_diagnostic_sums = {}
+            step_sync_count = 0
+            step_sync_seconds = 0.0
             with torch.inference_mode():
                 for _ in range(self.num_steps_per_env):
                     actions = self.alg.act(obs, privileged_obs)
@@ -321,6 +333,8 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
                     dones = dones.to(self.device)
                     self.alg.process_env_step(rewards, dones, infos)
                     if self.shared_gpu_step_sleep_ms > 0.0:
+                        step_sync_seconds += synchronize_active_cuda(self.device)
+                        step_sync_count += 1
                         time.sleep(self.shared_gpu_step_sleep_ms / 1000.0)
 
                     if self.log_dir is not None:
@@ -397,6 +411,8 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
                         "mean_value_loss": mean_value_loss,
                         "mean_surrogate_loss": mean_surrogate_loss,
                         "ppo_metrics": dict(self.alg.last_update_metrics),
+                        "step_sync_count": step_sync_count,
+                        "step_sync_seconds": step_sync_seconds,
                         "rollout_raw_mean_abs": (
                             rollout_raw_mean_abs / self.num_steps_per_env
                         ).item(),
@@ -438,6 +454,15 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
                     flush=True,
                 )
                 break
+            if iteration + 1 < total_iterations:
+                self._shared_gpu_pacer.pause_after_completed_iteration(
+                    completed_iteration=iteration,
+                    next_iteration=iteration + 1,
+                    active_iteration_seconds=collection_time + learn_time,
+                    stop_requested=lambda: self._stop_requested,
+                )
+                if self._stop_requested:
+                    break
 
         self.current_learning_iteration += completed_iterations
         if self.log_dir is not None:
@@ -504,6 +529,17 @@ class TeacherOnPolicyRunner(OnPolicyRunner):
             "Pacing/step_sleep_ms": self.shared_gpu_step_sleep_ms,
             "Pacing/minibatch_sleep_ms": getattr(
                 self.alg, "shared_gpu_minibatch_sleep_ms", 0.0
+            ),
+            "Pacing/iteration_boundary_sleep_ms_requested": (
+                self.shared_gpu_iteration_sleep_ms
+            ),
+            "Pacing/step_sync_count": locs.get("step_sync_count", 0),
+            "Pacing/step_sync_seconds": locs.get("step_sync_seconds", 0.0),
+            "Pacing/minibatch_sync_count": locs["ppo_metrics"].get(
+                "minibatch_sync_count", 0
+            ),
+            "Pacing/minibatch_sync_seconds": locs["ppo_metrics"].get(
+                "minibatch_sync_seconds", 0.0
             ),
             "Adaptation/loss": locs["ppo_metrics"].get("adaptation_loss"),
             "Adaptation/student_action_loss": locs["ppo_metrics"].get("student_action_loss"),

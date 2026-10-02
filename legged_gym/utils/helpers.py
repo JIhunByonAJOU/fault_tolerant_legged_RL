@@ -165,9 +165,16 @@ def update_cfg_from_args(env_cfg, cfg_train, args):
             cfg_train.runner.save_interval = args.save_interval
         step_sleep_ms = getattr(args, "shared_gpu_step_sleep_ms", 0.0)
         minibatch_sleep_ms = getattr(args, "shared_gpu_minibatch_sleep_ms", 0.0)
+        iteration_sleep_ms = getattr(args, "shared_gpu_iteration_sleep_ms", 0.0)
         if step_sleep_ms < 0 or minibatch_sleep_ms < 0:
             raise ValueError("shared GPU pacing values must be nonnegative")
+        from legged_gym.learning.shared_gpu_pacing import (
+            validate_iteration_sleep_ms,
+        )
+        iteration_sleep_ms = validate_iteration_sleep_ms(iteration_sleep_ms)
         cfg_train.runner.shared_gpu_step_sleep_ms = float(step_sleep_ms)
+        if hasattr(args, "shared_gpu_iteration_sleep_ms"):
+            cfg_train.runner.shared_gpu_iteration_sleep_ms = iteration_sleep_ms
         cfg_train.algorithm.shared_gpu_minibatch_sleep_ms = float(minibatch_sleep_ms)
         cfg_train.runner.comparison_pilot = bool(
             getattr(args, "comparison_pilot", False)
@@ -206,6 +213,7 @@ def get_args():
         {"name": "--save_interval", "type": int, "help": "Checkpoint interval in training iterations."},
         {"name": "--shared_gpu_step_sleep_ms", "type": float, "default": 0.0, "help": "Optional sleep after each environment control step."},
         {"name": "--shared_gpu_minibatch_sleep_ms", "type": float, "default": 0.0, "help": "Optional sleep after each optimizer minibatch."},
+        {"name": "--shared_gpu_iteration_sleep_ms", "type": float, "default": 0.0, "help": "Optional synchronized sleep between completed training iterations."},
         {"name": "--comparison_pilot", "action": "store_true", "default": False, "help": "Opt in to a fresh-TF comparison preflight/pilot of at most 100 iterations."},
         {"name": "--wandb", "action": "store_true", "default": False, "help": "Stream TensorBoard metrics and system statistics to Weights & Biases."},
         {"name": "--wandb_project", "type": str, "default": "saving-the-limping", "help": "Weights & Biases project name."},

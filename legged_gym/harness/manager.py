@@ -1188,6 +1188,24 @@ def _validate_production_command(command, repo_root):
         )
 
 
+def _shared_gpu_pacing_from_command(command):
+    pacing = {}
+    for option, key in (
+        ("--shared_gpu_step_sleep_ms", "step_sleep_ms"),
+        ("--shared_gpu_minibatch_sleep_ms", "minibatch_sleep_ms"),
+        ("--shared_gpu_iteration_sleep_ms", "iteration_sleep_ms"),
+    ):
+        raw = _single_option_value(command, option)
+        try:
+            value = 0.0 if raw is None else float(raw)
+        except (TypeError, ValueError):
+            raise HarnessError("{} must be a floating-point value".format(option))
+        if not math.isfinite(value) or value < 0.0:
+            raise HarnessError("{} must be finite and nonnegative".format(option))
+        pacing[key] = value
+    return pacing
+
+
 def _materialize_managed_identity(command, run_dir, run_id):
     values = {"run_dir": str(Path(run_dir).resolve()), "run_id": str(run_id)}
     materialized = []
@@ -1289,6 +1307,8 @@ def launch_run(
     if not mock:
         command = _inject_managed_identity(command, run_dir, run_id)
 
+    pacing = _shared_gpu_pacing_from_command(command)
+
     store = RunStore(run_dir)
     manifest = {
         "schema_version": 1,
@@ -1304,6 +1324,7 @@ def launch_run(
         "repo_root": str(repo_root),
         "run_dir": str(run_dir),
         "command": command,
+        "shared_gpu_pacing": pacing,
         "git": _repo_snapshot(repo_root),
         "gpu_preflight": gpu,
         "disk_preflight": disk,
@@ -2179,11 +2200,14 @@ def _validate_comparison_p0_gate(run_dir, profile):
         ("--save_interval", profile["save_interval"], int),
         ("--shared_gpu_step_sleep_ms", profile["step_sleep_ms"], float),
         ("--shared_gpu_minibatch_sleep_ms", profile["minibatch_sleep_ms"], float),
+        ("--shared_gpu_iteration_sleep_ms", 0.0, float),
     )
     for option, expected, converter in command_values:
         try:
             raw = _single_option_value(command, option)
-            actual = converter(raw) if raw is not None else None
+            actual = converter(raw) if raw is not None else (
+                0.0 if option == "--shared_gpu_iteration_sleep_ms" else None
+            )
         except (HarnessError, TypeError, ValueError):
             actual = None
         if actual != expected:
@@ -2221,6 +2245,7 @@ def _validate_comparison_p0_gate(run_dir, profile):
         (("training", "algorithm", "num_mini_batches"), 4),
         (("shared_gpu_pacing", "step_sleep_ms"), 30.0),
         (("shared_gpu_pacing", "minibatch_sleep_ms"), 20.0),
+        (("shared_gpu_pacing", "iteration_sleep_ms"), 0.0),
         (("source_checkpoint", "sha256"), profile["source_sha256"]),
         (("initialization", "profile_id"), profile["profile_id"]),
         (("initialization", "comparison_profile"), profile["comparison_name"]),
@@ -2233,6 +2258,8 @@ def _validate_comparison_p0_gate(run_dir, profile):
     )
     for path, expected in checks:
         actual = _nested(resolved, *path)
+        if path == ("shared_gpu_pacing", "iteration_sleep_ms") and actual is None:
+            actual = 0.0
         if actual != expected:
             fail("config_mismatch", "{} must equal {!r}".format(".".join(path), expected), field=".".join(path), expected=expected, actual=actual)
 

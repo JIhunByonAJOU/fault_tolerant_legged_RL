@@ -5,6 +5,8 @@ import torch.nn as nn
 
 from rsl_rl.algorithms import PPO
 
+from .shared_gpu_pacing import synchronize_active_cuda
+
 
 class TeacherPPO(PPO):
     """PPO variant that passes privileged GT to the teacher actor and critic."""
@@ -70,6 +72,8 @@ class TeacherPPO(PPO):
         mean_adaptation_loss = 0.0
         mean_student_action_loss = 0.0
         completed_updates = 0
+        minibatch_sync_count = 0
+        minibatch_sync_seconds = 0.0
         early_stopped = False
         nonfinite_update_skipped = False
         generator = self.storage.mini_batch_generator(
@@ -195,6 +199,8 @@ class TeacherPPO(PPO):
                 break
             self.optimizer.step()
             if self.shared_gpu_minibatch_sleep_ms > 0.0:
+                minibatch_sync_seconds += synchronize_active_cuda(self.device)
+                minibatch_sync_count += 1
                 time.sleep(self.shared_gpu_minibatch_sleep_ms / 1000.0)
 
             mean_value_loss += value_loss.item()
@@ -231,5 +237,7 @@ class TeacherPPO(PPO):
                 getattr(self.actor_critic, "adaptation_beta", 0.0)
             ),
             "shared_gpu_minibatch_sleep_ms": self.shared_gpu_minibatch_sleep_ms,
+            "minibatch_sync_count": minibatch_sync_count,
+            "minibatch_sync_seconds": minibatch_sync_seconds,
         }
         return mean_value_loss / divisor, mean_surrogate_loss / divisor
