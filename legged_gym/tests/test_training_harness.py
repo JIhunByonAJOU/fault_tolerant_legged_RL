@@ -77,6 +77,14 @@ class TrainingHarnessTest(unittest.TestCase):
     def _production_command(self, entrypoint, task, *extra):
         return [sys.executable, entrypoint, "--task", task, "--headless", *extra]
 
+    def _record_resource_samples(self, guard, values):
+        for value in values:
+            guard.record_sample(monotonic_ns=int(value), wall_time_unix=1.0)
+
+    def _rate_samples(self, start_s, end_s, rate):
+        count = int((end_s - start_s) * rate)
+        return [int((start_s + index / rate) * 1e9) for index in range(count)]
+
     def test_resource_guard_strict_rate_windows_and_terminal_partial(self):
         with tempfile.TemporaryDirectory(prefix="resource-window-") as temporary, mock.patch(
             "legged_gym.harness.resource_guard._append_jsonl"
@@ -108,87 +116,317 @@ class TrainingHarnessTest(unittest.TestCase):
             self.assertTrue(partial["partial"])
             self.assertEqual(partial["rate_gate_status"], "partial")
 
-    def test_resource_guard_external_gap_recovery_sequences_and_boundary(self):
+    def test_resource_guard_open_gap_at_window_edge_is_candidate_not_low(self):
         identity = {"train_pid": 123, "train_start_ticks": 456}
-
-        def samples(start_s, count, rate):
-            return [int((start_s + index / rate) * 1e9) for index in range(count)]
-
-        with tempfile.TemporaryDirectory(prefix="resource-gap-") as temporary, mock.patch(
+        with tempfile.TemporaryDirectory(prefix="resource-boundary-") as temporary, mock.patch(
             "legged_gym.harness.resource_guard._append_jsonl"
         ):
-            recovered = EgoTopicRateGuard(temporary, "recovered")
-            recovered.start_training_windows(0, identity)
-            recovered.samples = samples(1.0, 585, 42.0)
-            candidate = recovered.close_window(int(15e9))
-            self.assertEqual(candidate["max_gap_s"], 1.0)
-            self.assertEqual(candidate["rate_gate_status"], "external_gap_candidate")
-            self.assertTrue(candidate["recovery_required"])
-            recovered.samples = samples(15.0, 600, 40.0)
-            recovery = recovered.close_window(int(30e9))
+            guard = EgoTopicRateGuard(temporary, "boundary")
+            guard.start_training_windows(0, identity)
+            before = self._rate_samples(0.0, 14.0, 40.0)
+            self._record_resource_samples(guard, before)
+
+            candidate = guard.close_window(int(15e9))
+
+            expected_provisional = "open:{}".format(before[-1])
+            self.assertEqual(candidate["rate_gate_status"], "external_gap_open_candidate")
+            self.assertEqual(candidate["provisional_gap_event_id"], expected_provisional)
+            self.assertIsNone(candidate["gap_event_id"])
+            self.assertEqual(candidate["gap_event_disposition"], "open_candidate")
+            self.assertEqual(candidate["gap_free_consecutive_below_40"], 0)
+            self.assertAlmostEqual(candidate["open_gap_age_s"], 1.025)
+            self.assertIsNone(guard.decision)
+
+    def test_resource_guard_next_window_closes_same_event_as_continuation(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+        with tempfile.TemporaryDirectory(prefix="resource-continuation-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ) as append:
+            guard = EgoTopicRateGuard(temporary, "continuation")
+            guard.start_training_windows(0, identity)
+            before = self._rate_samples(0.0, 14.0, 40.0)
+            after = self._rate_samples(16.0, 30.0, 40.0)
+            self._record_resource_samples(guard, before)
+            opened = guard.close_window(int(15e9))
+            self._record_resource_samples(guard, after)
+            continuation = guard.close_window(int(30e9))
+
+            expected_id = "{}:{}".format(before[-1], after[0])
+            self.assertEqual(opened["rate_gate_status"], "external_gap_open_candidate")
+            self.assertEqual(continuation["rate_gate_status"], "external_gap_continuation")
+            self.assertEqual(continuation["gap_event_id"], expected_id)
+            self.assertEqual(
+                continuation["provisional_gap_event_id"],
+                "open:{}".format(before[-1]),
+            )
+            self.assertEqual(continuation["gap_event_disposition"], "continuation")
+            self.assertEqual(continuation["gap_free_consecutive_below_40"], 0)
+            self.assertIsNone(guard.decision)
+            gap_writes = [
+                call
+                for call in append.call_args_list
+                if Path(call.args[0]).name == "resource_gap_events.jsonl"
+            ]
+            self.assertEqual(len(gap_writes), 1)
+
+    def test_resource_guard_distinct_gap_before_recovery_stops(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+        with tempfile.TemporaryDirectory(prefix="resource-distinct-gap-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ):
+            guard = EgoTopicRateGuard(temporary, "distinct-gap")
+            guard.start_training_windows(0, identity)
+            first_part = self._rate_samples(0.0, 5.0, 40.0)
+            middle = self._rate_samples(7.0, 20.0, 40.0)
+            final = self._rate_samples(22.0, 30.0, 40.0)
+            self._record_resource_samples(guard, first_part + middle + final)
+
+            first = guard.close_window(int(15e9))
+            second = guard.close_window(int(30e9))
+
+            self.assertEqual(first["rate_gate_status"], "external_gap_candidate")
+            self.assertNotEqual(first["gap_event_id"], second["gap_event_id"])
+            self.assertEqual(second["gap_event_disposition"], "distinct_gap_before_recovery")
+            self.assertEqual(guard.decision["reason"], "external_gap_not_recovered")
+
+    def test_resource_guard_recovery_waits_for_full_post_gap_window(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+        with tempfile.TemporaryDirectory(prefix="resource-recovery-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ):
+            guard = EgoTopicRateGuard(temporary, "recovery")
+            guard.start_training_windows(0, identity)
+            before = self._rate_samples(0.0, 14.0, 40.0)
+            continuation_samples = self._rate_samples(16.0, 30.0, 40.0)
+            recovery_samples = self._rate_samples(30.0, 45.0, 40.0)
+            self._record_resource_samples(guard, before)
+            candidate = guard.close_window(int(15e9))
+            self._record_resource_samples(guard, continuation_samples)
+            continuation = guard.close_window(int(30e9))
+            self._record_resource_samples(guard, recovery_samples)
+            recovery = guard.close_window(int(45e9))
+
+            self.assertEqual(candidate["rate_gate_status"], "external_gap_open_candidate")
+            self.assertFalse(candidate["recovery_eligible"])
+            self.assertEqual(continuation["rate_gate_status"], "external_gap_continuation")
             self.assertEqual(recovery["rate_gate_status"], "external_gap_recovered")
+            self.assertTrue(recovery["recovery_eligible"])
+            self.assertEqual(recovery["gap_event_id"], continuation["gap_event_id"])
+            self.assertEqual(recovery["gap_event_disposition"], "recovered")
             self.assertFalse(recovery["recovery_required"])
-            self.assertIsNone(recovered.decision)
+            self.assertIsNone(guard.decision)
 
             low = EgoTopicRateGuard(temporary, "low-recovery")
             low.start_training_windows(0, identity)
-            low.samples = samples(1.0, 585, 42.0)
+            low_before = self._rate_samples(0.0, 14.0, 40.0)
+            low_continuation = self._rate_samples(16.0, 30.0, 39.0)
+            low_recovery = self._rate_samples(30.0, 45.0, 39.0)
+            self._record_resource_samples(low, low_before)
             low.close_window(int(15e9))
-            low.samples = samples(15.0, 585, 39.0)
-            failed = low.close_window(int(30e9))
+            self._record_resource_samples(low, low_continuation)
+            low.close_window(int(30e9))
+            self._record_resource_samples(low, low_recovery)
+            failed = low.close_window(int(45e9))
+            self.assertTrue(failed["recovery_eligible"])
             self.assertEqual(failed["rate_gate_status"], "external_gap_not_recovered")
             self.assertEqual(low.decision["reason"], "external_gap_not_recovered")
 
-            repeated = EgoTopicRateGuard(temporary, "repeated-gap")
-            repeated.start_training_windows(0, identity)
-            repeated.samples = samples(1.0, 585, 42.0)
-            repeated.close_window(int(15e9))
-            repeated.samples = samples(16.0, 585, 42.0)
-            second_candidate = repeated.close_window(int(30e9))
-            self.assertEqual(
-                second_candidate["rate_gate_status"], "external_gap_candidate"
-            )
-            self.assertEqual(
-                repeated.decision["reason"], "external_gap_not_recovered"
-            )
-
-            sustained = EgoTopicRateGuard(temporary, "sustained-38hz")
-            sustained.start_training_windows(0, identity)
-            sustained.samples = samples(0.0, 570, 38.0)
-            sustained.close_window(int(15e9))
-            sustained.samples = samples(15.0, 570, 38.0)
-            sustained.close_window(int(30e9))
-            self.assertEqual(
-                sustained.decision["reason"],
-                "two_consecutive_gap_free_below_rate",
-            )
-
-    def test_resource_guard_idle_gap_pattern_partial_and_no_message_recovery_fault(self):
+    def test_resource_guard_exact_open_and_closed_threshold_is_inclusive(self):
         identity = {"train_pid": 123, "train_start_ticks": 456}
-        with tempfile.TemporaryDirectory(prefix="resource-idle-pattern-") as temporary, mock.patch(
+        with tempfile.TemporaryDirectory(prefix="resource-threshold-") as temporary, mock.patch(
             "legged_gym.harness.resource_guard._append_jsonl"
         ):
-            guard = EgoTopicRateGuard(temporary, "idle-pattern")
-            guard.start_training_windows(0, identity)
-            guard.samples = [int(index * 1e9 / 42.0) for index in range(210)]
-            guard.samples += [int(10e9 + index * 1e9 / 42.0) for index in range(210)]
-            first = guard.close_window(int(15e9))
-            self.assertEqual(first["rate_gate_status"], "external_gap_candidate")
-            streak_before = guard.consecutive_below
-            partial = guard.close_window(int(16e9), partial=True)
-            self.assertEqual(guard.consecutive_below, streak_before)
-            self.assertTrue(partial["recovery_required"])
-            guard.samples = [int(16e9 + index * 1e9 / 41.0) for index in range(615)]
-            recovery = guard.close_window(int(31e9))
-            self.assertEqual(recovery["rate_gate_status"], "external_gap_recovered")
+            open_exact = EgoTopicRateGuard(temporary, "open-exact")
+            open_exact.start_training_windows(0, identity)
+            self._record_resource_samples(open_exact, [1_000_000_001])
+            open_window = open_exact.close_window(2_000_000_001)
+            self.assertEqual(
+                open_window["rate_gate_status"], "external_gap_open_candidate"
+            )
 
-            guard.samples = [int(31e9 + index * 1e9 / 42.0) for index in range(210)]
-            guard.samples += [int(41e9 + index * 1e9 / 42.0) for index in range(210)]
-            second = guard.close_window(int(46e9))
-            self.assertEqual(second["rate_gate_status"], "external_gap_candidate")
-            empty = guard.close_window(int(61e9))
+            open_short = EgoTopicRateGuard(temporary, "open-short")
+            open_short.start_training_windows(0, identity)
+            self._record_resource_samples(open_short, [1_000_000_001])
+            short_open_window = open_short.close_window(2_000_000_000)
+            self.assertNotEqual(
+                short_open_window["rate_gate_status"], "external_gap_open_candidate"
+            )
+
+            exact = EgoTopicRateGuard(temporary, "exact")
+            exact.start_training_windows(0, identity)
+            self._record_resource_samples(exact, [1, 1_000_000_001])
+            exact_window = exact.close_window(1_500_000_001)
+            self.assertEqual(exact_window["gap_event_id"], "1:1000000001")
+
+            short = EgoTopicRateGuard(temporary, "short")
+            short.start_training_windows(0, identity)
+            self._record_resource_samples(short, [1, 1_000_000_000])
+            short_window = short.close_window(1_500_000_000)
+            self.assertIsNone(short_window["gap_event_id"])
+
+    def test_resource_guard_no_message_and_full_gap_fail_closed(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+        with tempfile.TemporaryDirectory(prefix="resource-no-message-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ):
+            empty = EgoTopicRateGuard(temporary, "empty-window")
+            empty.start_training_windows(0, identity)
+            empty_window = empty.close_window(int(15e9))
+            self.assertEqual(empty_window["rate_gate_status"], "no_message_window")
+            self.assertEqual(empty.decision["reason"], "no_message_window")
+
+            full_gap = EgoTopicRateGuard(temporary, "full-gap")
+            full_gap.start_training_windows(0, identity)
+            self._record_resource_samples(full_gap, [int(14.5e9)])
+            full_gap.close_window(int(15e9))
+            gap_window = full_gap.close_window(int(30e9))
+            self.assertEqual(gap_window["rate_gate_status"], "no_message_window")
+            self.assertEqual(full_gap.decision["reason"], "no_message_window")
+
+    def test_resource_guard_open_gap_never_closes_full_no_message_stops(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+        with tempfile.TemporaryDirectory(prefix="resource-open-no-message-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ):
+            guard = EgoTopicRateGuard(temporary, "open-no-message")
+            guard.start_training_windows(0, identity)
+            samples = self._rate_samples(0.0, 14.0, 40.0)
+            self._record_resource_samples(guard, samples)
+            opened = guard.close_window(int(15e9))
+            empty = guard.close_window(int(30e9))
+            self.assertEqual(opened["rate_gate_status"], "external_gap_open_candidate")
             self.assertEqual(empty["rate_gate_status"], "no_message_window")
             self.assertEqual(guard.decision["reason"], "no_message_window")
+
+    def test_resource_guard_strict_tracker_open_then_continuation_does_not_stop(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+        with tempfile.TemporaryDirectory(prefix="resource-strict-tracker-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ):
+            guard = EgoTopicRateGuard(temporary, "strict-tracker")
+            guard.start_training_windows(0, identity)
+            before = self._rate_samples(0.0, 14.0, 40.0)
+            after = self._rate_samples(16.0, 30.0, 40.0)
+            self._record_resource_samples(guard, before)
+            sequence_4 = guard.close_window(int(15e9))
+            self._record_resource_samples(guard, after)
+            sequence_5 = guard.close_window(int(30e9))
+            observed = [sequence_4, sequence_5]
+            self.assertEqual(
+                [row["rate_gate_status"] for row in observed],
+                ["external_gap_open_candidate", "external_gap_continuation"],
+            )
+            self.assertEqual(
+                [row["gap_free_consecutive_below_40"] for row in observed], [0, 0]
+            )
+            self.assertTrue(all(row["recovery_required"] for row in observed))
+            self.assertIsNone(guard.decision)
+
+    def test_resource_guard_delayed_close_rematches_final_event_to_provisional_start(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+        with tempfile.TemporaryDirectory(prefix="resource-delayed-close-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ):
+            guard = EgoTopicRateGuard(temporary, "delayed-close")
+            guard.start_training_windows(0, identity)
+            before = self._rate_samples(0.0, 14.0, 40.0)
+            after = self._rate_samples(16.0, 30.0, 40.0)
+            self._record_resource_samples(guard, before + after)
+            self.assertFalse(guard.gap_events[0]["continues_pending"])
+
+            opened = guard.close_window(int(15e9))
+            continuation = guard.close_window(int(30e9))
+
+            self.assertEqual(opened["rate_gate_status"], "external_gap_open_candidate")
+            self.assertEqual(continuation["rate_gate_status"], "external_gap_continuation")
+            self.assertEqual(
+                continuation["gap_event_id"], "{}:{}".format(before[-1], after[0])
+            )
+            self.assertEqual(
+                continuation["provisional_gap_event_id"], "open:{}".format(before[-1])
+            )
+            self.assertEqual(continuation["gap_free_consecutive_below_40"], 0)
+            self.assertIsNone(guard.decision)
+
+    def test_resource_guard_future_callback_closed_event_does_not_false_open(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+        with tempfile.TemporaryDirectory(prefix="resource-future-callback-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ):
+            guard = EgoTopicRateGuard(temporary, "future-callback")
+            guard.start_training_windows(0, identity)
+            before = self._rate_samples(0.0, 14.0, 40.0)
+            continuation_samples = self._rate_samples(16.0, 30.0, 40.0)
+            recovery_samples = self._rate_samples(30.0, 45.0, 40.0)
+            self._record_resource_samples(
+                guard, before + continuation_samples + recovery_samples
+            )
+
+            opened = guard.close_window(int(15e9))
+            continuation = guard.close_window(int(30e9))
+            recovered = guard.close_window(int(45e9))
+
+            self.assertEqual(opened["rate_gate_status"], "external_gap_open_candidate")
+            self.assertEqual(continuation["rate_gate_status"], "external_gap_continuation")
+            self.assertLess(continuation["open_gap_age_s"], 1.0)
+            self.assertEqual(recovered["rate_gate_status"], "external_gap_recovered")
+            self.assertLess(recovered["open_gap_age_s"], 1.0)
+            self.assertIsNone(guard.decision)
+
+    def test_resource_guard_callback_close_order_is_decision_invariant(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+
+        def run_fixture(temporary, delayed_close):
+            guard = EgoTopicRateGuard(temporary, "delayed" if delayed_close else "ordered")
+            guard.start_training_windows(0, identity)
+            before = self._rate_samples(0.0, 14.0, 40.0)
+            after = self._rate_samples(16.0, 30.0, 40.0)
+            if delayed_close:
+                self._record_resource_samples(guard, before + after)
+                first = guard.close_window(int(15e9))
+            else:
+                self._record_resource_samples(guard, before)
+                first = guard.close_window(int(15e9))
+                self._record_resource_samples(guard, after)
+            second = guard.close_window(int(30e9))
+            return guard, first, second
+
+        with tempfile.TemporaryDirectory(prefix="resource-order-a-") as first_dir, tempfile.TemporaryDirectory(
+            prefix="resource-order-b-"
+        ) as second_dir, mock.patch("legged_gym.harness.resource_guard._append_jsonl"):
+            ordered = run_fixture(first_dir, delayed_close=False)
+            delayed = run_fixture(second_dir, delayed_close=True)
+            for index in (1, 2):
+                left = ordered[index]
+                right = delayed[index]
+                self.assertEqual(left["rate_gate_status"], right["rate_gate_status"])
+                self.assertEqual(left["provisional_gap_event_id"], right["provisional_gap_event_id"])
+                self.assertEqual(left["gap_event_id"], right["gap_event_id"])
+                self.assertEqual(
+                    left["gap_free_consecutive_below_40"],
+                    right["gap_free_consecutive_below_40"],
+                )
+                self.assertEqual(left["recovery_required"], right["recovery_required"])
+            self.assertEqual(len(ordered[0].gap_events), len(delayed[0].gap_events))
+            self.assertIsNone(ordered[0].decision)
+            self.assertIsNone(delayed[0].decision)
+
+    def test_resource_guard_two_gap_free_low_windows_still_stop(self):
+        identity = {"train_pid": 123, "train_start_ticks": 456}
+        with tempfile.TemporaryDirectory(prefix="resource-low-rate-") as temporary, mock.patch(
+            "legged_gym.harness.resource_guard._append_jsonl"
+        ):
+            guard = EgoTopicRateGuard(temporary, "low-rate")
+            guard.start_training_windows(0, identity)
+            guard.samples = self._rate_samples(0.0, 15.0, 39.0)
+            first = guard.close_window(int(15e9))
+            guard.samples = self._rate_samples(15.0, 30.0, 39.0)
+            second = guard.close_window(int(30e9))
+            self.assertEqual(first["rate_gate_status"], "gap_free_below_rate")
+            self.assertEqual(second["rate_gate_status"], "gap_free_below_rate")
+            self.assertEqual(
+                guard.decision["reason"], "two_consecutive_gap_free_below_rate"
+            )
 
     def test_resource_guard_launch_manifest_and_argv_record_long_gap_threshold(self):
         with tempfile.TemporaryDirectory(prefix="resource-launch-config-") as temporary:

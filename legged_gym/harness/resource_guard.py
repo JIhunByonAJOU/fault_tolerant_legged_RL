@@ -1,6 +1,7 @@
 """Local ROS topic-rate evidence collector for managed training runs."""
 
 import argparse
+from collections import deque
 import datetime as dt
 import json
 import os
@@ -64,10 +65,65 @@ class EgoTopicRateGuard:
         self.window_start_ns = None
         self.consecutive_below = 0
         self.recovery_required = False
+        self.last_sample_ns = None
+        self.gap_events = deque()
+        self.seen_gap_event_ids = set()
+        self.gap_event_ledger_limit = 256
+        self.open_gap_provisional_id = None
+        self.open_gap_start_ns = None
+        self.pending_gap_event_id = None
+        self.pending_gap_end_ns = None
         self.window_sequence = 0
         self.subscriber_status = "starting"
         self.train_identity = {}
         self.decision = None
+
+    def _register_gap_event_locked(self, left_ns, right_ns):
+        if right_ns <= left_ns:
+            return None
+        duration_s = (right_ns - left_ns) / 1e9
+        if duration_s < self.long_gap_threshold_seconds:
+            return None
+        event_id = "{}:{}".format(left_ns, right_ns)
+        if event_id in self.seen_gap_event_ids:
+            return None
+        provisional_id = None
+        continues_pending = False
+        if self.open_gap_start_ns == left_ns:
+            provisional_id = self.open_gap_provisional_id
+            continues_pending = self.pending_gap_event_id == provisional_id
+        event = {
+            "schema_version": 3,
+            "run_id": self.run_id,
+            "gap_event_id": event_id,
+            "start_monotonic_ns": left_ns,
+            "end_monotonic_ns": right_ns,
+            "duration_s": duration_s,
+            "recorded_at": _now_iso(),
+            "assigned": False,
+            "provisional_gap_event_id": provisional_id,
+            "continues_pending": continues_pending,
+        }
+        if len(self.gap_events) >= self.gap_event_ledger_limit:
+            expired = self.gap_events.popleft()
+            self.seen_gap_event_ids.discard(expired["gap_event_id"])
+        self.gap_events.append(event)
+        self.seen_gap_event_ids.add(event_id)
+        if continues_pending:
+            self.pending_gap_event_id = event_id
+            self.pending_gap_end_ns = right_ns
+        if provisional_id is not None:
+            self.open_gap_provisional_id = None
+            self.open_gap_start_ns = None
+        return event
+
+    def _append_gap_event(self, event):
+        durable_event = {
+            key: value
+            for key, value in event.items()
+            if key not in {"assigned", "continues_pending"}
+        }
+        _append_jsonl(self.run_dir / "resource_gap_events.jsonl", durable_event)
 
     def write_heartbeat(self, status=None):
         if status is not None:
@@ -100,17 +156,44 @@ class EgoTopicRateGuard:
             "wall_time_unix": wall_time_unix,
             "monotonic_ns": monotonic_ns,
         }
+        gap_event = None
         with self.lock:
             self.samples.append(monotonic_ns)
+            if self.stage == "running":
+                previous_ns = self.last_sample_ns
+                if previous_ns is None or monotonic_ns > previous_ns:
+                    self.last_sample_ns = monotonic_ns
+                if previous_ns is not None and monotonic_ns > previous_ns:
+                    gap_event = self._register_gap_event_locked(previous_ns, monotonic_ns)
         _append_jsonl(self.run_dir / "resource_samples.jsonl", record)
+        if gap_event is not None:
+            self._append_gap_event(gap_event)
         return record
 
     def start_training_windows(self, start_ns, train_identity):
-        self.stage = "running"
-        self.window_start_ns = int(start_ns)
-        self.train_identity = dict(train_identity)
+        start_ns = int(start_ns)
+        retained_gap_events = []
         with self.lock:
-            self.samples = [value for value in self.samples if value >= self.window_start_ns]
+            self.stage = "running"
+            self.window_start_ns = start_ns
+            self.train_identity = dict(train_identity)
+            self.samples = [value for value in self.samples if value >= start_ns]
+            self.last_sample_ns = max(self.samples, default=None)
+            self.gap_events.clear()
+            self.seen_gap_event_ids.clear()
+            self.open_gap_provisional_id = None
+            self.open_gap_start_ns = None
+            self.pending_gap_event_id = None
+            self.pending_gap_end_ns = None
+            self.recovery_required = False
+            self.consecutive_below = 0
+            retained = sorted(set(self.samples))
+            for left_ns, right_ns in zip(retained, retained[1:]):
+                event = self._register_gap_event_locked(left_ns, right_ns)
+                if event is not None:
+                    retained_gap_events.append(event)
+        for event in retained_gap_events:
+            self._append_gap_event(event)
         self.write_heartbeat("subscribed")
 
     def close_window(self, end_ns, partial=False):
@@ -121,81 +204,240 @@ class EgoTopicRateGuard:
             raise ValueError("window end precedes start")
         start_ns = self.window_start_ns
         duration_s = (end_ns - start_ns) / 1e9
+        decision_reason = None
+        event = None
+        gap_event_disposition = None
+        recovery_eligible = False
+        open_gap_age_s = None
+        provisional_gap_event_id = None
         with self.lock:
+            latest_arrival_at_or_before_end = max(
+                (value for value in self.samples if value <= end_ns),
+                default=None,
+            )
             arrivals = sorted(
                 value for value in self.samples if start_ns <= value < end_ns
             )
             self.samples = [value for value in self.samples if value >= end_ns]
-        boundaries = [start_ns] + arrivals + [end_ns]
-        max_gap_s = max(
-            ((right - left) / 1e9 for left, right in zip(boundaries, boundaries[1:])),
-            default=duration_s,
-        )
-        rate_hz = len(arrivals) / duration_s if duration_s > 0 else 0.0
+            boundaries = [start_ns] + arrivals + [end_ns]
+            max_gap_s = max(
+                ((right - left) / 1e9 for left, right in zip(boundaries, boundaries[1:])),
+                default=duration_s,
+            )
+            internal_max_gap_s = max(
+                (
+                    (right - left) / 1e9
+                    for left, right in zip(arrivals, arrivals[1:])
+                ),
+                default=0.0,
+            )
+            rate_hz = len(arrivals) / duration_s if duration_s > 0 else 0.0
+            complete = not partial
+            if (
+                complete
+                and arrivals
+                and self.subscriber_status == "subscribed"
+                and latest_arrival_at_or_before_end is not None
+            ):
+                open_gap_age_s = (end_ns - latest_arrival_at_or_before_end) / 1e9
+            open_gap_start_ns = None
+            if (
+                open_gap_age_s is not None
+                and open_gap_age_s >= self.long_gap_threshold_seconds
+            ):
+                open_gap_start_ns = latest_arrival_at_or_before_end
+            new_events = []
+            if complete:
+                for candidate in self.gap_events:
+                    if not candidate["assigned"] and candidate["end_monotonic_ns"] <= end_ns:
+                        candidate["assigned"] = True
+                        new_events.append(candidate)
+
+            pending_start_ns = self.open_gap_start_ns
+            if pending_start_ns is None and self.pending_gap_event_id:
+                pending_identity = str(self.pending_gap_event_id)
+                if pending_identity.startswith("open:"):
+                    pending_identity = pending_identity[len("open:") :]
+                else:
+                    pending_identity = pending_identity.split(":", 1)[0]
+                try:
+                    pending_start_ns = int(pending_identity)
+                except ValueError:
+                    pending_start_ns = None
+            for candidate in new_events:
+                same_pending_start = (
+                    self.recovery_required
+                    and pending_start_ns is not None
+                    and candidate["start_monotonic_ns"] == pending_start_ns
+                )
+                candidate["same_pending_at_close"] = same_pending_start
+                if same_pending_start:
+                    provisional_id = "open:{}".format(pending_start_ns)
+                    candidate["provisional_gap_event_id"] = provisional_id
+                    self.pending_gap_event_id = candidate["gap_event_id"]
+                    self.pending_gap_end_ns = candidate["end_monotonic_ns"]
+                    self.open_gap_provisional_id = None
+                    self.open_gap_start_ns = None
+
+            if not complete:
+                rate_gate_status = "partial"
+            elif not arrivals:
+                rate_gate_status = "no_message_window"
+                decision_reason = "no_message_window"
+            elif new_events:
+                continuation_events = [
+                    candidate
+                    for candidate in new_events
+                    if candidate.get("same_pending_at_close")
+                ]
+                distinct_events = [
+                    candidate
+                    for candidate in new_events
+                    if not candidate.get("same_pending_at_close")
+                ]
+                if self.recovery_required and continuation_events and not distinct_events:
+                    event = continuation_events[0]
+                    provisional_gap_event_id = event.get("provisional_gap_event_id")
+                    rate_gate_status = "external_gap_continuation"
+                    gap_event_disposition = "continuation"
+                    self.consecutive_below = 0
+                elif self.recovery_required:
+                    event = distinct_events[0] if distinct_events else new_events[-1]
+                    provisional_gap_event_id = event.get("provisional_gap_event_id")
+                    rate_gate_status = "external_gap_not_recovered"
+                    gap_event_disposition = "distinct_gap_before_recovery"
+                    decision_reason = "external_gap_not_recovered"
+                else:
+                    event = new_events[0]
+                    provisional_gap_event_id = event.get("provisional_gap_event_id")
+                    rate_gate_status = "external_gap_candidate"
+                    gap_event_disposition = "candidate"
+                    self.pending_gap_event_id = event["gap_event_id"]
+                    self.pending_gap_end_ns = event["end_monotonic_ns"]
+                    self.recovery_required = True
+                    self.consecutive_below = 0
+                    if len(new_events) > 1:
+                        event = new_events[1]
+                        rate_gate_status = "external_gap_not_recovered"
+                        gap_event_disposition = "distinct_gap_before_recovery"
+                        decision_reason = "external_gap_not_recovered"
+                if open_gap_start_ns is not None:
+                    provisional_gap_event_id = "open:{}".format(open_gap_start_ns)
+                    event = {
+                        "gap_event_id": None,
+                        "start_monotonic_ns": open_gap_start_ns,
+                        "end_monotonic_ns": None,
+                        "duration_s": open_gap_age_s,
+                    }
+                    rate_gate_status = "external_gap_not_recovered"
+                    gap_event_disposition = "distinct_open_gap_before_recovery"
+                    decision_reason = "external_gap_not_recovered"
+                    self.open_gap_provisional_id = provisional_gap_event_id
+                    self.open_gap_start_ns = open_gap_start_ns
+            elif open_gap_start_ns is not None:
+                provisional_gap_event_id = "open:{}".format(open_gap_start_ns)
+                event = {
+                    "gap_event_id": None,
+                    "start_monotonic_ns": open_gap_start_ns,
+                    "end_monotonic_ns": None,
+                    "duration_s": open_gap_age_s,
+                }
+                if self.recovery_required:
+                    rate_gate_status = "external_gap_not_recovered"
+                    gap_event_disposition = "distinct_open_gap_before_recovery"
+                    decision_reason = "external_gap_not_recovered"
+                else:
+                    rate_gate_status = "external_gap_open_candidate"
+                    gap_event_disposition = "open_candidate"
+                    self.pending_gap_event_id = provisional_gap_event_id
+                    self.pending_gap_end_ns = None
+                    self.recovery_required = True
+                    self.consecutive_below = 0
+                self.open_gap_provisional_id = provisional_gap_event_id
+                self.open_gap_start_ns = open_gap_start_ns
+            elif self.recovery_required:
+                event = next(
+                    (
+                        candidate
+                        for candidate in reversed(self.gap_events)
+                        if candidate["gap_event_id"] == self.pending_gap_event_id
+                    ),
+                    None,
+                )
+                recovery_eligible = (
+                    self.pending_gap_end_ns is not None
+                    and start_ns >= self.pending_gap_end_ns
+                    and internal_max_gap_s < self.long_gap_threshold_seconds
+                )
+                if not recovery_eligible:
+                    rate_gate_status = "external_gap_continuation"
+                    gap_event_disposition = "continuation"
+                elif rate_hz >= self.minimum_rate_hz:
+                    rate_gate_status = "external_gap_recovered"
+                    gap_event_disposition = "recovered"
+                    self.consecutive_below = 0
+                    self.recovery_required = False
+                    self.pending_gap_event_id = None
+                    self.pending_gap_end_ns = None
+                else:
+                    rate_gate_status = "external_gap_not_recovered"
+                    gap_event_disposition = "recovery_below_rate"
+                    decision_reason = "external_gap_not_recovered"
+            elif rate_hz < self.minimum_rate_hz:
+                rate_gate_status = "gap_free_below_rate"
+                self.consecutive_below += 1
+                if self.consecutive_below >= 2:
+                    decision_reason = "two_consecutive_gap_free_below_rate"
+            else:
+                rate_gate_status = "gap_free_rate_ok"
+                self.consecutive_below = 0
+
+            record = {
+                "schema_version": 3,
+                "run_id": self.run_id,
+                "sequence": self.window_sequence,
+                "window_start_monotonic_ns": start_ns,
+                "window_end_monotonic_ns": end_ns,
+                "duration_s": duration_s,
+                "message_count": len(arrivals),
+                "rate_hz": rate_hz,
+                "max_gap_s": max_gap_s,
+                "complete": complete,
+                "partial": bool(partial),
+                "consecutive_below_40": self.consecutive_below,
+                "rate_gate_status": rate_gate_status,
+                "long_gap_threshold_s": self.long_gap_threshold_seconds,
+                "gap_free_consecutive_below_40": self.consecutive_below,
+                "recovery_required": self.recovery_required,
+                "recovery_eligible": recovery_eligible,
+                "provisional_gap_event_id": provisional_gap_event_id,
+                "gap_event_id": event.get("gap_event_id") if event else None,
+                "gap_event_start_monotonic_ns": (
+                    event["start_monotonic_ns"] if event else None
+                ),
+                "gap_event_end_monotonic_ns": (
+                    event["end_monotonic_ns"] if event else None
+                ),
+                "gap_event_duration_s": event["duration_s"] if event else None,
+                "gap_event_disposition": gap_event_disposition,
+                "open_gap_age_s": open_gap_age_s,
+                "subscriber_status": self.subscriber_status,
+                "guard_pid": self.guard_pid,
+                "guard_start_ticks": self.guard_start_ticks,
+                "train_pid": self.train_identity.get("train_pid"),
+                "train_start_ticks": self.train_identity.get("train_start_ticks"),
+            }
+            self.window_sequence += 1
+            self.window_start_ns = end_ns
         end_wall = time.time()
         start_wall = end_wall - duration_s
-        complete = not partial
-        decision_reason = None
-        if not complete:
-            rate_gate_status = "partial"
-        elif not arrivals:
-            rate_gate_status = "no_message_window"
-            decision_reason = "no_message_window"
-        elif max_gap_s >= self.long_gap_threshold_seconds:
-            rate_gate_status = "external_gap_candidate"
-            decision_reason = (
-                "external_gap_not_recovered" if self.recovery_required else None
-            )
-            self.consecutive_below = 0
-            self.recovery_required = True
-        elif self.recovery_required:
-            if rate_hz >= self.minimum_rate_hz:
-                rate_gate_status = "external_gap_recovered"
-                self.consecutive_below = 0
-                self.recovery_required = False
-            else:
-                rate_gate_status = "external_gap_not_recovered"
-                decision_reason = "external_gap_not_recovered"
-        elif rate_hz < self.minimum_rate_hz:
-            rate_gate_status = "gap_free_below_rate"
-            self.consecutive_below += 1
-            if self.consecutive_below >= 2:
-                decision_reason = "two_consecutive_gap_free_below_rate"
-        else:
-            rate_gate_status = "gap_free_rate_ok"
-            self.consecutive_below = 0
-        record = {
-            "schema_version": 2,
-            "run_id": self.run_id,
-            "sequence": self.window_sequence,
-            "window_start_monotonic_ns": start_ns,
-            "window_end_monotonic_ns": end_ns,
-            "window_start": dt.datetime.fromtimestamp(start_wall).astimezone().isoformat(
-                timespec="microseconds"
-            ),
-            "window_end": dt.datetime.fromtimestamp(end_wall).astimezone().isoformat(
-                timespec="microseconds"
-            ),
-            "duration_s": duration_s,
-            "message_count": len(arrivals),
-            "rate_hz": rate_hz,
-            "max_gap_s": max_gap_s,
-            "complete": complete,
-            "partial": bool(partial),
-            "consecutive_below_40": self.consecutive_below,
-            "rate_gate_status": rate_gate_status,
-            "long_gap_threshold_s": self.long_gap_threshold_seconds,
-            "gap_free_consecutive_below_40": self.consecutive_below,
-            "recovery_required": self.recovery_required,
-            "subscriber_status": self.subscriber_status,
-            "guard_pid": self.guard_pid,
-            "guard_start_ticks": self.guard_start_ticks,
-            "train_pid": self.train_identity.get("train_pid"),
-            "train_start_ticks": self.train_identity.get("train_start_ticks"),
-        }
+        record["window_start"] = dt.datetime.fromtimestamp(start_wall).astimezone().isoformat(
+            timespec="microseconds"
+        )
+        record["window_end"] = dt.datetime.fromtimestamp(end_wall).astimezone().isoformat(
+            timespec="microseconds"
+        )
         _append_jsonl(self.run_dir / "resource_windows.jsonl", record)
-        self.window_sequence += 1
-        self.window_start_ns = end_ns
         if decision_reason is not None:
             self.write_decision(decision_reason, record)
         return record
