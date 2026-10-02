@@ -1,0 +1,737 @@
+[
+  {
+    "file": "/home/jihun/Downloads/논문양식.docx",
+    "sha256": "47a1d41f8c90df76ba1e2863e63caf8016f849b80dd9d26d7a2bf071ee9d7f99",
+    "sections": [
+      {
+        "pgSz": {
+          "w": "11906",
+          "h": "16838"
+        },
+        "pgMar": {
+          "top": "1701",
+          "right": "1134",
+          "bottom": "1701",
+          "left": "1134",
+          "header": "1134",
+          "footer": "1134",
+          "gutter": "0"
+        },
+        "cols": {
+          "space": "567"
+        }
+      },
+      {
+        "type": {
+          "val": "continuous"
+        },
+        "pgSz": {
+          "w": "11906",
+          "h": "16838"
+        },
+        "pgMar": {
+          "top": "1701",
+          "right": "1134",
+          "bottom": "1701",
+          "left": "1134",
+          "header": "1134",
+          "footer": "1134",
+          "gutter": "0"
+        },
+        "cols": {
+          "num": "2",
+          "space": "567"
+        }
+      }
+    ],
+    "styles": [
+      {
+        "id": "a",
+        "name": "Normal",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      },
+      {
+        "id": "1",
+        "name": "heading 1",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "바탕체",
+          "eastAsia": "바탕체"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "360",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "2",
+        "name": "heading 2",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "바탕체",
+          "eastAsia": "바탕체"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "360",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "a0",
+        "name": "Default Paragraph Font",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      },
+      {
+        "id": "a1",
+        "name": "Normal Table",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      },
+      {
+        "id": "a2",
+        "name": "No List",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      },
+      {
+        "id": "a3",
+        "name": "바탕글",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "10",
+        "name": "본문(신명조10)",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "100",
+        "name": "본문(중고딕10)",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양중고딕",
+          "eastAsia": "한양중고딕"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "15",
+        "name": "작은제목(중고딕15)",
+        "size_pt": 15.0,
+        "fonts": {
+          "ascii": "한양중고딕",
+          "eastAsia": "한양중고딕"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "20",
+        "name": "중간제목(옛체20)",
+        "size_pt": 20.0,
+        "fonts": {
+          "ascii": "한양궁서",
+          "eastAsia": "휴먼옛체"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "200",
+        "name": "큰제목(견고딕20)",
+        "size_pt": 20.0,
+        "fonts": {
+          "ascii": "한양견고딕",
+          "eastAsia": "한양견고딕"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "30",
+        "name": "큰제목(견고딕30)",
+        "size_pt": 30.0,
+        "fonts": {
+          "ascii": "한양견고딕",
+          "eastAsia": "한양견고딕"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "9",
+        "name": "머리말(신명조9)",
+        "size_pt": 9.0,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "90",
+        "name": "머리말(중고딕9)",
+        "size_pt": 9.0,
+        "fonts": {
+          "ascii": "한양중고딕",
+          "eastAsia": "한양중고딕"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "91",
+        "name": "각주내용(신명조9)",
+        "size_pt": 9.0,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "336",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "a4",
+        "name": "수식",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "a5",
+        "name": "절",
+        "size_pt": 13.0,
+        "fonts": {
+          "ascii": "한양견명조",
+          "eastAsia": "한양견명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "720",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "11",
+        "name": "개요 1",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "a6",
+        "name": "쪽번호",
+        "size_pt": 11.0,
+        "fonts": {
+          "ascii": "Times New Roman",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "a7",
+        "name": "header",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      },
+      {
+        "id": "Char",
+        "name": "머리글 Char",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      },
+      {
+        "id": "a8",
+        "name": "footer",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      },
+      {
+        "id": "Char0",
+        "name": "바닥글 Char",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      }
+    ],
+    "nonempty_paragraph_count": 35,
+    "explicit_template_instructions": [],
+    "official_url": "https://conf.theieie.org/2026f/download/theieie_conference_2column.docx",
+    "official_sha256": "47a1d41f8c90df76ba1e2863e63caf8016f849b80dd9d26d7a2bf071ee9d7f99",
+    "matches_official_download": true
+  },
+  {
+    "file": "/home/jihun/Downloads/서면 심사용 논문 양식.docx",
+    "sha256": "072c70b9bcbe4a9625cdc8558b7b8cc3e2b4384393cdbaff10058038690904d8",
+    "sections": [
+      {
+        "pgSz": {
+          "w": "11906",
+          "h": "16838"
+        },
+        "pgMar": {
+          "top": "1984",
+          "right": "1135",
+          "bottom": "1138",
+          "left": "1134",
+          "header": "1134",
+          "footer": "571",
+          "gutter": "0"
+        },
+        "cols": {
+          "num": "2",
+          "space": "510"
+        }
+      }
+    ],
+    "styles": [
+      {
+        "id": "a",
+        "name": "Normal",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      },
+      {
+        "id": "a0",
+        "name": "Default Paragraph Font",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      },
+      {
+        "id": "a1",
+        "name": "Normal Table",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      },
+      {
+        "id": "a2",
+        "name": "No List",
+        "size_pt": null,
+        "fonts": {},
+        "spacing": {}
+      },
+      {
+        "id": "a3",
+        "name": "바탕글",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "a4",
+        "name": "Body Text",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "a5",
+        "name": "각 장 제목",
+        "size_pt": 11.0,
+        "fonts": {
+          "ascii": "HY중고딕",
+          "eastAsia": "HY중고딕"
+        },
+        "spacing": {
+          "after": "300",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "a6",
+        "name": "각 절 제목",
+        "size_pt": 11.0,
+        "fonts": {
+          "ascii": "HY중고딕",
+          "eastAsia": "HY중고딕"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "a7",
+        "name": "각 항 제목",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "HY중고딕",
+          "eastAsia": "HY중고딕"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "a8",
+        "name": "그림/표 제목",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양중고딕",
+          "eastAsia": "한양중고딕"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "312",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "a9",
+        "name": "한글제목",
+        "size_pt": 20.0,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "before": "360",
+          "after": "160",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "aa",
+        "name": "영문제목",
+        "size_pt": 15.0,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "280",
+          "line": "312",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "ab",
+        "name": "한글저자",
+        "size_pt": 12.0,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "160",
+          "line": "408",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "ac",
+        "name": "영문저자",
+        "size_pt": 11.0,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "280",
+          "line": "408",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "ad",
+        "name": "요약",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양중고딕",
+          "eastAsia": "한양중고딕"
+        },
+        "spacing": {
+          "after": "140",
+          "line": "408",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "ae",
+        "name": "요약본문",
+        "size_pt": 9.0,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "320",
+          "line": "312",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "Abstract",
+        "name": "Abstract",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "바탕",
+          "eastAsia": "바탕"
+        },
+        "spacing": {
+          "after": "140",
+          "line": "408",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "af",
+        "name": "머릿말",
+        "size_pt": 9.0,
+        "fonts": {
+          "ascii": "HY중고딕",
+          "eastAsia": "HY중고딕"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "312",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "af0",
+        "name": "꼬리말",
+        "size_pt": 8.0,
+        "fonts": {
+          "ascii": "한양중고딕",
+          "eastAsia": "한양중고딕"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "312",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "af1",
+        "name": "쪽 번호",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양견고딕",
+          "eastAsia": "한양견고딕"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "af2",
+        "name": "각주내용",
+        "size_pt": 9.0,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "312",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "af3",
+        "name": "논문번호",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "HY중고딕",
+          "eastAsia": "HY중고딕"
+        },
+        "spacing": {
+          "line": "240",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "Keywords",
+        "name": "Keywords제목",
+        "size_pt": 9.0,
+        "fonts": {
+          "ascii": "한양견명조",
+          "eastAsia": "한양견명조"
+        },
+        "spacing": {}
+      },
+      {
+        "id": "Keywords0",
+        "name": "Keywords내용",
+        "size_pt": 9.0,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {}
+      },
+      {
+        "id": "af4",
+        "name": "참고문헌번호",
+        "size_pt": 9.0,
+        "fonts": {
+          "ascii": "돋움",
+          "eastAsia": "돋움"
+        },
+        "spacing": {}
+      },
+      {
+        "id": "af5",
+        "name": "참고문헌내용",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "312",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "-",
+        "name": "저자소개-이름",
+        "size_pt": 11.0,
+        "fonts": {
+          "ascii": "한양중고딕",
+          "eastAsia": "한양중고딕"
+        },
+        "spacing": {}
+      },
+      {
+        "id": "-0",
+        "name": "저자소개-약력",
+        "size_pt": null,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "312",
+          "lineRule": "auto"
+        }
+      },
+      {
+        "id": "af6",
+        "name": "수식번호",
+        "size_pt": 11.0,
+        "fonts": {
+          "ascii": "한양신명조",
+          "eastAsia": "한양신명조"
+        },
+        "spacing": {
+          "after": "0",
+          "line": "384",
+          "lineRule": "auto"
+        }
+      }
+    ],
+    "nonempty_paragraph_count": 44,
+    "explicit_template_instructions": [
+      "      Keywords : 5개이하의 키워드를 입력하시오. (스타일:Keywords내용) ",
+      "표와 그림 : 영문 (tables and figures in  English)",
+      "수식 맨 끝에 번호를 기입하세요.",
+      "<<References 작성요령>>",
+      "영문으로 작성요망",
+      "※ 본문에서 인용한 참고문헌 번호는 인용문 우측 상단의 []안에 기입한다.",
+      "<<폰트문제>>"
+    ],
+    "official_url": "https://conf.theieie.org/2026f/download/paper_sample02.docx",
+    "official_sha256": "072c70b9bcbe4a9625cdc8558b7b8cc3e2b4384393cdbaff10058038690904d8",
+    "matches_official_download": true
+  }
+]

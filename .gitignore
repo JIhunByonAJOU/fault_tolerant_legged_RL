@@ -66,6 +66,13 @@ __pycache__
 # Local presentation drafts and generated assets
 /docs/present_first/
 
+# Manuscript drafts, identifying metadata and rendered submission deliverables.
+# Keep unpublished submission material local until publication eligibility is resolved.
+/docs/submission/ieie2026/private/
+/docs/submission/ieie2026/rendered/
+/docs/submission/ieie2026/results/
+/docs/submission/ieie2026/reviewer/
+
 # Local scratch launch notes and accidental CLI marker files
 /How to Launch.md
 /--

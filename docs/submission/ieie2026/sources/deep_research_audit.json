@@ -1,0 +1,116 @@
+{
+  "checked_date": "2026-10-02",
+  "scope": "IEIE2026f_official_rules_and_prior_award_fulltext_search",
+  "entries": [
+    {
+      "url": "https://conf.theieie.org/2026f/pages/undergraduate_competition.vm",
+      "access_status": "public_html",
+      "observation": "Eligibility,unpublished,two_manuscripts,blind_4p,no_score_rubric"
+    },
+    {
+      "url": "https://conf.theieie.org/2026f/pages/conference_paperinfo.vm",
+      "access_status": "public_html",
+      "observation": "Word_or_HWP,doublecolumn1to5"
+    },
+    {
+      "url": "https://conf.theieie.org/2026f/pages/conference_paper_announce.vm",
+      "access_status": "public_html",
+      "observation": "Oral10to15_minutes_including_QA_USB_poster100x180"
+    },
+    {
+      "url": "https://conf.theieie.org/2026f/pages/programs.vm",
+      "access_status": "public_html",
+      "observation": "To_be_updated"
+    },
+    {
+      "url": "https://conf.theieie.org/2026f/pages/awards.vm",
+      "access_status": "public_html",
+      "observation": "Separate_Samsung_sponsored_award_not_undergraduate_competition"
+    },
+    {
+      "url": "https://conf.theieie.org/2026f/download/poster_2026f.pdf",
+      "access_status": "public_pdf_image_1page",
+      "observation": "Visual_verified_deadlines"
+    },
+    {
+      "url": "https://conf.theieie.org/users/paper_download.vm",
+      "access_status": "email_auth_redirect",
+      "observation": "Proceedings_not_public_without_auth"
+    },
+    {
+      "url": "https://conf.theieie.org/papers/new.vm?stype=typeF",
+      "access_status": "login_redirect",
+      "observation": "Upload_extensions_unknown"
+    },
+    {
+      "url": "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12036194",
+      "access_status": "public_metadata_fulltext_not_acquired",
+      "observation": "2024PIM_exact_paper_pp185_189_5pages"
+    },
+    {
+      "url": "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12332007",
+      "access_status": "public_metadata_fulltext_not_acquired",
+      "observation": "2025ConditionalFlowPolicy_pp2634_2637_4pages_award_rank_unknown"
+    },
+    {
+      "url": "https://gsee.knu.ac.kr/content/news.html?fidx=103428&gtid=bodo&opt=&page=4&pg=vv&sword=",
+      "access_status": "institution_award_report",
+      "observation": "2024SeoBogeon_AR_encouragement_not_fullpaper"
+    },
+    {
+      "url": "https://conf.theieie.org/2026s/download/session_program_20260602.pdf",
+      "access_status": "public_program_pdf",
+      "observation": "Hanbat_costawarePPO_p123_P13_21_GEP0903_not_fullpaper"
+    },
+    {
+      "url": "https://openaccess.thecvf.com/content/ICCV2025W/ACVR/papers/Jung_Flow-Guided_Policies_Overcoming_Diffusion_Limitations_for_Robust_Robot_Imitation_Learning_ICCVW_2025_paper.pdf",
+      "access_status": "public_fulltext_pdf",
+      "observation": "6pages_ICCVW_related_later_paper_NOT_undergrad_competition_manuscript"
+    },
+    {
+      "url": "https://www.jsts.org/jsts/XmlViewer/f449809",
+      "access_status": "public_fulltext_html",
+      "observation": "2025JSTS_followup_NOT2024awardpaper"
+    },
+    {
+      "url": "http://journal.auric.kr/openAccess/cart_openAccess2015.asp?DB=RD_R&DN=449809",
+      "access_status": "authorization_denied",
+      "observation": "Not_authorized_user_no_bypass"
+    },
+    {
+      "url": "https://bpai2025.github.io/",
+      "access_status": "public_program_no_fullpapers",
+      "observation": "2025AISP_rules_not2026autumn"
+    },
+    {
+      "url": "https://api.github.com/repos/bpai2025/bpai2025.github.io/commits?per_page=100",
+      "access_status": "public_git_history_audited",
+      "observation": "34commits_indexhtml_placeholder_only"
+    },
+    {
+      "url": "https://api.github.com/repos/bpai2026/bpai2026.github.io/git/trees/HEAD?recursive=1",
+      "access_status": "public_git_tree_audited",
+      "observation": "40paths_templates_and_sample_no_camera_ready"
+    }
+  ],
+  "searched_titles": [
+    "안전한 제지 건조 공정 제어를 위한 비용 인지 PPO와 배포 시점 행동 스케일링",
+    "Gate-Level Cell Selection via Reinforcement Learning for Netlist cost Minimization",
+    "Conditional Flow Policy: Enhancing Robot Imitation Learning via Flow Matching Beyond Diffusion Policy",
+    "DRAM기반 Processing In Memory (PIM)을 활용한 벡터 유사도 검색 가속",
+    "AR 적용을 위한 딥러닝 기반 단안 RGB 객체의 자세 추정 및 CAD 모델 채색화"
+  ],
+  "unresolved": [
+    "Award-winning competition manuscripts fulltext not acquired",
+    "2025 RLCellSelection specific award rank not independently verified",
+    "2025 ConditionalFlowPolicy specific award rank not independently verified",
+    "Autumn judging weights,rubric,copyright form,upload extensions and per-session time not public",
+    "Github_readme_publication_rule interpretation requires society clarification"
+  ],
+  "local_related_fulltext": {
+    "path": "/tmp/legged-office/flow_guided_iccv2025.pdf",
+    "sha256": "ecb3c817d4bf00f518a7d6b7da6d14baf93d2f531d18d241cfaa500cc12c21cd",
+    "not_award_manuscript": true
+  },
+  "github_2025_commit_count": 34
+}

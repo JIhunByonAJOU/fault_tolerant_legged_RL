@@ -1,0 +1,138 @@
+{
+  "checked_at": "2026-10-02",
+  "sources": [
+    {
+      "id": "ieie2026_rules",
+      "url": "https://conf.theieie.org/2026f/pages/undergraduate_competition.vm",
+      "authority": "Official conference",
+      "supports": "Eligibility, two manuscripts, unpublished rule, blind review",
+      "access_status": "Confirmed"
+    },
+    {
+      "id": "ieie2026_schedule",
+      "url": "https://conf.theieie.org/2026f/pages/outlines.vm",
+      "authority": "Official conference",
+      "supports": "10/19 submit,10/26 notice,11/27-28 event",
+      "access_status": "Confirmed"
+    },
+    {
+      "id": "ieie2026_registration",
+      "url": "https://conf.theieie.org/2026f/pages/conference_reginfo.vm",
+      "authority": "Official conference",
+      "supports": "Registration deadline, mandatory author registration,fees",
+      "access_status": "Confirmed"
+    },
+    {
+      "id": "award2024_pim",
+      "url": "https://myr.ewha.ac.kr/ewhaeleca/information/news.do?articleNo=738201&mode=view",
+      "authority": "University primary news",
+      "supports": "2024 autumn undergraduate competition excellent award and title",
+      "access_status": "Award verified; full paper unavailable"
+    },
+    {
+      "id": "award2025_lora",
+      "url": "https://www.koreatech.ac.kr/gallery.es?act=view&bid=0018&list_no=52690&mid=a10701020000",
+      "authority": "University primary news",
+      "supports": "2025 summer AI competition excellent award and title",
+      "access_status": "Award verified; full paper unavailable"
+    },
+    {
+      "id": "award2026_ppo",
+      "url": "https://hanbat.ac.kr/prog/bbsArticle/BBSMSTR_000000000055/view.do?mno=sub07_0404&nttId=B000000167663Na0fQ0c",
+      "authority": "University primary news",
+      "supports": "2026 summer AI competition encouragement award, cost-aware PPO",
+      "access_status": "Award verified; full paper unavailable"
+    },
+    {
+      "id": "award2025_lea",
+      "url": "https://cam.kumoh.ac.kr/ko/sub01_05_02.do?articleNo=547507&mode=view",
+      "authority": "University primary news",
+      "supports": "2025 autumn excellent paper award LEA FPGA",
+      "access_status": "Undergraduate authors verified; exact award category not explicit"
+    },
+    {
+      "id": "program2025_ai",
+      "url": "https://bpai2025.github.io/",
+      "authority": "Competition organizers",
+      "supports": "RL netlist/robot imitation/navigation candidate titles",
+      "access_status": "Candidate program verified, individual rank not verified"
+    },
+    {
+      "id": "program2026_ai",
+      "url": "https://bpai2026.github.io/",
+      "authority": "Competition organizers",
+      "supports": "PPO/DQN candidate titles; distinct summer rules",
+      "access_status": "Program verified"
+    },
+    {
+      "id": "stl",
+      "url": "https://arxiv.org/abs/2210.00474",
+      "authority": "Author manuscript",
+      "supports": "v3 IV-B TableI velocity and normalized survival",
+      "access_status": "Local full PDF and Markdown"
+    },
+    {
+      "id": "rma",
+      "url": "https://arxiv.org/abs/2107.04034",
+      "authority": "Author manuscript",
+      "supports": "V TableII TTF and distance",
+      "access_status": "Local full PDF and Markdown"
+    },
+    {
+      "id": "adapt",
+      "url": "https://arxiv.org/abs/2312.17606",
+      "authority": "Author manuscript",
+      "supports": "Fig3 joint-degradation reward heatmap",
+      "access_status": "Local full PDF and Markdown"
+    },
+    {
+      "id": "rjm",
+      "url": "https://arxiv.org/abs/2403.00398",
+      "authority": "Author manuscript",
+      "supports": "IV-A TableII 1.0m/s vx RMSE",
+      "access_status": "Local full PDF; pdftotext checked"
+    },
+    {
+      "id": "rjm_project",
+      "url": "https://sites.google.com/view/learning-impaired-joints-loco",
+      "authority": "Author project",
+      "supports": "Paper, methodology, supplementary videos",
+      "access_status": "No code or checkpoint link confirmed"
+    },
+    {
+      "id": "ftnet",
+      "url": "https://hub.hku.hk/handle/10722/339580",
+      "authority": "Author university repository",
+      "supports": "RA-L8(12)8414-8421 DOI",
+      "access_status": "Metadata and abstract verified; no numeric metrics extracted"
+    },
+    {
+      "id": "acl",
+      "url": "https://arxiv.org/html/2503.21401v1",
+      "authority": "Author manuscript",
+      "supports": "Fault transitions Fig4/Fig6, code announcement",
+      "access_status": "v1 checked"
+    },
+    {
+      "id": "moe",
+      "url": "https://arxiv.org/html/2606.25965v1",
+      "authority": "Author manuscript",
+      "supports": "Reward distribution Fig4, actor-size comparison",
+      "access_status": "v1 preprint checked"
+    },
+    {
+      "id": "adaptive_gait",
+      "url": "https://arxiv.org/html/2608.07328v1",
+      "authority": "Author manuscript",
+      "supports": "IV-B 5 independent runs/95%CI/25s onset5s and postfault tracking-survival",
+      "access_status": "v1 preprint checked"
+    },
+    {
+      "id": "adaptive_gait_project",
+      "url": "https://gianni0907.github.io/fault_tolerant_locomotion/",
+      "authority": "Author project",
+      "supports": "Paper/video",
+      "access_status": "Code/weights not confirmed"
+    }
+  ]
+}

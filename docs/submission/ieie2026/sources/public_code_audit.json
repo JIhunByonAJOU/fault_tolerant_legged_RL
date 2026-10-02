@@ -1,0 +1,79 @@
+[
+  {
+    "repo": "WentDong/Adapt",
+    "files": 71,
+    "weights": [],
+    "evaluation_files": [
+      "README.md",
+      "legged_gym/scripts/evaluate.py",
+      "scripts/evaluate_Adapt.py",
+      "scripts/test_args.yaml"
+    ],
+    "truncated": false,
+    "tree_sha": "5db91c7368e763f9d546c43a3122f8f09ebac7a0",
+    "commit_sha": "5db91c7368e763f9d546c43a3122f8f09ebac7a0",
+    "checked_at": "2026-10-02"
+  },
+  {
+    "repo": "antonilo/rl_locomotion",
+    "files": 43,
+    "weights": [
+      "data/base_policy/full_22000.pt",
+      "data/base_policy/policy_22000.pt"
+    ],
+    "evaluation_files": [
+      "README.md",
+      "eval_scripts/compute_results.py",
+      "raisimGymTorch/env/envs/dagger_a1/evaluate_policy.py",
+      "raisimGymTorch/env/envs/rsg_a1_task/evaluate_policy.py"
+    ],
+    "truncated": false,
+    "tree_sha": "f71db8195bfb49b6d964bf53be3c5adadb0c11b1",
+    "commit_sha": "f71db8195bfb49b6d964bf53be3c5adadb0c11b1",
+    "checked_at": "2026-10-02",
+    "paper_version_caveat": "Current README identifies Cross-Modal Supervision code built on RMA; supplied base_policy weights are prior guides and are not verified as original RMA deployment-student checkpoint."
+  },
+  {
+    "repo": "ACT-legmotion/ACL-ActionLearner",
+    "files": 24,
+    "weights": [],
+    "evaluation_files": [
+      "README.md"
+    ],
+    "truncated": false,
+    "tree_sha": "1ccf04b3342d660c736c94c98aa722d2b7a3db9c",
+    "commit_sha": "1ccf04b3342d660c736c94c98aa722d2b7a3db9c",
+    "checked_at": "2026-10-02"
+  },
+  {
+    "repo": "iit-DLSLab/fault-locomotion-isaaclab",
+    "files": 123,
+    "weights": [
+      "tested_policies/go2/ppo/exported/policy.onnx",
+      "tested_policies/go2/ppo/exported/policy.pt",
+      "tested_policies/go2/ppo/model_19950.pt",
+      "tested_policies/go2/ppo/model_19999.pt"
+    ],
+    "evaluation_files": [
+      "README.md",
+      "README_deploy.md",
+      "README_train.md",
+      "scripts/moe_rsl_rl/README_moe_rsl_rl.md",
+      "scripts/morphosymm_rl/README_morphosymm.md",
+      "scripts/morphosymm_rl/eval_symm.py"
+    ],
+    "truncated": false,
+    "tree_sha": "d789225519309d41c8f6762ee286091c7eb66326",
+    "commit_sha": "d789225519309d41c8f6762ee286091c7eb66326",
+    "checked_at": "2026-10-02"
+  },
+  {
+    "repo": "arclab-hku/FT-Net_Quadruped_Robots",
+    "files": 3,
+    "weights": [],
+    "content": "supplementary PDF and figures; no training source",
+    "tree_sha": "a39d438b116c035dc53cc5b298226e10eb0790f1",
+    "commit_sha": "a39d438b116c035dc53cc5b298226e10eb0790f1",
+    "checked_at": "2026-10-02"
+  }
+]

@@ -1,0 +1,250 @@
+{
+  "checked_date": "2026-10-02",
+  "scope": "2024/2025 추계 학부생 경진대회 및 로봇·제어·RL 수상 논문 추가 독립 조사",
+  "exclusions": [
+    "2026 규정·한밭 PPO, 2025 하계 FlowPolicy·RL cell-selection, 2024 PIM 전문은 다른 담당자가 조사"
+  ],
+  "complete_winner_list_obtained": false,
+  "best_award_winner_verified": false,
+  "full_award_papers_read_count": 0,
+  "records": [
+    {
+      "id": "2024f_gachon_multimodal_robots",
+      "year": 2024,
+      "title": "지능형 다중 로봇 시스템을 위한 Multimodal LLMs 연구",
+      "authors": [
+        "조태완",
+        "손찬수",
+        "유현우",
+        "김리나",
+        "최재용"
+      ],
+      "award": "학부생 논문경진대회 장려상",
+      "field": "다중 로봇·MLLM",
+      "conference": "대한전자공학회 추계학술대회",
+      "sources": [
+        {
+          "url": "https://www.gachon.ac.kr/bbs/aisw/1648/105536/artclView.do",
+          "supports": "학교 공식 수상 공지: 2024.11.22 학부 경진대회 장려상"
+        },
+        {
+          "url": "https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12036318",
+          "supports": "출판사 서지·초록: 2024.11, 638–643쪽"
+        },
+        {
+          "url": "https://sites.google.com/view/irasc/publications",
+          "supports": "저자 연구실 제목·저자 확인"
+        }
+      ],
+      "full_text_status": "not_obtained",
+      "read_scope": "공식 수상 공지·서지·공개 초록 범위만",
+      "full_text_audit": {
+        "page_structure": null,
+        "exact_baselines": null,
+        "quantitative_metrics": null,
+        "sample_size_or_seeds": null,
+        "statistics": null,
+        "ablation": null
+      },
+      "undergraduate_competition_confirmed": true,
+      "proceedings_pages": "638–643",
+      "page_count": 6,
+      "abstract_level_findings": [
+        "자체 실험 환경에서 UAV 영상의 목표 지점 식별·경로 계획 가능성을 조사한다.",
+        "단독 MLLM과 전문 에이전트 협업을 비교했다는 초록 설명이 있으나 수치·비교 공정성은 미확인."
+      ],
+      "access_attempts": [
+        "DBpia pdfView는 서지 페이지로 리디렉션",
+        "저자 연구실 해당 항목에 공개 PDF 링크 없음"
+      ],
+      "cautions": [
+        "출판사 6쪽 서지와 행사 안내 1–5쪽 제한의 차이는 미확인. 2026 양식 예외 근거로 쓰지 않음.",
+        "수상 이유·심사평 미공개; 제목·초록에서 수상 원인을 추정하지 않음."
+      ]
+    },
+    {
+      "id": "2024f_knu_pose_ar",
+      "year": 2024,
+      "title": "AR 적용을 위한 딥러닝 기반 단안 RGB 객체의 자세 추정 및 CAD 모델 채색화",
+      "authors": [
+        "서보건(제1저자)",
+        "박순용(지도교수; 전체 저자 미확인)"
+      ],
+      "award": "학부생 논문경진대회 장려상",
+      "field": "컴퓨터비전·자세 추정",
+      "conference": "대한전자공학회 추계학술대회",
+      "sources": [
+        {
+          "url": "https://gsee.knu.ac.kr/content/news.html?fidx=103428&gtid=bodo&opt=&page=4&pg=vv&sword=",
+          "supports": "학교 공식 2024.11.27 공지: 학부 과정 제1저자, 제목, 장려상"
+        }
+      ],
+      "full_text_status": "not_obtained",
+      "read_scope": "공식 수상 공지·서지·공개 초록 범위만",
+      "full_text_audit": {
+        "page_structure": null,
+        "exact_baselines": null,
+        "quantitative_metrics": null,
+        "sample_size_or_seeds": null,
+        "statistics": null,
+        "ablation": null
+      },
+      "undergraduate_competition_confirmed": true,
+      "cautions": [
+        "공지 제목만으로 방법·정량 지표·통계·심사 이유 판단 불가."
+      ]
+    },
+    {
+      "id": "2024f_pnu_buck_control",
+      "year": 2024,
+      "title": "ETRI 0.5um 공정을 이용한 Buck Converter (Voltage mode) 설계 및 분석",
+      "authors": [
+        "최규진",
+        "최익준",
+        "정종혁"
+      ],
+      "award": "학부생 우수논문 선정",
+      "field": "전력전자·제어",
+      "conference": "대한전자공학회 추계학술대회",
+      "sources": [
+        {
+          "url": "https://www.pusan.ac.kr/kor/CMS/Board/Board.do?board_seq=1500003&mCode=MN109&mode=view",
+          "supports": "2024.12.17 학교 공지: 학부생 논문경진대회 우수논문 10편 선정 설명"
+        }
+      ],
+      "full_text_status": "not_obtained",
+      "read_scope": "공식 수상 공지·서지·공개 초록 범위만",
+      "full_text_audit": {
+        "page_structure": null,
+        "exact_baselines": null,
+        "quantitative_metrics": null,
+        "sample_size_or_seeds": null,
+        "statistics": null,
+        "ablation": null
+      },
+      "undergraduate_competition_confirmed": true,
+      "exact_award_rank_confirmed": false,
+      "cautions": [
+        "우수논문 선정을 공식 우수상/최우수상으로 임의 변환하지 않음."
+      ]
+    },
+    {
+      "id": "2025f_pnu_visual_token_pruning",
+      "year": 2025,
+      "title": "이미지 복잡도와 환각 생성 관점에서 본 대규모 비전-언어 모델의 시각 토큰 프루닝 분석",
+      "authors": [
+        "김소현",
+        "백창우",
+        "송주원",
+        "공경보"
+      ],
+      "award": "학부생 우수논문 선정",
+      "field": "VLM·연산 효율",
+      "conference": "대한전자공학회 추계학술대회",
+      "sources": [
+        {
+          "url": "https://ee.pusan.ac.kr/bbs/ee/1536/1188682/artclView.do",
+          "supports": "학교 2026.01.08 공지: 2025.11.28 추계 학부생 경진대회 김소현 우수논문 선정"
+        },
+        {
+          "url": "https://www.pnu-cvsp.com/members/sohyeon",
+          "supports": "저자 연구실 정확한 추계 논문 제목·저자"
+        },
+        {
+          "url": "https://www.pnu-cvsp.com/243abcc9-0e34-803b-be71-d107dee56921",
+          "supports": "저자 연구실 프로젝트 서지: 658–662쪽"
+        }
+      ],
+      "full_text_status": "not_obtained",
+      "read_scope": "공식 수상 공지·서지·공개 초록 범위만",
+      "full_text_audit": {
+        "page_structure": null,
+        "exact_baselines": null,
+        "quantitative_metrics": null,
+        "sample_size_or_seeds": null,
+        "statistics": null,
+        "ablation": null
+      },
+      "undergraduate_competition_confirmed": true,
+      "exact_award_rank_confirmed": false,
+      "proceedings_pages": "658–662",
+      "page_count": 5,
+      "announcement_level_findings": [
+        "이미지 복잡도·환각 특성을 고려한 토큰 제거로 효율·정확도를 함께 다룬다고 학교가 설명."
+      ],
+      "cautions": [
+        "동일 공지의 방송미디어학회 최우수상은 다른 저자·논문. 이 논문의 최우수상으로 쓰지 않음.",
+        "2026 방송공학회논문지 후속 논문을 2025 수상 논문 전문으로 취급하지 않음."
+      ]
+    },
+    {
+      "id": "2025f_korea_quantum_rl_other_award",
+      "year": 2025,
+      "title": "경량화 제어 모델을 위한 양자 강화학습",
+      "authors": [
+        "김규선",
+        "김중헌"
+      ],
+      "award": "우수학생논문상",
+      "field": "강화학습·경량 제어",
+      "conference": "대한전자공학회 추계학술대회",
+      "sources": [
+        {
+          "url": "https://sites.google.com/view/aimlab-kuee/awards",
+          "supports": "연구실 2025 IEIE Fall Excellence Student Paper Award"
+        },
+        {
+          "url": "https://sites.google.com/view/aimlab-kuee/publications/korean",
+          "supports": "양자인공지능 기술 특별세션·저자·우수학생논문상"
+        },
+        {
+          "url": "https://www.riss.or.kr/search/Search.do?colName=re_a_kor&isDetailSearch=Y&queryText=znCreator%2C%EA%B9%80%EA%B7%9C%EC%84%A0+%28+Kim+Gyu+Seon+%29&searchGubun=true",
+          "supports": "2025.11 서지 및 유료 원문 표시"
+        }
+      ],
+      "full_text_status": "not_obtained",
+      "read_scope": "공식 수상 공지·서지·공개 초록 범위만",
+      "full_text_audit": {
+        "page_structure": null,
+        "exact_baselines": null,
+        "quantitative_metrics": null,
+        "sample_size_or_seeds": null,
+        "statistics": null,
+        "ablation": null
+      },
+      "undergraduate_competition_confirmed": false,
+      "session": "양자인공지능 기술 특별세션",
+      "cautions": [
+        "학부 경진대회 수상으로 확인되지 않음. 일반 우수학생논문상과 구별.",
+        "RISS의 다른 논문 무료 ScienceON 아이콘을 이 논문의 무료 전문으로 오인하지 않음."
+      ]
+    }
+  ],
+  "conference_full_text_access": {
+    "program2024": "https://conf.theieie.org/2024f/pages/programs.vm",
+    "program2025": "https://conf.theieie.org/2025f/pages/programs.vm",
+    "paper_download": "https://conf.theieie.org/users/paper_download.vm",
+    "observed_redirect": "https://conf.theieie.org/users/login_download.vm?rtn=/users/paper_download.vm?null",
+    "status": "논문 다운로드는 이메일 인증 필요. 공개 프로그램을 논문 전문으로 오인하지 않음."
+  },
+  "evidence_boundary": "수상 사실과 전문 읽기는 별개다. 본 조사 사례는 공지·서지·공개 초록만 확인했으며, 페이지별 구조·baseline·metric·통계·ablation은 전문 확보 전 미확인이다. 수상 이유를 제목에서 추정하지 않는다.",
+  "legitimate_next_access": [
+    "기관 인증 DBpia 정상 열람",
+    "본인 행사 등록 계정의 프로시딩 다운로드",
+    "공개 저자 원고 또는 저자 제공본; 본 작업에서 메시지 발송하지 않음"
+  ],
+  "writing_implications": [
+    {
+      "status": "reviewer_recommendation_not_award_causal_finding",
+      "text": "우리 원고는 고장 정의→재현 가능한 방법→동일환경 정상학습 기준선→안전성·기동성·정확도 분리 결과→한계를 4쪽 안에서 연결한다."
+    },
+    {
+      "status": "no_supported_award_inference",
+      "text": "반복 시드·ablation·실험량이 수상 필수 조건이었다고 뉴스에서 추정하지 않는다."
+    },
+    {
+      "status": "topic_compatibility_only",
+      "text": "로봇·제어 연구가 실제 수상 사례에 포함되지만 fault-tolerant locomotion 심사 가중치나 당선 가능성은 알 수 없다."
+    }
+  ]
+}
