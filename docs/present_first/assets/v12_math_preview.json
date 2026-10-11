@@ -1,0 +1,112 @@
+{
+  "1": [],
+  "2": [],
+  "3": [],
+  "4": [],
+  "5": [],
+  "6": [],
+  "7": [],
+  "8": [
+    "24\\ \\mathrm{steps/env}=98{,}304\\ \\mathrm{transitions/iteration}"
+  ],
+  "9": [
+    "\\mathcal{M}=(S,A,P,R,\\gamma,\\rho_0),\\ \\gamma=0.99",
+    "\\pi^*=\\arg\\max_\\pi\\mathbb{E}[\\sum_{t=0}^{T-1}\\gamma^t r_t]",
+    "s_{t+1}\\sim P(\\cdot\\mid s_t,a_t),\\quad o_t\\sim O(\\cdot\\mid s_t)"
+  ],
+  "10": [
+    "v_b",
+    "\\omega_b",
+    "g_b,c_t",
+    "q-q_0,\\dot q",
+    "a_{t-1}",
+    "m_t",
+    "q_t^{\\mathrm{des}}=q^{\\mathrm{default}}+0.25a_t,\\quad a_t\\in\\mathbb{R}^{12}"
+  ],
+  "11": [
+    "\\tau_{j,t}^{cmd}=K_{p,j}(q_{j,t}^{des}-q_{j,t})-K_{d,j}\\dot q_{j,t}",
+    "\\tau_{j,t}^{applied}=(1-d_{j,t})\\tau_{j,t}^{cmd}",
+    "d_{j,t}=d\\cdot\\mathbf{1}\\{j=J_f,\\ t\\geq T_f\\},\\quad d\\in[0,1]"
+  ],
+  "12": [
+    "r_t=\\max\\left(0,\\Delta t\\sum_{i=1}^{10}w_if_{i,t}\\right),\\quad\\Delta t=0.02\\mathrm{s}",
+    "-2\\times10^{-4}",
+    "-2.5\\times10^{-7}"
+  ],
+  "13": [
+    "f_{lin,t}=\\exp\\left(-\\frac{\\Vert v_{xy,t}^{cmd}-v_{xy,t}\\Vert^2}{0.25}\\right)",
+    "f_{yaw,t}=\\exp\\left(-\\frac{(\\omega_{z,t}^{cmd}-\\omega_{z,t})^2}{0.25}\\right)"
+  ],
+  "14": [],
+  "15": [
+    "z_t^T=\\mu(\\xi_t)\\in\\mathbb{R}^8",
+    "z_t^S=\\varphi(h_t)\\in\\mathbb{R}^8"
+  ],
+  "16": [
+    "z_t'\\in\\mathbb{R}^8"
+  ],
+  "17": [
+    "z_t^{mix}=(1-\\alpha)z_t^T+\\alpha z_t^S\\in\\mathbb{R}^8",
+    "\\alpha_k=\\mathrm{clip}\\left(\\frac{k-43{,}000}{10{,}000},0,1\\right),\\quad\\beta_k=1-\\alpha_k"
+  ],
+  "18": [
+    "q_t^{des}=q^{default}+0.25a_t,\\quad a_t\\in\\mathbb{R}^{12}"
+  ],
+  "19": [
+    "L=L_{policy}+c_VL_{value}-c_HH(\\pi)+\\beta L_{adapt}",
+    "L_{adapt}=\\mathbb{E}_t[\\Vert z_t^S-\\mathrm{sg}(z_t^T)\\Vert_2],\\quad c_V=1,\\ c_H=0.01"
+  ],
+  "20": [
+    "4{,}096\\times24=98{,}304\\ \\mathrm{transitions/iteration}",
+    "5\\ \\mathrm{epochs}\\times4\\ \\mathrm{minibatches}=20\\ \\mathrm{updates}"
+  ],
+  "21": [
+    "S_{complete}=\\frac{1}{N}\\sum_{i=1}^{N}\\mathbf{1}[T_i=20\\mathrm{s}]",
+    "S_{TTF}=\\frac{\\mathbb{E}_i[T_i]}{20\\mathrm{s}}",
+    "\\mathrm{RMSE}_{v_x}=\\sqrt{\\frac{1}{K}\\sum_{t=1}^{K}(v_{x,t}-v_{x,t}^{cmd})^2}",
+    "|v_x-0.5|\\leq0.1\\ \\mathrm{m/s},\\quad|\\omega_z|\\leq0.2\\ \\mathrm{rad/s}\\quad(1\\ \\mathrm{s})"
+  ],
+  "22": [],
+  "23": [],
+  "24": [],
+  "25": [],
+  "26": [],
+  "27": [],
+  "28": [],
+  "29": [
+    "\\frac{0.0961}{0.5}\\times100=19.2\\%",
+    "x_{\\mathrm{ideal}}^{20\\mathrm{s}}=0.5\\ \\mathrm{m/s}\\times20\\ \\mathrm{s}=10\\ \\mathrm{m}"
+  ],
+  "30": [],
+  "31": [],
+  "32": [],
+  "33": [],
+  "34": [
+    "\\gamma",
+    "\\lambda_{\\mathrm{GAE}}",
+    "L_{\\mathrm{PPO}}(\\theta)=\\mathbb{E}_t[\\min(r_t(\\theta)\\hat A_t,\\mathrm{clip}(r_t(\\theta),1-\\epsilon,1+\\epsilon)\\hat A_t)]"
+  ],
+  "35": [],
+  "36": [
+    "71{,}500-43{,}000=28{,}500",
+    "28{,}501\\times98{,}304=2{,}801{,}762{,}304",
+    "28{,}501\\times5=142{,}505",
+    "28{,}501\\times5\\times4=570{,}020"
+  ],
+  "37": [
+    "5\\ \\mathrm{epochs}\\times4\\ \\mathrm{minibatches}=20\\ \\mathrm{updates}"
+  ],
+  "38": [],
+  "39": [],
+  "40": [],
+  "41": [],
+  "42": [
+    "e_i=\\sqrt{\\frac{\\sum_{t=1}^{K_i}(v_{x,i,t}-v_{x,i,t}^{cmd})^2}{\\max(1,K_i)}},\\quad\\mathrm{RMSE}_{reported}=\\frac{1}{N}\\sum_{i=1}^{N}e_i",
+    "D_i=\\sum_{t=1}^{K_i}v_{x,i,t}\\Delta t",
+    "\\mathrm{mean}_{j,t}\\left(\\mathbf{1}[|a_{j,t}|\\geq0.98]\\right)"
+  ],
+  "43": [
+    "z_t^T=\\mu(\\xi_t)\\in\\mathbb{R}^8",
+    "z_t^S=\\phi(h_t)\\in\\mathbb{R}^8"
+  ]
+}

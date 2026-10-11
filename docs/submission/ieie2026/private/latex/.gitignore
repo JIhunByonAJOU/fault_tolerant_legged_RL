@@ -1,0 +1,15 @@
+# Only current TeX sources and preview snapshots are tracked.
+build/
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.xdv
+*.toc
+*.nav
+*.snm
+*.bak
+archive*/
+fonts/

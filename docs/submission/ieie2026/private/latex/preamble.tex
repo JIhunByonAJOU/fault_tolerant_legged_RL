@@ -1,0 +1,63 @@
+\usepackage{fontspec}
+\usepackage{kotex}
+% 다운로드한 안심글꼴 ZIP의 KoPubWorld를 사용한다.
+% HY신명조/한양신명조/HY중고딕은 ZIP에 없으므로 대체 글꼴임.
+\input{fonts.tex}
+\usepackage{amsmath,amssymb,graphicx,booktabs,tabularx,caption,titlesec,float}
+\graphicspath{{../assets/}}
+\captionsetup{font={small,sf},labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=false,skip=6pt}
+\setlength{\parindent}{1em}
+% Body leading is explicit; changing this value controls density without shrinking text.
+% The two official DOCX files use different body formats.
+% Word auto-leading depends on font metrics; these are explicit TeX baselines.
+\ifproceedings
+  \newcommand{\paperbodyfont}{\fontsize{9pt}{10.8pt}\selectfont}
+  \newcommand{\papercaptionfont}{\fontsize{9pt}{10.8pt}\selectfont}
+  \newcommand{\paperTableFont}{\fontsize{9pt}{10.8pt}\selectfont}
+  \newcommand{\papersectionfont}{\fontsize{12pt}{14.4pt}\selectfont}
+  \newcommand{\papersubsectionfont}{\fontsize{10pt}{12pt}\selectfont}
+  \newcommand{\paperreferencefont}{\fontsize{9pt}{10.8pt}\selectfont}
+\else
+  \newcommand{\paperbodyfont}{\fontsize{10pt}{16pt}\selectfont}
+  \newcommand{\papercaptionfont}{\fontsize{10pt}{13pt}\selectfont}
+  \newcommand{\paperTableFont}{\fontsize{10pt}{13pt}\selectfont}
+  \newcommand{\papersectionfont}{\fontsize{11pt}{17.6pt}\selectfont}
+  \newcommand{\papersubsectionfont}{\fontsize{11pt}{17.6pt}\selectfont}
+  \newcommand{\paperreferencefont}{\fontsize{10pt}{13pt}\selectfont}
+\fi
+\AtBeginDocument{\paperbodyfont}
+\DeclareCaptionFont{paperCaption}{\papercaptionfont}
+\captionsetup{font={paperCaption,sf}}
+\setlength{\parskip}{0pt}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\setlength{\emergencystretch}{2em}
+\titleformat{\section}{\centering\sffamily\papersectionfont\bfseries}{\Roman{section}.}{.6em}{}
+\titleformat{\subsection}{\sffamily\papersubsectionfont\bfseries}{\thesubsection}{.5em}{}
+\ifproceedings
+\titlespacing*{\section}{0pt}{12pt}{10pt}
+\titlespacing*{\subsection}{0pt}{6pt}{3pt}
+\else
+\titlespacing*{\section}{0pt}{12pt}{15pt}
+\titlespacing*{\subsection}{10pt}{6pt}{0pt}
+\fi
+
+\renewcommand{\thetable}{\arabic{table}}
+\renewcommand{\tablename}{표}
+\renewcommand{\figurename}{그림}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+% 학회 서면 양식의 상첨자 숫자 인용 표기
+\let\originalcite\cite
+\renewcommand{\cite}[1]{\textsuperscript{\originalcite{#1}}}
+\raggedbottom
+
+% Proceedings follow the inline placement of the Word sample.
+\ifproceedings
+\floatplacement{figure}{H}
+\floatplacement{table}{H}
+\else
+\floatplacement{figure}{!htbp}
+\floatplacement{table}{!htbp}
+\fi

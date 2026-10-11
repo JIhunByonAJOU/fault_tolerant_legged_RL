@@ -25,8 +25,8 @@ Final policy: JT77500 Student-only. Scientific scope: single-joint torque-multip
 - `results/`: compact derived evidence and manifests; exclude raw traces and checkpoints.
 - `sources/`: provenance, public-code audits and template structure; do not redistribute copyrighted papers or fonts.
 - `reviewer/`: claim audits and concrete review questions.
-- `private/`: manuscript/presentation content, identifying metadata and working sources; Git-ignored.
+- `private/latex/` and the six selected `private/assets/` files: current manuscript sources and figures; Git-tracked under the user-authorized allowlist. Other private research and runtime evidence remain Git-ignored.
 - `rendered/`: DOCX/PPTX/PDF deliverables and previews; Git-ignored.
 - Root scripts consume structured private content and generate editable Office Math. No hidden dependence on ignored older presentation builders.
 
-Do not publish the manuscript or new submission-specific results before the official unpublished-work requirement has been interpreted for this case. Prepare a concrete publish allowlist; source-control publication is a separate gate from local authoring.
+Commit and push current manuscript sources and figures only within explicit user authorization and a concrete path allowlist. Do not include raw traces, checkpoints, downloaded third-party papers or font binaries. Source-control publication does not establish conference submission eligibility.

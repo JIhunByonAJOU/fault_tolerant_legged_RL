@@ -1,0 +1,17 @@
+\twocolumn[{
+\begin{@twocolumnfalse}
+\begin{center}
+{\ifproceedings\fontsize{18pt}{21.6pt}\else\fontsize{20pt}{32pt}\fi\selectfont\bfseries 단일 관절 토크 저하에 강인한 4족 로봇의 강화학습 보행 제어\par}
+\vspace{.4em}
+{\ifproceedings\fontsize{12pt}{14.4pt}\else\fontsize{17pt}{22.1pt}\fi\selectfont Reinforcement Learning for Robust Quadruped Locomotion under Single-Joint Torque Degradation\par}
+\ifproceedings\input{authors.tex}\fi
+\end{center}
+{\fontsize{9pt}{11.7pt}\selectfont
+\ifproceedings\else\leftskip=17pt\rightskip=17pt\fi
+\noindent\textbf{요약}\quad 단일 관절의 토크 저하에 대응하는 기존 교사·학생 공동학습 방식을 적용한 4족 보행 정책을 구성한다. 특권 물리 정보를 사용하는 교사와 관측 이력을 사용하는 학생을 공동학습하고, 평가 시에는 고장 정보를 직접 받지 않는 학생만 사용한다. Isaac Gym의 Unitree A1에서 12개 관절과 6개 손실 수준을 시험하였다. 완전 손실에서 생존율은 정상 학습 정책의 41.49\%에서 88.89\%로 증가하였다. 전진속도 RMSE는 0.317 m/s에서 0.175 m/s로, yaw-rate RMSE는 0.753 rad/s에서 0.268 rad/s로 감소하였다. 관절별 분석으로 고장 후 명령 추종의 취약 조건을 구분하였다.\par\ifproceedings\medskip\else\vspace{16pt}\fi
+\noindent\textbf{Abstract}\quad We construct a quadruped policy for single-joint torque loss by applying an existing joint-training framework with privileged Teacher and history-based Student representations. Inference uses only the Student without explicit fault information. We evaluate Unitree A1 in Isaac Gym across 12 joints and six loss settings. Under complete torque loss, survival increases from 41.49\% for a fault-naive policy to 88.89\%. Forward-velocity RMSE decreases from 0.317 to 0.175 m/s, and yaw-rate RMSE decreases from 0.753 to 0.268 rad/s. Joint-wise analysis identifies conditions with reduced command-tracking performance after fault onset.\par
+\smallskip\noindent\textbf{Keywords:} Quadrupedal locomotion, Actuator degradation, Teacher–student learning, Joint learning
+}
+\vspace{1em}
+\end{@twocolumnfalse}
+}]

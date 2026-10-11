@@ -63,12 +63,35 @@ __pycache__
 # Local paper corpus (large generated/research data)
 /docs/papers/
 
-# Local presentation drafts and generated assets
-/docs/present_first/
+# Presentation: only the final delivery and its supporting notes are tracked.
+/docs/present_first/*
+!/docs/present_first/README.md
+!/docs/present_first/presentation_notes.md
+!/docs/present_first/presentation_equations.md
+!/docs/present_first/assets/
+/docs/present_first/assets/*
+!/docs/present_first/assets/v10_evidence.json
+!/docs/present_first/assets/v12_math_preview.json
+!/docs/present_first/융캡2 초안 발표 최종본/
+!/docs/present_first/융캡2 초안 발표 최종본/TF43000.mp4
+!/docs/present_first/융캡2 초안 발표 최종본/JT43000.mp4
+!/docs/present_first/융캡2 초안 발표 최종본/JT43500.mp4
+!/docs/present_first/융캡2 초안 발표 최종본/JT71500.mp4
 
-# Manuscript drafts, identifying metadata and rendered submission deliverables.
-# Keep unpublished submission material local until publication eligibility is resolved.
-/docs/submission/ieie2026/private/
+# Manuscript: explicit user authorization covers current TeX and selected assets.
+# Raw research downloads, training state and other private working files stay local.
+/docs/submission/ieie2026/private/*
+!/docs/submission/ieie2026/private/latex/
+!/docs/submission/ieie2026/private/latex/.vscode/
+!/docs/submission/ieie2026/private/latex/.vscode/settings.json
+!/docs/submission/ieie2026/private/assets/
+/docs/submission/ieie2026/private/assets/*
+!/docs/submission/ieie2026/private/assets/a1_robot_20261011_212425_original.png
+!/docs/submission/ieie2026/private/assets/isaac_gym_original.png
+!/docs/submission/ieie2026/private/assets/paper_workflow_v8.pdf
+!/docs/submission/ieie2026/private/assets/paper_learning_v10.pdf
+!/docs/submission/ieie2026/private/assets/paper_metrics_v10.pdf
+!/docs/submission/ieie2026/private/assets/paper_joint_tracking20_v12.pdf
 /docs/submission/ieie2026/rendered/
 /docs/submission/ieie2026/results/
 /docs/submission/ieie2026/reviewer/

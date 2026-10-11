@@ -2,15 +2,22 @@
 
 최종 정책은 JT77500 Student-only이며, 연구 범위는 Isaac Gym에서 단일 관절의 PD 토크 계수 저하에 대응하는 4족보행이다. 기존 발표의 학습 이력 비교를 논문의 주요 경쟁 방법 비교로 사용하지 않는다.
 
-## 읽는 순서
+## 현재 논문과 노트북 편집
 
-1. `rules_and_templates.md`: 공식 제출 조건과 두 DOCX 양식.
-2. `results/`: 로컬 GPU 평가의 수치와 조건/체크포인트 근거. 파생 결과는 Git에서 제외한다.
-3. `related_work_metrics.md`: 원논문의 문제·방법·지표 및 비교 가능성.
-4. `reviewer/`: 논문의 문제 정의, 기여, 허용되는 주장과 교수 관점 질문.
-5. `private/delivery_manifest.json`: 로컬 문서/발표 제작 및 제출 전 확인 상태.
+프로시딩 5쪽을 기본 원고로 작성하고, 핵심 내용으로 줄인 익명 심사용 4쪽을 별도 관리한다.
 
-완성본 논문·발표와 개인 식별 정보는 Git에서 제외된 `private/`, `rendered/`에 둔다. 제출 전 수치·그림은 로컬 `results/`와 교수 검토 패키지에 보존한다. 저장소에는 재사용 평가·문서 생성 소스와 출처 조사를 선별하여 관리한다. 공개 전에는 공식 미발표 연구 조건과 GitHub 선공개 자료의 관계를 확인해야 한다.
+- [프로시딩 본문 body.tex](private/latex/body.tex)
+- [심사용 본문 body_review.tex](private/latex/body_review.tex)
+- [VS Code 작업 영역](private/latex/ieie-paper.code-workspace)
+- [설정·빌드 방법](private/latex/README.md)
+- [최신 프로시딩 PDF](private/latex/preview/proceedings.pdf), [최신 심사용 PDF](private/latex/preview/main.pdf)
+- [최종 발표 자료](../../present_first/README.md)
+
+사용자 요청으로 현재 TeX·필수 이미지·최종 미리보기를 Git에 포함한다. 이전 초안과 중간 출력은 제거했다. 원본 평가 로그·체크포인트·다운로드한 제3자 논문·폰트 파일과 나머지 private 연구 자료는 계속 제외한다.
+
+## 연구 근거
+
+`rules_and_templates.md`는 공식 조건과 양식, `related_work_metrics.md`는 선행 연구와 지표 비교를 기록한다. 수치의 원본 평가 자료는 로컬 `results/`에 보존한다. 기존 Word 제작 스크립트는 현재 TeX를 편집하거나 변환하는 경로가 아니다.
 
 ## 연구의 중심 질문
 
