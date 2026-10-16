@@ -58,7 +58,7 @@
 
 % 학회 서면 양식의 상첨자 숫자 인용 표기
 \let\originalcite\cite
-\renewcommand{\cite}[1]{\textsuperscript{\originalcite{#1}}}
+\renewcommand{\cite}[1]{\unskip\nobreak\textsuperscript{\originalcite{#1}}}
 \raggedbottom
 
 % Proceedings figures and tables use column-top placement.

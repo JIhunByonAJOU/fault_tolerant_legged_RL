@@ -1,0 +1,440 @@
+{
+  "design": {
+    "family_units": [
+      2,
+      1,
+      1,
+      2
+    ],
+    "terrain_counts": [
+      1,
+      1,
+      1,
+      4,
+      3,
+      2
+    ],
+    "evaluation_seeds": [
+      1101,
+      1102,
+      1103
+    ],
+    "policy_seed_runs": 2196,
+    "robot_episodes": 26352,
+    "additional_simulations": 0,
+    "data_origin": "\uae30\uc874 \uccab \uc804\uc218 \uc218\uc9d1\uc5d0\uc11c \uc870\uac74 \uc2dd\ubcc4\uc790\ub85c \ucd94\ucd9c; \ucd94\uac00 \uc2dc\ubbac\ub808\uc774\uc158 \uc5c6\uc74c",
+    "analysis_subdir": "fixed2112",
+    "independent_confirmation": false,
+    "source_campaign": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016",
+    "selection_rule": "F01,F02,S20,S15 always; diagonal=(condition_index+seed_index+1)%2; lateral=(condition_index+seed_index+2)%2; all 12 columns; both policies",
+    "outcome_dependent_selection": false
+  },
+  "sources": [
+    {
+      "job": "exploration_g00_s1101_Normal",
+      "selected_episodes": 72,
+      "source_episodes": 96,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g00_s1101_Normal/results.json",
+      "results_sha256": "443362bd9feb84e9ac2783c8615d0cd69710929f8c4f1ff633774cecefb8bea8",
+      "trace_manifest_sha256": "7582a83f7271b531f85420d55f7949c727376629cb78ddb04d52210f4754bd8f",
+      "initial_hashes": {
+        "root_states": "72803ea381a6cfc975f1795083b0f7b4c8263a5cc812c23d50e5919c47a516d0",
+        "dof_pos": "cfa40e204e6e5812285974eec46e4f786d1c3ceb03905f43b475c276921261ae",
+        "dof_vel": "606f558e014930f9c1669f03c71c28945c4631568e39cd308c6c7f4077c7bfb9",
+        "applied_friction": "c6edf88aaf7615fcabadabbb4a7e4ac309bd333269511b1b777e42518b8efea9",
+        "added_base_mass": "3f8cb33e9fd146059d0c139f3c267bf2d4fdf12146c96126e24ae7ec793ccc56",
+        "nominal_motor_strength_gt": "91005b2ebdb8adc494dbde51022554ddd57458c2a65e638c329d7a337818fd30",
+        "kp_scale_gt": "1d6add19ec382fdfb80caa836c176735655b443bdf6502b22677d0ad14a84730",
+        "kd_scale_gt": "107be00b6f0cefef01b9df84bf669d5ed71a50b0f75ef9aec49f7fc21078cffc",
+        "obs_buf": "a4b75a217ff8c9b3241f69aa9d5276eda76e02d7c94591fae9fa3ec8aadf1497",
+        "rigid_properties": "b1153ff6b0fe93df62bbdd74fe547f0c32e33ce676bb63fd77d524b9d305ce5d",
+        "terrain": "1510978401f2e943a0554e3192181e95cab3ee53d032c1cd8307bcd4be63f45e"
+      }
+    },
+    {
+      "job": "exploration_g00_s1101_Student",
+      "selected_episodes": 72,
+      "source_episodes": 96,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g00_s1101_Student/results.json",
+      "results_sha256": "fb90129dfc9a351d2935bfed8439243a8d3140112cc0249b6260bb9fc0cae687",
+      "trace_manifest_sha256": "934a0fa3a81da95dcd74d5ec89a42931bd7b01a49601e0faef362b83dd473ce7",
+      "initial_hashes": {
+        "root_states": "72803ea381a6cfc975f1795083b0f7b4c8263a5cc812c23d50e5919c47a516d0",
+        "dof_pos": "cfa40e204e6e5812285974eec46e4f786d1c3ceb03905f43b475c276921261ae",
+        "dof_vel": "606f558e014930f9c1669f03c71c28945c4631568e39cd308c6c7f4077c7bfb9",
+        "applied_friction": "c6edf88aaf7615fcabadabbb4a7e4ac309bd333269511b1b777e42518b8efea9",
+        "added_base_mass": "3f8cb33e9fd146059d0c139f3c267bf2d4fdf12146c96126e24ae7ec793ccc56",
+        "nominal_motor_strength_gt": "91005b2ebdb8adc494dbde51022554ddd57458c2a65e638c329d7a337818fd30",
+        "kp_scale_gt": "1d6add19ec382fdfb80caa836c176735655b443bdf6502b22677d0ad14a84730",
+        "kd_scale_gt": "107be00b6f0cefef01b9df84bf669d5ed71a50b0f75ef9aec49f7fc21078cffc",
+        "obs_buf": "a4b75a217ff8c9b3241f69aa9d5276eda76e02d7c94591fae9fa3ec8aadf1497",
+        "rigid_properties": "b1153ff6b0fe93df62bbdd74fe547f0c32e33ce676bb63fd77d524b9d305ce5d",
+        "terrain": "1510978401f2e943a0554e3192181e95cab3ee53d032c1cd8307bcd4be63f45e"
+      }
+    },
+    {
+      "job": "exploration_g00_s1102_Normal",
+      "selected_episodes": 72,
+      "source_episodes": 96,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g00_s1102_Normal/results.json",
+      "results_sha256": "d1721f031f3cd1094fcbd0e48196bd55f4c207e572c7919ea35de78eacde24d2",
+      "trace_manifest_sha256": "227df551af9aaf55cf3e9f22ed6b3e24ebdc56ac70d5bfc2c5995cf9a37f97fe",
+      "initial_hashes": {
+        "root_states": "dd9dba053a1b92b3bda4345ee91f06bd74a4b3bd66fe8e51e99224d219dacb6a",
+        "dof_pos": "c8d54dde3663ab402097c0b329ba8a98b795a2a060f0d946de05920b2ffb2596",
+        "dof_vel": "606f558e014930f9c1669f03c71c28945c4631568e39cd308c6c7f4077c7bfb9",
+        "applied_friction": "7466e6892f578bcf9c62d52fbbb700afb5cab70cf9f46647e69cdbb13a981419",
+        "added_base_mass": "c2e15626424b67b6f386be6c1032a3b54b05ed64faf09a4f7a569075fc855e82",
+        "nominal_motor_strength_gt": "51ea317c0a2409b9ea2d7bb2e38a4ade97471450fb69da0bcc20b2babdd3340e",
+        "kp_scale_gt": "0238372cb780ed19ae0e4ddf46ecc82459ce44db16161ce72817afd10aa5f747",
+        "kd_scale_gt": "afd28b5cdd241bde6d68887f9e11eeef93f2415c142b8bccc80f61c91365424a",
+        "obs_buf": "fb8ae111871fb5dc1cdc8f8e8760d6bfd7534f6d9a6804ab4d769d5471c80f93",
+        "rigid_properties": "9432f25c87b9f08874db2767cf1181394a133fcf47b6b210b178706b31390367",
+        "terrain": "352a54f7152499f6130db0a4c652aef532754a52a641fe9ef923e3e35e51c659"
+      }
+    },
+    {
+      "job": "exploration_g00_s1102_Student",
+      "selected_episodes": 72,
+      "source_episodes": 96,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g00_s1102_Student/results.json",
+      "results_sha256": "818448e121fb249bbc4cc866b45567a6eb6635995fd52727fa112235596379cb",
+      "trace_manifest_sha256": "6ae67517f82ac70493b3020ad130c1b3db3783cc4ee6aa3884c33d6c4b213bbb",
+      "initial_hashes": {
+        "root_states": "dd9dba053a1b92b3bda4345ee91f06bd74a4b3bd66fe8e51e99224d219dacb6a",
+        "dof_pos": "c8d54dde3663ab402097c0b329ba8a98b795a2a060f0d946de05920b2ffb2596",
+        "dof_vel": "606f558e014930f9c1669f03c71c28945c4631568e39cd308c6c7f4077c7bfb9",
+        "applied_friction": "7466e6892f578bcf9c62d52fbbb700afb5cab70cf9f46647e69cdbb13a981419",
+        "added_base_mass": "c2e15626424b67b6f386be6c1032a3b54b05ed64faf09a4f7a569075fc855e82",
+        "nominal_motor_strength_gt": "51ea317c0a2409b9ea2d7bb2e38a4ade97471450fb69da0bcc20b2babdd3340e",
+        "kp_scale_gt": "0238372cb780ed19ae0e4ddf46ecc82459ce44db16161ce72817afd10aa5f747",
+        "kd_scale_gt": "afd28b5cdd241bde6d68887f9e11eeef93f2415c142b8bccc80f61c91365424a",
+        "obs_buf": "fb8ae111871fb5dc1cdc8f8e8760d6bfd7534f6d9a6804ab4d769d5471c80f93",
+        "rigid_properties": "9432f25c87b9f08874db2767cf1181394a133fcf47b6b210b178706b31390367",
+        "terrain": "352a54f7152499f6130db0a4c652aef532754a52a641fe9ef923e3e35e51c659"
+      }
+    },
+    {
+      "job": "exploration_g00_s1103_Normal",
+      "selected_episodes": 72,
+      "source_episodes": 96,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g00_s1103_Normal/results.json",
+      "results_sha256": "d90ace151834699de07b2d4276510d99ccc9c10c32f471f78826eec06e6dab2c",
+      "trace_manifest_sha256": "7c9a1fe82d38975f0692b4ebee9340c12e78bc0e227476df90377896319f04b4",
+      "initial_hashes": {
+        "root_states": "1289d31683b04d7efd68efe0af982acf79875d64de99f69b5a7801a8dfc8232c",
+        "dof_pos": "13509739f526897eea07dc5af31806e2583a5615fd4d90005cc20724ff6a78d9",
+        "dof_vel": "606f558e014930f9c1669f03c71c28945c4631568e39cd308c6c7f4077c7bfb9",
+        "applied_friction": "adc2f8be2ff737ea13bb30412b75d87406a6e5ec97785c0ed81e87ba0019292c",
+        "added_base_mass": "aa418677fed5284db42e32fa4d7a8dec0a6a0ca4b741004e077bbe09680e02c0",
+        "nominal_motor_strength_gt": "6b71e9e7f7742d9553f6c1f78d04da5f6c5016f110bb5a62bdbb5bba4c871991",
+        "kp_scale_gt": "6af682d1d114e52a863d7ac40aad9fedb502f000ce79f7c1c1d75efcb1b9b040",
+        "kd_scale_gt": "86c2eaa9bfe6444559a1442b88d7851d79c9b4049752211d2d289ca10cf6064b",
+        "obs_buf": "4061e68b619ceac703ec4c205909ca198dd78d60024175ff928c01607841d905",
+        "rigid_properties": "7bbdb448e79a61e931177b874b3b8520f9bb70b9aff7d7b312e62c740abdde50",
+        "terrain": "db52b1393c181d9dddc926c829b4d17839563714419ae4fbb173af6ca78f1290"
+      }
+    },
+    {
+      "job": "exploration_g00_s1103_Student",
+      "selected_episodes": 72,
+      "source_episodes": 96,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g00_s1103_Student/results.json",
+      "results_sha256": "87b77c297ff40cfc6ac25ae77ece803234ae0d21fcc8a644d1bdd200bb437e8b",
+      "trace_manifest_sha256": "20f8861c134e9da79df8679ba7612d1193ba475812f2ad45308e92a369e54c1f",
+      "initial_hashes": {
+        "root_states": "1289d31683b04d7efd68efe0af982acf79875d64de99f69b5a7801a8dfc8232c",
+        "dof_pos": "13509739f526897eea07dc5af31806e2583a5615fd4d90005cc20724ff6a78d9",
+        "dof_vel": "606f558e014930f9c1669f03c71c28945c4631568e39cd308c6c7f4077c7bfb9",
+        "applied_friction": "adc2f8be2ff737ea13bb30412b75d87406a6e5ec97785c0ed81e87ba0019292c",
+        "added_base_mass": "aa418677fed5284db42e32fa4d7a8dec0a6a0ca4b741004e077bbe09680e02c0",
+        "nominal_motor_strength_gt": "6b71e9e7f7742d9553f6c1f78d04da5f6c5016f110bb5a62bdbb5bba4c871991",
+        "kp_scale_gt": "6af682d1d114e52a863d7ac40aad9fedb502f000ce79f7c1c1d75efcb1b9b040",
+        "kd_scale_gt": "86c2eaa9bfe6444559a1442b88d7851d79c9b4049752211d2d289ca10cf6064b",
+        "obs_buf": "4061e68b619ceac703ec4c205909ca198dd78d60024175ff928c01607841d905",
+        "rigid_properties": "7bbdb448e79a61e931177b874b3b8520f9bb70b9aff7d7b312e62c740abdde50",
+        "terrain": "db52b1393c181d9dddc926c829b4d17839563714419ae4fbb173af6ca78f1290"
+      }
+    },
+    {
+      "job": "exploration_g01_s1101_Normal",
+      "selected_episodes": 2448,
+      "source_episodes": 3264,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g01_s1101_Normal/results.json",
+      "results_sha256": "401334e3df2b257f0643a7ad04ad6e8ff050c8dc55fe0f8c4d1ee509f48471a4",
+      "trace_manifest_sha256": "e442ec1290b71f9398cea039497609ffb624ac34a6769bb993ca38bccb56e12b",
+      "initial_hashes": {
+        "root_states": "1b2bec0fe4be5d6f1d4ff20d0105dc64f32bb004323c88c988ea877c9f3d1ab6",
+        "dof_pos": "410aef169ef53c6d11ba0cd8896f74e251e0ab78e00a294de7178cda2535bc66",
+        "dof_vel": "c2d7aa4b0c38615aa06d3bff4403f083048f3abf9776de483413de986b869001",
+        "applied_friction": "61cc564bc265385b82ad4e2fbec4c2d9c3d923e7ee5e5082f819401904da900e",
+        "added_base_mass": "395cd16d95bb5072bcb9dd327c80c155d518c6a3e8f86cef8e4fe322b2ff97d2",
+        "nominal_motor_strength_gt": "5aa7c4e0d6471580c98c37ba00e2989702d7dcd38b1985d3abfc239d493439d4",
+        "kp_scale_gt": "65295117ef1c6270d4d429682423759b8da16418e6fe720bfbf2ff18915dbfe3",
+        "kd_scale_gt": "b57329389ccda39b56ea40aa0c4690bf936040a8d56543fea28edfb5693e2c3f",
+        "obs_buf": "b0f38f153fe5d6e185259a048a1c24ffbc05c551bb2367e4cf963bf08912bb2d",
+        "rigid_properties": "f53236fc6344d7799e4641143cec9a2d1f259f98bdf36ecc87abb9f7dbb7d012",
+        "terrain": "1510978401f2e943a0554e3192181e95cab3ee53d032c1cd8307bcd4be63f45e"
+      }
+    },
+    {
+      "job": "exploration_g01_s1101_Student",
+      "selected_episodes": 2448,
+      "source_episodes": 3264,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g01_s1101_Student/results.json",
+      "results_sha256": "945e4a61aa896a7b5aedae24117a1bc2c9031b7381cfbe71d0615f97fd9b4077",
+      "trace_manifest_sha256": "9fc922fc701dcefdb8f0fc1034ad9f260deabb739b03078492084a9716f04dbd",
+      "initial_hashes": {
+        "root_states": "1b2bec0fe4be5d6f1d4ff20d0105dc64f32bb004323c88c988ea877c9f3d1ab6",
+        "dof_pos": "410aef169ef53c6d11ba0cd8896f74e251e0ab78e00a294de7178cda2535bc66",
+        "dof_vel": "c2d7aa4b0c38615aa06d3bff4403f083048f3abf9776de483413de986b869001",
+        "applied_friction": "61cc564bc265385b82ad4e2fbec4c2d9c3d923e7ee5e5082f819401904da900e",
+        "added_base_mass": "395cd16d95bb5072bcb9dd327c80c155d518c6a3e8f86cef8e4fe322b2ff97d2",
+        "nominal_motor_strength_gt": "5aa7c4e0d6471580c98c37ba00e2989702d7dcd38b1985d3abfc239d493439d4",
+        "kp_scale_gt": "65295117ef1c6270d4d429682423759b8da16418e6fe720bfbf2ff18915dbfe3",
+        "kd_scale_gt": "b57329389ccda39b56ea40aa0c4690bf936040a8d56543fea28edfb5693e2c3f",
+        "obs_buf": "b0f38f153fe5d6e185259a048a1c24ffbc05c551bb2367e4cf963bf08912bb2d",
+        "rigid_properties": "f53236fc6344d7799e4641143cec9a2d1f259f98bdf36ecc87abb9f7dbb7d012",
+        "terrain": "1510978401f2e943a0554e3192181e95cab3ee53d032c1cd8307bcd4be63f45e"
+      }
+    },
+    {
+      "job": "exploration_g01_s1102_Normal",
+      "selected_episodes": 2448,
+      "source_episodes": 3264,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g01_s1102_Normal/results.json",
+      "results_sha256": "6247022c53cc23720294ea4905ec7f8fba056a1657ce2745a28e1bce7659ec17",
+      "trace_manifest_sha256": "3067faf61c89e6b59ceb3190674b3cedbf120293ed9d736c0e21888e5d931d9c",
+      "initial_hashes": {
+        "root_states": "3359a582ea215f81513675b031922a6d932a0fe079b7eefa0fbc873035e1a57a",
+        "dof_pos": "a33e6942f0f02aa2172d7e0425a6fe8d69c70237a403fd01741fdc0dbb1e16cc",
+        "dof_vel": "c2d7aa4b0c38615aa06d3bff4403f083048f3abf9776de483413de986b869001",
+        "applied_friction": "db375ca4fa8594582be96700d79e64efe2167ae877ca37cd503a599023d11973",
+        "added_base_mass": "0331982f75ac84cfe06a30244f710680561d193468cbcfdd95049bdbdbe7efa6",
+        "nominal_motor_strength_gt": "4da953750e8d7798866a86cbbc9590d6d33cf4362cdf000e5ecac01fc0d3807e",
+        "kp_scale_gt": "df426420245d9cebc0172269b5c973590e650c71675e1ac4ae3b267c399ecc99",
+        "kd_scale_gt": "e7edab0751714208f4aa3be64c0d5625e045d2648537818c4c9ed2d65f0e70eb",
+        "obs_buf": "7db0d45b9d8e61e0ee6cd29a05cd6b7d4f641ba80919d13e1e85ea3a88367d9c",
+        "rigid_properties": "f39baa2383fcdfe95a0b2c7dc6cca1574131b9faf5afc90750ef52303b66f81e",
+        "terrain": "352a54f7152499f6130db0a4c652aef532754a52a641fe9ef923e3e35e51c659"
+      }
+    },
+    {
+      "job": "exploration_g01_s1102_Student",
+      "selected_episodes": 2448,
+      "source_episodes": 3264,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g01_s1102_Student/results.json",
+      "results_sha256": "442805a2c386064e214c6fcc737efb4b1a8a42eaeaf2d3b677266133a26cc794",
+      "trace_manifest_sha256": "5ffbde2f696efae041870649e5320bdd44b2ffe1c2646659d215abf5034ff36b",
+      "initial_hashes": {
+        "root_states": "3359a582ea215f81513675b031922a6d932a0fe079b7eefa0fbc873035e1a57a",
+        "dof_pos": "a33e6942f0f02aa2172d7e0425a6fe8d69c70237a403fd01741fdc0dbb1e16cc",
+        "dof_vel": "c2d7aa4b0c38615aa06d3bff4403f083048f3abf9776de483413de986b869001",
+        "applied_friction": "db375ca4fa8594582be96700d79e64efe2167ae877ca37cd503a599023d11973",
+        "added_base_mass": "0331982f75ac84cfe06a30244f710680561d193468cbcfdd95049bdbdbe7efa6",
+        "nominal_motor_strength_gt": "4da953750e8d7798866a86cbbc9590d6d33cf4362cdf000e5ecac01fc0d3807e",
+        "kp_scale_gt": "df426420245d9cebc0172269b5c973590e650c71675e1ac4ae3b267c399ecc99",
+        "kd_scale_gt": "e7edab0751714208f4aa3be64c0d5625e045d2648537818c4c9ed2d65f0e70eb",
+        "obs_buf": "7db0d45b9d8e61e0ee6cd29a05cd6b7d4f641ba80919d13e1e85ea3a88367d9c",
+        "rigid_properties": "f39baa2383fcdfe95a0b2c7dc6cca1574131b9faf5afc90750ef52303b66f81e",
+        "terrain": "352a54f7152499f6130db0a4c652aef532754a52a641fe9ef923e3e35e51c659"
+      }
+    },
+    {
+      "job": "exploration_g01_s1103_Normal",
+      "selected_episodes": 2448,
+      "source_episodes": 3264,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g01_s1103_Normal/results.json",
+      "results_sha256": "8137e27b5fd4c03a0e0a7ca7873acf082b2ebe776dd5c2ea2895db9083daa856",
+      "trace_manifest_sha256": "480c108ea58b0792058fa796134d438edafb028f84ad9d6b170dfca4312dc986",
+      "initial_hashes": {
+        "root_states": "d57180d07c3bd5c72b83e0cce44bff5ab3aef812f7c10bb72453a0e50a7fb127",
+        "dof_pos": "fa7ae24793dd12464297f99435191450b60330fbd6e0df5401af95c498e7b528",
+        "dof_vel": "c2d7aa4b0c38615aa06d3bff4403f083048f3abf9776de483413de986b869001",
+        "applied_friction": "299724d1a7caf7f68128d237e4c3a893df3ecee4f0034ab724fc19c19c9a68f1",
+        "added_base_mass": "262cc6c0a821b1313f5dbe87412f440146d3e1689c6d9fd5d1178115a946dab5",
+        "nominal_motor_strength_gt": "88cdafd63f3d6b551c88108bb7d12840a53a94e20f5c40b28769df0426ce429d",
+        "kp_scale_gt": "a2775860da6734c0c699e127b4a50ffdf92176feb4aabcec7fec8f02ca4f91e6",
+        "kd_scale_gt": "e593dfb28dec1a45382fb986bc652be144ded761b883128041b97d1c4bfcfc29",
+        "obs_buf": "61c0ec406ebb3c46e6ff7f74093f2cdb50817b176a6bfdde91397a11dfd9b00d",
+        "rigid_properties": "e692ea0cbf2d9fcf0a89b5056fcbfee2674c34948074c0c20ae8dd7d84d14ed6",
+        "terrain": "db52b1393c181d9dddc926c829b4d17839563714419ae4fbb173af6ca78f1290"
+      }
+    },
+    {
+      "job": "exploration_g01_s1103_Student",
+      "selected_episodes": 2448,
+      "source_episodes": 3264,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g01_s1103_Student/results.json",
+      "results_sha256": "96f00caa76ed7553ace3e61d36f1f5714ee918237ea48a81d5f25b355857d1c6",
+      "trace_manifest_sha256": "5c42f6cf1a806cfe17937dfd261437ea062fad1910474ba5a9eccd86772196b0",
+      "initial_hashes": {
+        "root_states": "d57180d07c3bd5c72b83e0cce44bff5ab3aef812f7c10bb72453a0e50a7fb127",
+        "dof_pos": "fa7ae24793dd12464297f99435191450b60330fbd6e0df5401af95c498e7b528",
+        "dof_vel": "c2d7aa4b0c38615aa06d3bff4403f083048f3abf9776de483413de986b869001",
+        "applied_friction": "299724d1a7caf7f68128d237e4c3a893df3ecee4f0034ab724fc19c19c9a68f1",
+        "added_base_mass": "262cc6c0a821b1313f5dbe87412f440146d3e1689c6d9fd5d1178115a946dab5",
+        "nominal_motor_strength_gt": "88cdafd63f3d6b551c88108bb7d12840a53a94e20f5c40b28769df0426ce429d",
+        "kp_scale_gt": "a2775860da6734c0c699e127b4a50ffdf92176feb4aabcec7fec8f02ca4f91e6",
+        "kd_scale_gt": "e593dfb28dec1a45382fb986bc652be144ded761b883128041b97d1c4bfcfc29",
+        "obs_buf": "61c0ec406ebb3c46e6ff7f74093f2cdb50817b176a6bfdde91397a11dfd9b00d",
+        "rigid_properties": "e692ea0cbf2d9fcf0a89b5056fcbfee2674c34948074c0c20ae8dd7d84d14ed6",
+        "terrain": "db52b1393c181d9dddc926c829b4d17839563714419ae4fbb173af6ca78f1290"
+      }
+    },
+    {
+      "job": "exploration_g02_s1101_Normal",
+      "selected_episodes": 1872,
+      "source_episodes": 2496,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g02_s1101_Normal/results.json",
+      "results_sha256": "afaca8028a76e0669fa7c4bbf713558ee0a62fe291d30b0acd96fb73a2ec389a",
+      "trace_manifest_sha256": "bad56935b000526788d7384213c159ad41539ed27fb9930b3fb9f0b826fa0626",
+      "initial_hashes": {
+        "root_states": "4f80f9e5cf771da7ef4550af68f4821d60562c80e0456efffe85a4046a348a41",
+        "dof_pos": "9f81b243a132885cd47065b29ab6a7dc7c5679d9d9e389d498398e2387ca41ec",
+        "dof_vel": "3456174612524c5eaadabdbdb507f9daef44f7d171d9a6bffedd609e1a0ad8ed",
+        "applied_friction": "9558584556b553fb15abc6bcfb664a4779fc93cbb73d1dd8290184ee5c1e4c82",
+        "added_base_mass": "525969d654156245484e3379a6d2d2f646a8af2bb839769bd92e04be925dc38e",
+        "nominal_motor_strength_gt": "22507df326e1dc027df4372ea16179eb5152035dbe725ce55b8cd844012567de",
+        "kp_scale_gt": "792ef95dce9050b9c9bea62db3f5cabb4c3c9d4d0a90653f79f35fc13726be8d",
+        "kd_scale_gt": "d3a37cdd5f3243f6a9838f4d3d9fcb4360aef98abb30179cf9524e3a10a80065",
+        "obs_buf": "5bec6b3c74a1b03d098c11fcb0e6a7d1866ae5aafa282d580401f22446d0c26b",
+        "rigid_properties": "564b7c4ce0c6619463a8bfa5698e232cf5c8f2674bd9ff5b825dcea6e2d1dc1d",
+        "terrain": "1510978401f2e943a0554e3192181e95cab3ee53d032c1cd8307bcd4be63f45e"
+      }
+    },
+    {
+      "job": "exploration_g02_s1101_Student",
+      "selected_episodes": 1872,
+      "source_episodes": 2496,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g02_s1101_Student/results.json",
+      "results_sha256": "7b9acbdf990e5f591495f49b6eadf9dda8456eaa3bfe7ee6bfc64c270b5f893c",
+      "trace_manifest_sha256": "bc8e8040c3f41518d9b303cff3f580efcd071d0b3759102a4efbcc42884deea3",
+      "initial_hashes": {
+        "root_states": "4f80f9e5cf771da7ef4550af68f4821d60562c80e0456efffe85a4046a348a41",
+        "dof_pos": "9f81b243a132885cd47065b29ab6a7dc7c5679d9d9e389d498398e2387ca41ec",
+        "dof_vel": "3456174612524c5eaadabdbdb507f9daef44f7d171d9a6bffedd609e1a0ad8ed",
+        "applied_friction": "9558584556b553fb15abc6bcfb664a4779fc93cbb73d1dd8290184ee5c1e4c82",
+        "added_base_mass": "525969d654156245484e3379a6d2d2f646a8af2bb839769bd92e04be925dc38e",
+        "nominal_motor_strength_gt": "22507df326e1dc027df4372ea16179eb5152035dbe725ce55b8cd844012567de",
+        "kp_scale_gt": "792ef95dce9050b9c9bea62db3f5cabb4c3c9d4d0a90653f79f35fc13726be8d",
+        "kd_scale_gt": "d3a37cdd5f3243f6a9838f4d3d9fcb4360aef98abb30179cf9524e3a10a80065",
+        "obs_buf": "5bec6b3c74a1b03d098c11fcb0e6a7d1866ae5aafa282d580401f22446d0c26b",
+        "rigid_properties": "564b7c4ce0c6619463a8bfa5698e232cf5c8f2674bd9ff5b825dcea6e2d1dc1d",
+        "terrain": "1510978401f2e943a0554e3192181e95cab3ee53d032c1cd8307bcd4be63f45e"
+      }
+    },
+    {
+      "job": "exploration_g02_s1102_Normal",
+      "selected_episodes": 1872,
+      "source_episodes": 2496,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g02_s1102_Normal/results.json",
+      "results_sha256": "a2ab0cdafcd0423ef4ff183a1a5b14a435a30386f4af3a91e4b94b31f96fb08e",
+      "trace_manifest_sha256": "f317445e99cd618a5804c1e46f511dbba0ddeb2f4c64ab5859bfb3a81cc57ff0",
+      "initial_hashes": {
+        "root_states": "cd21b32843a5617cd061d1250eb9c659c7402682b951bbabe57db4da447c3f8d",
+        "dof_pos": "e2c54948137a55314148c7e4e473116ea79d9c1a5ac7a8d96a5e9706331691ae",
+        "dof_vel": "3456174612524c5eaadabdbdb507f9daef44f7d171d9a6bffedd609e1a0ad8ed",
+        "applied_friction": "0786aa0d93a1904f9de53208e3249e03e22b49ec6d0e72e3b280de993a485e85",
+        "added_base_mass": "79b1ffe53bd6717f89b063e29ce1038babeee77c6f68c40e522b0d0fba35fcae",
+        "nominal_motor_strength_gt": "2b5b062a0be7a8e7abf6b8f114a35eae428b27236357d142113c8d500bdfd992",
+        "kp_scale_gt": "2a31599bbb391c2da0db30a0f3356921ab33bcfe0a186ab6b153198f14d2286d",
+        "kd_scale_gt": "c0f642b7ffb9ec86b77c007cf0a19bb6cfb67d03c622864c9dfe67e1c53b4649",
+        "obs_buf": "7ab26f3ced3f15d495bc6139684be9a22caf1afa8a814cbbe56a2cd3045a6952",
+        "rigid_properties": "48e335b28e8233b181462ddcb1d6c2d798228a1bbb054fc8e0dda631f32ead5e",
+        "terrain": "352a54f7152499f6130db0a4c652aef532754a52a641fe9ef923e3e35e51c659"
+      }
+    },
+    {
+      "job": "exploration_g02_s1102_Student",
+      "selected_episodes": 1872,
+      "source_episodes": 2496,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g02_s1102_Student/results.json",
+      "results_sha256": "d034cd503a3ac7f5ee3a5742ee9a7d74c64469d86acb5ba72f5ca3c56a19a28b",
+      "trace_manifest_sha256": "665b280ec4e1686b6a52143904ce752d883137ffdf6106fb143c56b00fb529f5",
+      "initial_hashes": {
+        "root_states": "cd21b32843a5617cd061d1250eb9c659c7402682b951bbabe57db4da447c3f8d",
+        "dof_pos": "e2c54948137a55314148c7e4e473116ea79d9c1a5ac7a8d96a5e9706331691ae",
+        "dof_vel": "3456174612524c5eaadabdbdb507f9daef44f7d171d9a6bffedd609e1a0ad8ed",
+        "applied_friction": "0786aa0d93a1904f9de53208e3249e03e22b49ec6d0e72e3b280de993a485e85",
+        "added_base_mass": "79b1ffe53bd6717f89b063e29ce1038babeee77c6f68c40e522b0d0fba35fcae",
+        "nominal_motor_strength_gt": "2b5b062a0be7a8e7abf6b8f114a35eae428b27236357d142113c8d500bdfd992",
+        "kp_scale_gt": "2a31599bbb391c2da0db30a0f3356921ab33bcfe0a186ab6b153198f14d2286d",
+        "kd_scale_gt": "c0f642b7ffb9ec86b77c007cf0a19bb6cfb67d03c622864c9dfe67e1c53b4649",
+        "obs_buf": "7ab26f3ced3f15d495bc6139684be9a22caf1afa8a814cbbe56a2cd3045a6952",
+        "rigid_properties": "48e335b28e8233b181462ddcb1d6c2d798228a1bbb054fc8e0dda631f32ead5e",
+        "terrain": "352a54f7152499f6130db0a4c652aef532754a52a641fe9ef923e3e35e51c659"
+      }
+    },
+    {
+      "job": "exploration_g02_s1103_Normal",
+      "selected_episodes": 1872,
+      "source_episodes": 2496,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g02_s1103_Normal/results.json",
+      "results_sha256": "3af650caae0ba3392bf6c3e23b22990ee1c24d19cee1e5de6c9730b7f9bdb676",
+      "trace_manifest_sha256": "2496de3953c7e8b89e5fdbd9ae927c3f2663be6c4ec1df662d8dccda1d2bb6e4",
+      "initial_hashes": {
+        "root_states": "546a8bc5d58059de47fb8d7c461f62ed1f202cce28d39d7b42fce96cfa706e5e",
+        "dof_pos": "4d578bcc60c7b598dbaca6a3ec089549da0a703a334ffe1093dc2505af49fd79",
+        "dof_vel": "3456174612524c5eaadabdbdb507f9daef44f7d171d9a6bffedd609e1a0ad8ed",
+        "applied_friction": "14d4cadab998f2aec8c42d6e755be1c9aa6e4348164122a15d3f497599e07c50",
+        "added_base_mass": "7a476de2de0a401efa250e95cf805751494197e485eb3e471754aba1622520b6",
+        "nominal_motor_strength_gt": "773900801bc8ae1d8ae68ff616472f6fa01add44660448b1f990f78a5673a155",
+        "kp_scale_gt": "9fa9d6d413cd233592f0749203bf42c925828cc19435efc6411b6e26ee29c335",
+        "kd_scale_gt": "53a8595de5151c07f8256cea5e038b6769ec09ad0d55276fa78685b99443b130",
+        "obs_buf": "a46c192e30e94b5897fce3ec29d52d1601c70bb756c50ec6b7e8ea8d783be2f9",
+        "rigid_properties": "ae75318eb6bad424e0ab200c39c063092eca04e33a6885b80b45d1a25c24fd57",
+        "terrain": "db52b1393c181d9dddc926c829b4d17839563714419ae4fbb173af6ca78f1290"
+      }
+    },
+    {
+      "job": "exploration_g02_s1103_Student",
+      "selected_episodes": 1872,
+      "source_episodes": 2496,
+      "results": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016/jobs/exploration_g02_s1103_Student/results.json",
+      "results_sha256": "8d649fc143027862503f2b568b78a30c967aa0a8c6f8bd62df86b2c413505cbb",
+      "trace_manifest_sha256": "2f935234a678ebd9ad26b39505f080910d83181647a7abede165f63dd2bdb6bf",
+      "initial_hashes": {
+        "root_states": "546a8bc5d58059de47fb8d7c461f62ed1f202cce28d39d7b42fce96cfa706e5e",
+        "dof_pos": "4d578bcc60c7b598dbaca6a3ec089549da0a703a334ffe1093dc2505af49fd79",
+        "dof_vel": "3456174612524c5eaadabdbdb507f9daef44f7d171d9a6bffedd609e1a0ad8ed",
+        "applied_friction": "14d4cadab998f2aec8c42d6e755be1c9aa6e4348164122a15d3f497599e07c50",
+        "added_base_mass": "7a476de2de0a401efa250e95cf805751494197e485eb3e471754aba1622520b6",
+        "nominal_motor_strength_gt": "773900801bc8ae1d8ae68ff616472f6fa01add44660448b1f990f78a5673a155",
+        "kp_scale_gt": "9fa9d6d413cd233592f0749203bf42c925828cc19435efc6411b6e26ee29c335",
+        "kd_scale_gt": "53a8595de5151c07f8256cea5e038b6769ec09ad0d55276fa78685b99443b130",
+        "obs_buf": "a46c192e30e94b5897fce3ec29d52d1601c70bb756c50ec6b7e8ea8d783be2f9",
+        "rigid_properties": "ae75318eb6bad424e0ab200c39c063092eca04e33a6885b80b45d1a25c24fd57",
+        "terrain": "db52b1393c181d9dddc926c829b4d17839563714419ae4fbb173af6ca78f1290"
+      }
+    }
+  ],
+  "source_protocol_sha256": "b3cd1a8cc0e876c4837705df61795a1e020b64c38dd35a5b73fdede99b7b3890",
+  "derived_records_sha256": "e0246c27d9ffb88d59a27a32efdbe60381691cd224541da12a8f55e027fb0d34",
+  "source_record_index_sha256": "6741696f88a012b5af05ce04d9af36639434489760f3954142d1de81d4883975",
+  "audit": {
+    "complete": true,
+    "source_completed_jobs": 18,
+    "source_robot_episodes": 35136,
+    "selected_robot_episodes": 26352,
+    "policy_seed_runs": 2196,
+    "paired_robot_trials": 13176,
+    "missing_required_trials": 0,
+    "duplicate_required_trials": 0,
+    "family_episode_counts": {
+      "forward": 8784,
+      "diagonal": 4392,
+      "lateral": 4392,
+      "sine": 8784
+    },
+    "additional_simulations": 0,
+    "independent_confirmation": false,
+    "metric_missing_counts": {
+      "survived": 0,
+      "command_vx_rmse": 0,
+      "command_vy_rmse": 0,
+      "command_wz_rmse": 0,
+      "cross_track_rmse": 0
+    }
+  }
+}

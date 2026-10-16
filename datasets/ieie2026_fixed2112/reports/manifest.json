@@ -1,0 +1,75 @@
+{
+  "status": "COMPLETE",
+  "task_ratio": [
+    2,
+    1,
+    1,
+    2
+  ],
+  "terrain_counts": [
+    1,
+    1,
+    1,
+    4,
+    3,
+    2
+  ],
+  "old_sources": [
+    {
+      "path": "/home/jihun/legged_gym/logs/evaluations/ieie2026_independent_confirmation_v1/tb22500_seed301.jsonl",
+      "sha256": "941ead817e92501b72a2a5538e6b2541e11d7b24ce27619b81bd769019609591",
+      "policy": "Normal",
+      "seed": 301,
+      "episodes": 1152
+    },
+    {
+      "path": "/home/jihun/legged_gym/logs/evaluations/ieie2026_independent_confirmation_v1/tb22500_seed302.jsonl",
+      "sha256": "e30b2552ce058d82bc92e484541505b619cac799eeb3af8430a31736a0c663d8",
+      "policy": "Normal",
+      "seed": 302,
+      "episodes": 1152
+    },
+    {
+      "path": "/home/jihun/legged_gym/logs/evaluations/ieie2026_independent_confirmation_v1/tb22500_seed303.jsonl",
+      "sha256": "ff98d845bc5f1e6e50b8790aac1496140207036f74bd2bf57505e7da00a2d47d",
+      "policy": "Normal",
+      "seed": 303,
+      "episodes": 1152
+    },
+    {
+      "path": "/home/jihun/legged_gym/logs/evaluations/ieie2026_independent_confirmation_v1/jt77500_seed301.jsonl",
+      "sha256": "8d4d9aeb977dd5a49e7375b8f892f816fe67ebb84b79976446a2eb64ea499890",
+      "policy": "Student",
+      "seed": 301,
+      "episodes": 1152
+    },
+    {
+      "path": "/home/jihun/legged_gym/logs/evaluations/ieie2026_independent_confirmation_v1/jt77500_seed302.jsonl",
+      "sha256": "ba5f8e2decf33f331030e8e43eba9d44a205a4e79b9faf28fd31471df404d975",
+      "policy": "Student",
+      "seed": 302,
+      "episodes": 1152
+    },
+    {
+      "path": "/home/jihun/legged_gym/logs/evaluations/ieie2026_independent_confirmation_v1/jt77500_seed303.jsonl",
+      "sha256": "0eb6023db27f2250c4fe463a22838aac89cfa22e45d92327af2caafe17ffd51a",
+      "policy": "Student",
+      "seed": 303,
+      "episodes": 1152
+    }
+  ],
+  "files": {
+    "manuscript_vs_new_by_loss.csv": "06cdc48af0bed5402ad18599d31ac123a85ee1003dfea0943d1d4fbecd807c39",
+    "by_family_loss_with_pooled_rmse.csv": "5ce261507675a61a0f316ac44869373823f7a9df401775157df3ff42cc94049c",
+    "by_loss_with_pooled_rmse.csv": "14ba8a3b030448f866fb5a83cbd3e29f9ebc55d74649b8957ebce33a710fef01",
+    "survival_by_loss.png": "3a072d5e527968ab65e8e0b5c9f6deb43e0564160e0d1825c40c377a7c4ccb12",
+    "manifest.json": "36da539be38da0ed896448ad4dcf40ab6c66abbed58a502ba73fa72e4d0089d5",
+    "policy_differences_by_loss.csv": "3ecd368e023d475769d5c9fbfd0468ecef1ff11fb5945e290ec6f3d7bddaa83c",
+    "manuscript_recomputed.csv": "c05f4856635da106f82ad781211aa3fe3938944d62a073714a82e0a35fc85182",
+    "by_seed_loss_with_pooled_rmse.csv": "51ad73d5d0a84746bdace7738d1c524379606a25f503b9338af564d93e7b6c19",
+    "REPORT.md": "5e3f179bc8cb66e4885451b5611e8a27f5f8c81e9e4ebd215c8d16e603d9f4d4",
+    "evaluation_delivery.zip": "2b74db789a43269c101a2324c4ca95bb32333cf4971907750d51c22a73a01fc3",
+    "by_profile_loss_with_pooled_rmse.csv": "4bdc1734bb1d8aec772ad87bfb0c767460820cf1c08310e7eda82d0cd54002c9"
+  },
+  "completed_at": 1792155484.473986
+}

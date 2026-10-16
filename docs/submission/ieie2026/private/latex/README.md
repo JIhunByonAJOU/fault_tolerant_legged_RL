@@ -1,5 +1,11 @@
 # 논문 LaTeX 편집
 
+## 2026-10-16 최종 데이터 및 Windows 인계
+
+새 평가는 완료됐다. **2:1:1:2 구성의 26,352개 시행과 모든 50Hz 원시 기록**은 저장소 루트의 [datasets/ieie2026_fixed2112](../../../../../datasets/ieie2026_fixed2112/README.md)에 있다. Git LFS 다운로드와 Windows 분석 명령은 해당 README를 따른다. 최신 인계 기준은 [HANDOFF.txt](HANDOFF.txt)다.
+
+생존율은 **낙상 여부의 평균**이며 정규화 평균 생존 시간이 아니다. 현재 원고의 실험 결과 문단·기존 그림은 아직 예전20초 직진 평가이므로 새 데이터의 표·그림으로 교체해야 한다. 아래의 “추가 평가 미실행” 등은 이전 이관 시점의 기록이다. 서론·초록 문장·용어·인용 공백 수정은 반영했다. 프로시딩6쪽/심사용5쪽을 각각5쪽/4쪽으로 줄이는 작업은 남아 있다.
+
 ## Ubuntu에서 이어서 작업하기 (2026-10-16)
 
 저장소 **루트**의 [ieie-paper.code-workspace](../../../../../ieie-paper.code-workspace)를 열면 Git 저장소와 논문 빌드 설정을 함께 사용한다. `capstone_ws` 자체는 이 GitHub 저장소가 아니며 실제 저장소는 그 아래 `ieie-paper`에 있다. 기존 Ubuntu 체크아웃에서는 `git switch dev`, `git pull --ff-only` 후 루트 작업 영역을 연다.

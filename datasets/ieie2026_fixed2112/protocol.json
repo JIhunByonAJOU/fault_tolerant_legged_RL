@@ -1,0 +1,114 @@
+{
+  "protocol_id": "ieie_reused_fixed2112_v1",
+  "policies": {
+    "Normal": {
+      "mode": "teacher",
+      "checkpoint": "logs/manual/teacher243-seed1-500iter/model_22500.pt",
+      "sha256": "516849f38942a3994ccf7aa370a889bebeff655ae867177b6c68f62709fc9ef6"
+    },
+    "Student": {
+      "mode": "student",
+      "checkpoint": "logs/jt_wim243_width64_lr1e5_fresh_20260929/run_seed1_35000/model_77500.pt",
+      "sha256": "1d849666dae2e1c14b543dc43123bd1cfaa6b41848fb335664e39927b584b77b"
+    }
+  },
+  "profiles": [
+    {
+      "id": "F01",
+      "family": "forward",
+      "yaw": 0.0,
+      "amplitude": 0.0
+    },
+    {
+      "id": "F02",
+      "family": "forward",
+      "yaw": 0.0,
+      "amplitude": 0.0
+    },
+    {
+      "id": "DL",
+      "family": "diagonal",
+      "yaw": -0.7853981633974483,
+      "amplitude": 0.0
+    },
+    {
+      "id": "DR",
+      "family": "diagonal",
+      "yaw": 0.7853981633974483,
+      "amplitude": 0.0
+    },
+    {
+      "id": "L",
+      "family": "lateral",
+      "yaw": -1.5707963267948966,
+      "amplitude": 0.0
+    },
+    {
+      "id": "R",
+      "family": "lateral",
+      "yaw": 1.5707963267948966,
+      "amplitude": 0.0
+    },
+    {
+      "id": "S20",
+      "family": "sine",
+      "yaw": null,
+      "amplitude": 2.0
+    },
+    {
+      "id": "S15",
+      "family": "sine",
+      "yaw": null,
+      "amplitude": 1.5
+    }
+  ],
+  "classes": [
+    "smooth_low",
+    "smooth_high",
+    "rough_slope",
+    "stairs_low",
+    "stairs_high",
+    "obstacles"
+  ],
+  "baseline_column_counts": [
+    1,
+    1,
+    1,
+    4,
+    3,
+    2
+  ],
+  "exploration_seeds": [
+    1101,
+    1102,
+    1103
+  ],
+  "confirmation_seeds": [
+    2101,
+    2102,
+    2103
+  ],
+  "start_x": -1.0,
+  "end_x": 40.5,
+  "wavelength": 16.0,
+  "speed": 0.5,
+  "dt": 0.02,
+  "onset_s": 2.0,
+  "survival_definition": "binary: fall=0; goal or administrative_cap without fall=1",
+  "stall_window_s": 30.0,
+  "stall_progress_m": 0.5,
+  "budget_speed": 0.1,
+  "budget_margin_s": 30.0,
+  "controller": {
+    "lateral_gain": 0.7,
+    "heading_gain": 1.5,
+    "lookahead_m": 0.4,
+    "max_yaw_rate": 0.8
+  },
+  "noise": false,
+  "pushes": false,
+  "trajectory_metrics": "post-onset pre-action valid samples; terminal states stored separately",
+  "early_goal_survival": "survived=1 at successful goal; no fixed 60-second window",
+  "fault_model": "training-compatible single-joint motor-strength multiplier before torque clipping",
+  "data_origin": "derived subset of original complete exploration records"
+}

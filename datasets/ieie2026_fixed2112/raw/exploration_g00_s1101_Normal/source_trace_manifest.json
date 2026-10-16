@@ -1,0 +1,164 @@
+{
+  "chunks": [
+    {
+      "path": "trace_0000.npz",
+      "sha256": "97abf541988593263e3355a8cd3383775d6913e24a15ac304570db20d9d284c9",
+      "rows": 24000,
+      "first_step": 0,
+      "last_step": 249
+    },
+    {
+      "path": "trace_0001.npz",
+      "sha256": "0098ecdd672735814de5997596eeb756af4328d98770f12907f15c3453f00f92",
+      "rows": 24000,
+      "first_step": 250,
+      "last_step": 499
+    },
+    {
+      "path": "trace_0002.npz",
+      "sha256": "1126fe61884d77b0e1af07decc425c3fb36d90224e43a2eb28be2114b2b68618",
+      "rows": 24000,
+      "first_step": 500,
+      "last_step": 749
+    },
+    {
+      "path": "trace_0003.npz",
+      "sha256": "17fa4c51dedb086889218bf35d5dd9f715e27d424b9c8f1554d064e5e1e839b7",
+      "rows": 24000,
+      "first_step": 750,
+      "last_step": 999
+    },
+    {
+      "path": "trace_0004.npz",
+      "sha256": "681bff604fe5ff65f2f6173558ad3f3c118090ab36b699ff2530d5df1e17954b",
+      "rows": 24000,
+      "first_step": 1000,
+      "last_step": 1249
+    },
+    {
+      "path": "trace_0005.npz",
+      "sha256": "fa0df1c9eeda528e933d2e655eda97b4ad444fec72fb4475b374002a63462b70",
+      "rows": 24000,
+      "first_step": 1250,
+      "last_step": 1499
+    },
+    {
+      "path": "trace_0006.npz",
+      "sha256": "cb7aa913be4ff67b312df33e621ef2f2749d3332f53d9025c6f15462051c662e",
+      "rows": 24000,
+      "first_step": 1500,
+      "last_step": 1749
+    },
+    {
+      "path": "trace_0007.npz",
+      "sha256": "661f6050689313b146e18516b9b21307ecb777342b893fb37813565032113b27",
+      "rows": 24000,
+      "first_step": 1750,
+      "last_step": 1999
+    },
+    {
+      "path": "trace_0008.npz",
+      "sha256": "d676819fa7dcefb21dc10edee6e1a8d40c06b919267c41a9912ca00ba42a1da0",
+      "rows": 24000,
+      "first_step": 2000,
+      "last_step": 2249
+    },
+    {
+      "path": "trace_0009.npz",
+      "sha256": "eb9adc97c1eb1ad36c5bc776af6971c2a47e5c9302dce7c25791fcb525328c61",
+      "rows": 24000,
+      "first_step": 2250,
+      "last_step": 2499
+    },
+    {
+      "path": "trace_0010.npz",
+      "sha256": "5629acb185ef4488174c290e2d51319584a707199526b0227b3dceff60ddc8b9",
+      "rows": 24000,
+      "first_step": 2500,
+      "last_step": 2749
+    },
+    {
+      "path": "trace_0011.npz",
+      "sha256": "a37da920c03a7b7b83c596fa2772ad181ff47492620be8063e229c1205a9f42d",
+      "rows": 24000,
+      "first_step": 2750,
+      "last_step": 2999
+    },
+    {
+      "path": "trace_0012.npz",
+      "sha256": "bd862ddaa424251322494f089138401ee95f9cf2b3a485dfdc5b5ea8e988fd14",
+      "rows": 24000,
+      "first_step": 3000,
+      "last_step": 3249
+    },
+    {
+      "path": "trace_0013.npz",
+      "sha256": "1f43ec4184e406375e46b6fa0a0ddbb7c0693a0f7ee5988e8da030e64f95fdbb",
+      "rows": 24000,
+      "first_step": 3250,
+      "last_step": 3499
+    },
+    {
+      "path": "trace_0014.npz",
+      "sha256": "ad7f0cf2f952c311241155cfdaf425b4b93b0fee654fef63a3c8e600fbceb244",
+      "rows": 24000,
+      "first_step": 3500,
+      "last_step": 3749
+    },
+    {
+      "path": "trace_0015.npz",
+      "sha256": "82460c8daca97af8111e584c6d45818903038a5956d421f10bd0bc6839f782ce",
+      "rows": 23891,
+      "first_step": 3750,
+      "last_step": 3999
+    },
+    {
+      "path": "trace_0016.npz",
+      "sha256": "2e5b4001ec4c4ffdac4c63b8e4010f52c1899a6d2ae430592ff3855f045a7ae1",
+      "rows": 21930,
+      "first_step": 4000,
+      "last_step": 4249
+    },
+    {
+      "path": "trace_0017.npz",
+      "sha256": "aa2cb7a2deb5ad9259368125ae599a0592b3583a79250a380760aa031d8fc9b5",
+      "rows": 13548,
+      "first_step": 4250,
+      "last_step": 4499
+    },
+    {
+      "path": "trace_0018.npz",
+      "sha256": "c4aa77b2b6965079716304143f9bbd320a34865e1d3e22deab6efb724800628f",
+      "rows": 4463,
+      "first_step": 4500,
+      "last_step": 4749
+    },
+    {
+      "path": "trace_0019.npz",
+      "sha256": "dceac6af69e3bcdc34916dc2cf0328b5e86d39d03f46284310c1697d9bb41bb0",
+      "rows": 671,
+      "first_step": 4750,
+      "last_step": 4909
+    }
+  ],
+  "fields": [
+    "world_x",
+    "world_y",
+    "body_yaw",
+    "body_vx",
+    "body_vy",
+    "body_wz",
+    "cmd_vx",
+    "cmd_vy",
+    "cmd_wz",
+    "ref_x",
+    "ref_y",
+    "path_s",
+    "furthest_s",
+    "cross_track",
+    "world_vx",
+    "world_vy"
+  ],
+  "valid_rows": 424503,
+  "terminal": "results.json contains exact terminal time/state"
+}

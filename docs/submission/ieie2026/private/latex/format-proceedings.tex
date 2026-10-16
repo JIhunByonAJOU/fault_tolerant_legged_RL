@@ -4,7 +4,7 @@
 % native Word output: HY Shin Myeongjo 9 bp has a 14.04 bp baseline distance.
 \usepackage{etoolbox}
 \usepackage{xurl}
-\usepackage{cite}
+\usepackage[noadjust]{cite}
 \let\originalcite\cite
 \renewcommand{\citedash}{]-[}
 % The official DOCX's m:mathPr/m:mathFont is Cambria Math.
@@ -153,8 +153,8 @@
 \renewcommand{\textfraction}{.1}
 \setcounter{topnumber}{3}
 \setcounter{totalnumber}{3}
-% The proceedings sample uses inline [n]; superscripts belong to the review.
-\let\cite\originalcite
+% Keep inline [n] attached to the preceding text; superscripts belong to the review.
+\renewcommand{\cite}[1]{\unskip\nobreak\originalcite{#1}}
 \renewcommand{\refname}{참고문헌}
 \makeatletter
 \patchcmd{\thebibliography}{\leftmargin\labelwidth}{\leftmargin=12.4bp}{}{

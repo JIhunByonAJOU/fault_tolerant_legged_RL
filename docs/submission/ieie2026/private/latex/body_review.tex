@@ -1,9 +1,11 @@
 % !TeX root = main.tex
 % 프로시딩 본문 body.tex에서 축약한 4쪽 서면 심사용 본문.
 \section{서론}
-4족 보행 로봇은 비정형 지형에서 이동할 수 있어 시설 점검과 탐사 등에 활용될 수 있다. 최근에는 강화학습과 병렬 시뮬레이션을 이용해 다양한 환경의 보행 정책을 학습하는 접근이 발전하고 있다\cite{ref1}. 그러나 정상 구동 성능을 전제로 학습한 정책은 모터 출력이 저하되면 의도한 관절 운동을 만들지 못할 수 있다. 단일 관절의 변화도 지지와 추진에 영향을 주므로 고장 후 균형과 이동을 함께 유지해야 한다.
+4족 보행 로봇은 계단과 불규칙한 지형을 이동할 수 있으며, 강화학습을 이용한 보행 제어는 다양한 지면에서 균형 유지와 이동 명령 수행을 학습하는 데 활용된다\cite{ref1}. 그러나 관절의 구동 성능이 저하되면 몸체를 지지하고 추진하는 능력이 달라져, 정상 조건에서 학습한 정책의 이동 성능이 저하될 수 있다. 특히 낙상을 피하더라도 요구된 속도와 방향을 따르지 못하거나 목표 경로에서 벗어날 수 있다. 따라서 고장 대응 보행의 성능은 생존 여부와 명령·경로 추종을 함께 평가해야 한다.
 
-본 연구에서는 기존 교사·학생 공동학습 방식\cite{ref4}을 단일 관절 토크 저하 조건에 적용하여 4족 로봇의 보행 정책을 학습한다. 시뮬레이션의 물리 정보를 사용하는 교사와 최근 몸체·관절 반응을 사용하는 학생을 함께 학습한다. 교사의 특징을 학생의 특징으로 점진적으로 전환하면서 보행 정책도 함께 갱신하고, 평가 시에는 고장 관절과 손실 정도를 직접 입력하지 않는 학생만 사용한다. Unitree A1 시뮬레이션에서 12개 관절과 6개 토크 손실 수준을 시험하여, 고장 후 생존율과 전진속도·yaw-rate 추종 성능을 평가하고 관절별 이동 특성을 분석한다.
+본 논문은 단일 관절의 토크 저하를 대상으로, 기존 교사·학생 공동학습을 적용한 강화학습 기반 고장 대응 보행 제어 구성을 제시한다\cite{ref4}. 학습 시에는 시뮬레이션의 특권 물리 정보를 활용하는 교사 표현과 관측 이력 기반 학생 표현을 사용하고, 평가 시에는 현재 관측과 학생 특징으로 행동을 출력한다. 학생은 고장 관절과 토크 저하 수준을 직접 입력받지 않으며, 동일한 정책으로 정상 조건과 토크 저하 조건에서 동작한다.
+
+Unitree A1 시뮬레이션에서 정상 조건만 학습한 정책과 초기 상태·물리 조건·지형·고장 조건을 맞추어 비교한다. 전진, 좌우 대각 이동, 좌우 횡이동 및 두 사인파 경로를 대상으로 생존율과 세 축 이동 명령 RMSE, 경로 횡오차 RMSE를 평가한다. 이를 통해 고장 관절·토크 저하율·이동 과제에 따른 성능 차이와 취약 조건을 분석한다.
 
 \section{시스템 모델}
 
@@ -43,14 +45,14 @@ Nominal PD gains & $K_p=20$ N$\cdot$m/rad; $K_d=0.5$ N$\cdot$m$\cdot$s/rad \\
 
 
 \subsection{단일 관절 토크 저하 모델}
-토크 배율로 구동기 저하를 나타내는 모델\cite{ref6}을 단일 관절에 적용한다. 고장 이후 선택된 관절의 배율은 $\eta_j=1-d$, 다른 관절은 1이다. $d\in[0,1]$은 토크 손실률이며 $d=0.4$는 명목 출력의 40\% 손실을 뜻한다. PD 토크에 모터 강도 $m_j$와 고장 배율을 곱하고 관절 한계 토크로 포화한다.
+고장 배율로 토크 저하를 나타내는 모델\cite{ref6}을 단일 관절에 적용한다. 고장 이후 선택된 관절의 배율은 $\eta_j=1-d$, 다른 관절은 1이다. $d\in[0,1]$은 토크 저하율이며 $d=0.4$이면 고장 배율은 0.6이다. PD 토크에 모터 강도 $m_j$와 고장 배율을 곱하고 관절 한계 토크로 포화한다.
 \begin{align}
 \tau_j^{PD}&=K_p(q_j^{des}-q_j)-K_d\dot q_j \\
 \tau_j&=\mathrm{clip}(m_j\eta_j\tau_j^{PD},-\tau_j^{max},\tau_j^{max})
 \end{align}
 $m_j$는 고장과 별도로 [0.9, 1.1]에서 무작위화하며, 이는 명목 모터 강도의 $\pm10$\%에 해당한다. $d=1$에서는 능동 토크가 상실되며 수동 관절 운동은 유지된다.
 
-공동학습에서는 에피소드마다 전체 12개 중 손상 관절과 0--100\%의 여섯 손실 수준을 무작위로 선택한다. 시작 후 2--10 s에 고장을 발생시키고, 이후 관찰 동안 해당 배율을 유지한다.
+공동학습에서는 에피소드마다 전체 12개 중 손상 관절과 0--100\%의 여섯 저하 수준을 무작위로 선택한다. 시작 후 2--10 s에 고장을 발생시키고, 이후 관찰 동안 해당 배율을 유지한다.
 
 
 \section{교사·학생 공동학습 기반 보행 정책}
@@ -167,7 +169,7 @@ Item & Setting \\
 Command & $v_x$=0.5 m/s; $v_y$=$\omega_z$=0 \\
 Conditions & 12 joints $\times$ d$\in$\{0,.2,.4,.6,.8,1\} \\
 Onset / observation & 2–10 s / 20 s after onset \\
-Trials & Evaluation seeds 301–303 $\times$ 16; 48 per joint/loss \\
+Trials & Evaluation seeds 301–303 $\times$ 16; 48 per joint/degradation \\
 Failure & Base contact force >1 N; pre-fault failure included \\
 \bottomrule
 \end{tabularx}
@@ -201,7 +203,7 @@ D_{\parallel}=(x^{last}-x^f)^\top\hat u^f
 \begin{figure}
 \centering
 \includegraphics[width=\columnwidth]{paper_metrics_v10.pdf}
-\caption{토크 손실에 따른 생존율, 전진속도·yaw-rate 추종 오차 및 전방 순변위}\label{fig:performance}
+\caption{토크 저하율에 따른 생존율, 전진속도·yaw-rate 추종 오차 및 전방 순변위}\label{fig:performance}
 \end{figure}
 그림~\ref{fig:performance}에서 강한 토크 저하에 따른 Student의 생존율 향상과 전진속도·yaw-rate 오차 감소가 함께 나타났다.
 
@@ -211,7 +213,7 @@ D_{\parallel}=(x^{last}-x^f)^\top\hat u^f
 \setlength{\tabcolsep}{2pt}
 \begin{tabularx}{\columnwidth}{@{}>{\centering\arraybackslash}p{7mm}*{4}{>{\centering\arraybackslash}X}@{}}
 \toprule
-손실\newline (\%) & 생존율\newline (\%p) & $v_x$ RMSE\newline (m/s) & yaw RMSE\newline (rad/s) & 전방 변위\newline (m) \\
+저하율\newline (\%) & 생존율\newline (\%p) & $v_x$ RMSE\newline (m/s) & yaw RMSE\newline (rad/s) & 전방 변위\newline (m) \\
 \midrule
 0 & +2.26 & +0.0047 & -0.0133 & -0.437 \\
 20 & +1.22 & -0.0003 & -0.0027 & -0.881 \\
@@ -228,14 +230,14 @@ D_{\parallel}=(x^{last}-x^f)^\top\hat u^f
 \begin{figure}
 \centering
 \includegraphics[width=\columnwidth]{paper_joint_tracking20_v12.pdf}
-\caption{관절 및 토크 손실별 Student 명령 추종 시간율 $Q_{20}$(\%)}\label{fig:joint_tracking}
+\caption{관절 및 토크 저하율별 Student 명령 추종 시간율 $Q_{20}$(\%)}\label{fig:joint_tracking}
 \end{figure}
-FL/FR은 좌/우 앞다리, RL/RR은 좌/우 뒷다리이다. 그림~\ref{fig:joint_tracking}은 3축 속도 허용오차를 동시에 만족한 시간을 비교한다. 완전 손실에서 RR thigh는 60.84\%, FR calf는 16.49\%로 관절별 차이가 나타났다. FR calf의 생존율은 83.33\%였으나 전진속도와 yaw-rate RMSE는 각각 0.256 m/s와 0.382 rad/s였다. 생존을 유지한 이후에도 손상 관절에 따라 명령 수행의 취약성이 다르게 나타났다.
+FL/FR은 좌/우 앞다리, RL/RR은 좌/우 뒷다리이다. 그림~\ref{fig:joint_tracking}은 3축 속도 허용오차를 동시에 만족한 시간을 비교한다. 100\% 토크 저하에서 RR thigh는 60.84\%, FR calf는 16.49\%로 관절별 차이가 나타났다. FR calf의 생존율은 83.33\%였으나 전진속도와 yaw-rate RMSE는 각각 0.256 m/s와 0.382 rad/s였다. 생존을 유지한 이후에도 손상 관절에 따라 명령 수행의 취약성이 다르게 나타났다.
 
 
 
 \section{결론 및 향후 연구}
-교사·학생 공동학습을 단일 관절 토크 저하에 적용한 4족 보행 정책을 구성하였다. 완전 손실에서 생존율은 Normal 41.49\%에서 Student 88.89\%로 증가하고, 전진속도·yaw-rate RMSE는 각각 0.317→0.175 m/s, 0.753→0.268 rad/s로 감소하였다. 관절별 추종 시간율은 생존 이후의 명령 수행 취약성을 구분하였다.
+교사·학생 공동학습을 단일 관절 토크 저하에 적용한 4족 보행 정책을 구성하였다. 100\% 토크 저하에서 생존율은 Normal 41.49\%에서 Student 88.89\%로 증가하고, 전진속도·yaw-rate RMSE는 각각 0.317→0.175 m/s, 0.753→0.268 rad/s로 감소하였다. 관절별 추종 시간율은 생존 이후의 명령 수행 취약성을 구분하였다.
 
 향후 여러 관절의 동시 토크 저하와 관절 잠금 고장으로 적용 범위를 확장하고, 고장 유형과 손상 조합에 따른 보행 안정성 및 속도 추종 성능을 평가할 예정이다.
 

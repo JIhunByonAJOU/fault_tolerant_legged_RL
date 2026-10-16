@@ -1,0 +1,78 @@
+{
+  "job": {
+    "id": "exploration_g00_s1103_Normal",
+    "pair_job": "exploration_g00_s1103",
+    "stage": "exploration",
+    "seed": 1103,
+    "policy": "Normal",
+    "conditions": [
+      {
+        "id": "healthy",
+        "joint": null,
+        "loss": 0.0
+      }
+    ],
+    "family_repeats": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "column_counts": [
+      1,
+      1,
+      1,
+      4,
+      3,
+      2
+    ],
+    "num_envs": 96
+  },
+  "protocol_sha256": "b3cd1a8cc0e876c4837705df61795a1e020b64c38dd35a5b73fdede99b7b3890",
+  "checkpoint_sha256": "516849f38942a3994ccf7aa370a889bebeff655ae867177b6c68f62709fc9ef6",
+  "initial_hashes": {
+    "root_states": "1289d31683b04d7efd68efe0af982acf79875d64de99f69b5a7801a8dfc8232c",
+    "dof_pos": "13509739f526897eea07dc5af31806e2583a5615fd4d90005cc20724ff6a78d9",
+    "dof_vel": "606f558e014930f9c1669f03c71c28945c4631568e39cd308c6c7f4077c7bfb9",
+    "applied_friction": "adc2f8be2ff737ea13bb30412b75d87406a6e5ec97785c0ed81e87ba0019292c",
+    "added_base_mass": "aa418677fed5284db42e32fa4d7a8dec0a6a0ca4b741004e077bbe09680e02c0",
+    "nominal_motor_strength_gt": "6b71e9e7f7742d9553f6c1f78d04da5f6c5016f110bb5a62bdbb5bba4c871991",
+    "kp_scale_gt": "6af682d1d114e52a863d7ac40aad9fedb502f000ce79f7c1c1d75efcb1b9b040",
+    "kd_scale_gt": "86c2eaa9bfe6444559a1442b88d7851d79c9b4049752211d2d289ca10cf6064b",
+    "obs_buf": "4061e68b619ceac703ec4c205909ca198dd78d60024175ff928c01607841d905",
+    "rigid_properties": "7bbdb448e79a61e931177b874b3b8520f9bb70b9aff7d7b312e62c740abdde50",
+    "terrain": "db52b1393c181d9dddc926c829b4d17839563714419ae4fbb173af6ca78f1290"
+  },
+  "fields": [
+    "world_x",
+    "world_y",
+    "body_yaw",
+    "body_vx",
+    "body_vy",
+    "body_wz",
+    "cmd_vx",
+    "cmd_vy",
+    "cmd_wz",
+    "ref_x",
+    "ref_y",
+    "path_s",
+    "furthest_s",
+    "cross_track",
+    "world_vx",
+    "world_vy"
+  ],
+  "flag_bits": {
+    "alive": 1,
+    "post_fault": 2,
+    "stall": 4,
+    "goal": 8
+  },
+  "dt": 0.02,
+  "no_stall_termination": true,
+  "no_speed_termination": true,
+  "pilot": false,
+  "plane": false,
+  "gpu_physx": true,
+  "num_envs": 96,
+  "binary_survival": true
+}

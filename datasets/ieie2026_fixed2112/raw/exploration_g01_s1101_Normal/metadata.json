@@ -1,0 +1,243 @@
+{
+  "job": {
+    "id": "exploration_g01_s1101_Normal",
+    "pair_job": "exploration_g01_s1101",
+    "stage": "exploration",
+    "seed": 1101,
+    "policy": "Normal",
+    "conditions": [
+      {
+        "id": "j00_d020",
+        "joint": 0,
+        "loss": 0.2
+      },
+      {
+        "id": "j00_d040",
+        "joint": 0,
+        "loss": 0.4
+      },
+      {
+        "id": "j00_d060",
+        "joint": 0,
+        "loss": 0.6
+      },
+      {
+        "id": "j00_d080",
+        "joint": 0,
+        "loss": 0.8
+      },
+      {
+        "id": "j00_d100",
+        "joint": 0,
+        "loss": 1.0
+      },
+      {
+        "id": "j01_d020",
+        "joint": 1,
+        "loss": 0.2
+      },
+      {
+        "id": "j01_d040",
+        "joint": 1,
+        "loss": 0.4
+      },
+      {
+        "id": "j01_d060",
+        "joint": 1,
+        "loss": 0.6
+      },
+      {
+        "id": "j01_d080",
+        "joint": 1,
+        "loss": 0.8
+      },
+      {
+        "id": "j01_d100",
+        "joint": 1,
+        "loss": 1.0
+      },
+      {
+        "id": "j02_d020",
+        "joint": 2,
+        "loss": 0.2
+      },
+      {
+        "id": "j02_d040",
+        "joint": 2,
+        "loss": 0.4
+      },
+      {
+        "id": "j02_d060",
+        "joint": 2,
+        "loss": 0.6
+      },
+      {
+        "id": "j02_d080",
+        "joint": 2,
+        "loss": 0.8
+      },
+      {
+        "id": "j02_d100",
+        "joint": 2,
+        "loss": 1.0
+      },
+      {
+        "id": "j03_d020",
+        "joint": 3,
+        "loss": 0.2
+      },
+      {
+        "id": "j03_d040",
+        "joint": 3,
+        "loss": 0.4
+      },
+      {
+        "id": "j03_d060",
+        "joint": 3,
+        "loss": 0.6
+      },
+      {
+        "id": "j03_d080",
+        "joint": 3,
+        "loss": 0.8
+      },
+      {
+        "id": "j03_d100",
+        "joint": 3,
+        "loss": 1.0
+      },
+      {
+        "id": "j04_d020",
+        "joint": 4,
+        "loss": 0.2
+      },
+      {
+        "id": "j04_d040",
+        "joint": 4,
+        "loss": 0.4
+      },
+      {
+        "id": "j04_d060",
+        "joint": 4,
+        "loss": 0.6
+      },
+      {
+        "id": "j04_d080",
+        "joint": 4,
+        "loss": 0.8
+      },
+      {
+        "id": "j04_d100",
+        "joint": 4,
+        "loss": 1.0
+      },
+      {
+        "id": "j05_d020",
+        "joint": 5,
+        "loss": 0.2
+      },
+      {
+        "id": "j05_d040",
+        "joint": 5,
+        "loss": 0.4
+      },
+      {
+        "id": "j05_d060",
+        "joint": 5,
+        "loss": 0.6
+      },
+      {
+        "id": "j05_d080",
+        "joint": 5,
+        "loss": 0.8
+      },
+      {
+        "id": "j05_d100",
+        "joint": 5,
+        "loss": 1.0
+      },
+      {
+        "id": "j06_d020",
+        "joint": 6,
+        "loss": 0.2
+      },
+      {
+        "id": "j06_d040",
+        "joint": 6,
+        "loss": 0.4
+      },
+      {
+        "id": "j06_d060",
+        "joint": 6,
+        "loss": 0.6
+      },
+      {
+        "id": "j06_d080",
+        "joint": 6,
+        "loss": 0.8
+      }
+    ],
+    "family_repeats": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "column_counts": [
+      1,
+      1,
+      1,
+      4,
+      3,
+      2
+    ],
+    "num_envs": 3264
+  },
+  "protocol_sha256": "b3cd1a8cc0e876c4837705df61795a1e020b64c38dd35a5b73fdede99b7b3890",
+  "checkpoint_sha256": "516849f38942a3994ccf7aa370a889bebeff655ae867177b6c68f62709fc9ef6",
+  "initial_hashes": {
+    "root_states": "1b2bec0fe4be5d6f1d4ff20d0105dc64f32bb004323c88c988ea877c9f3d1ab6",
+    "dof_pos": "410aef169ef53c6d11ba0cd8896f74e251e0ab78e00a294de7178cda2535bc66",
+    "dof_vel": "c2d7aa4b0c38615aa06d3bff4403f083048f3abf9776de483413de986b869001",
+    "applied_friction": "61cc564bc265385b82ad4e2fbec4c2d9c3d923e7ee5e5082f819401904da900e",
+    "added_base_mass": "395cd16d95bb5072bcb9dd327c80c155d518c6a3e8f86cef8e4fe322b2ff97d2",
+    "nominal_motor_strength_gt": "5aa7c4e0d6471580c98c37ba00e2989702d7dcd38b1985d3abfc239d493439d4",
+    "kp_scale_gt": "65295117ef1c6270d4d429682423759b8da16418e6fe720bfbf2ff18915dbfe3",
+    "kd_scale_gt": "b57329389ccda39b56ea40aa0c4690bf936040a8d56543fea28edfb5693e2c3f",
+    "obs_buf": "b0f38f153fe5d6e185259a048a1c24ffbc05c551bb2367e4cf963bf08912bb2d",
+    "rigid_properties": "f53236fc6344d7799e4641143cec9a2d1f259f98bdf36ecc87abb9f7dbb7d012",
+    "terrain": "1510978401f2e943a0554e3192181e95cab3ee53d032c1cd8307bcd4be63f45e"
+  },
+  "fields": [
+    "world_x",
+    "world_y",
+    "body_yaw",
+    "body_vx",
+    "body_vy",
+    "body_wz",
+    "cmd_vx",
+    "cmd_vy",
+    "cmd_wz",
+    "ref_x",
+    "ref_y",
+    "path_s",
+    "furthest_s",
+    "cross_track",
+    "world_vx",
+    "world_vy"
+  ],
+  "flag_bits": {
+    "alive": 1,
+    "post_fault": 2,
+    "stall": 4,
+    "goal": 8
+  },
+  "dt": 0.02,
+  "no_stall_termination": true,
+  "no_speed_termination": true,
+  "pilot": false,
+  "plane": false,
+  "gpu_physx": true,
+  "num_envs": 3264,
+  "binary_survival": true
+}

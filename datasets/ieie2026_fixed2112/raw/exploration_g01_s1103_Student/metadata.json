@@ -1,0 +1,243 @@
+{
+  "job": {
+    "id": "exploration_g01_s1103_Student",
+    "pair_job": "exploration_g01_s1103",
+    "stage": "exploration",
+    "seed": 1103,
+    "policy": "Student",
+    "conditions": [
+      {
+        "id": "j00_d020",
+        "joint": 0,
+        "loss": 0.2
+      },
+      {
+        "id": "j00_d040",
+        "joint": 0,
+        "loss": 0.4
+      },
+      {
+        "id": "j00_d060",
+        "joint": 0,
+        "loss": 0.6
+      },
+      {
+        "id": "j00_d080",
+        "joint": 0,
+        "loss": 0.8
+      },
+      {
+        "id": "j00_d100",
+        "joint": 0,
+        "loss": 1.0
+      },
+      {
+        "id": "j01_d020",
+        "joint": 1,
+        "loss": 0.2
+      },
+      {
+        "id": "j01_d040",
+        "joint": 1,
+        "loss": 0.4
+      },
+      {
+        "id": "j01_d060",
+        "joint": 1,
+        "loss": 0.6
+      },
+      {
+        "id": "j01_d080",
+        "joint": 1,
+        "loss": 0.8
+      },
+      {
+        "id": "j01_d100",
+        "joint": 1,
+        "loss": 1.0
+      },
+      {
+        "id": "j02_d020",
+        "joint": 2,
+        "loss": 0.2
+      },
+      {
+        "id": "j02_d040",
+        "joint": 2,
+        "loss": 0.4
+      },
+      {
+        "id": "j02_d060",
+        "joint": 2,
+        "loss": 0.6
+      },
+      {
+        "id": "j02_d080",
+        "joint": 2,
+        "loss": 0.8
+      },
+      {
+        "id": "j02_d100",
+        "joint": 2,
+        "loss": 1.0
+      },
+      {
+        "id": "j03_d020",
+        "joint": 3,
+        "loss": 0.2
+      },
+      {
+        "id": "j03_d040",
+        "joint": 3,
+        "loss": 0.4
+      },
+      {
+        "id": "j03_d060",
+        "joint": 3,
+        "loss": 0.6
+      },
+      {
+        "id": "j03_d080",
+        "joint": 3,
+        "loss": 0.8
+      },
+      {
+        "id": "j03_d100",
+        "joint": 3,
+        "loss": 1.0
+      },
+      {
+        "id": "j04_d020",
+        "joint": 4,
+        "loss": 0.2
+      },
+      {
+        "id": "j04_d040",
+        "joint": 4,
+        "loss": 0.4
+      },
+      {
+        "id": "j04_d060",
+        "joint": 4,
+        "loss": 0.6
+      },
+      {
+        "id": "j04_d080",
+        "joint": 4,
+        "loss": 0.8
+      },
+      {
+        "id": "j04_d100",
+        "joint": 4,
+        "loss": 1.0
+      },
+      {
+        "id": "j05_d020",
+        "joint": 5,
+        "loss": 0.2
+      },
+      {
+        "id": "j05_d040",
+        "joint": 5,
+        "loss": 0.4
+      },
+      {
+        "id": "j05_d060",
+        "joint": 5,
+        "loss": 0.6
+      },
+      {
+        "id": "j05_d080",
+        "joint": 5,
+        "loss": 0.8
+      },
+      {
+        "id": "j05_d100",
+        "joint": 5,
+        "loss": 1.0
+      },
+      {
+        "id": "j06_d020",
+        "joint": 6,
+        "loss": 0.2
+      },
+      {
+        "id": "j06_d040",
+        "joint": 6,
+        "loss": 0.4
+      },
+      {
+        "id": "j06_d060",
+        "joint": 6,
+        "loss": 0.6
+      },
+      {
+        "id": "j06_d080",
+        "joint": 6,
+        "loss": 0.8
+      }
+    ],
+    "family_repeats": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "column_counts": [
+      1,
+      1,
+      1,
+      4,
+      3,
+      2
+    ],
+    "num_envs": 3264
+  },
+  "protocol_sha256": "b3cd1a8cc0e876c4837705df61795a1e020b64c38dd35a5b73fdede99b7b3890",
+  "checkpoint_sha256": "1d849666dae2e1c14b543dc43123bd1cfaa6b41848fb335664e39927b584b77b",
+  "initial_hashes": {
+    "root_states": "d57180d07c3bd5c72b83e0cce44bff5ab3aef812f7c10bb72453a0e50a7fb127",
+    "dof_pos": "fa7ae24793dd12464297f99435191450b60330fbd6e0df5401af95c498e7b528",
+    "dof_vel": "c2d7aa4b0c38615aa06d3bff4403f083048f3abf9776de483413de986b869001",
+    "applied_friction": "299724d1a7caf7f68128d237e4c3a893df3ecee4f0034ab724fc19c19c9a68f1",
+    "added_base_mass": "262cc6c0a821b1313f5dbe87412f440146d3e1689c6d9fd5d1178115a946dab5",
+    "nominal_motor_strength_gt": "88cdafd63f3d6b551c88108bb7d12840a53a94e20f5c40b28769df0426ce429d",
+    "kp_scale_gt": "a2775860da6734c0c699e127b4a50ffdf92176feb4aabcec7fec8f02ca4f91e6",
+    "kd_scale_gt": "e593dfb28dec1a45382fb986bc652be144ded761b883128041b97d1c4bfcfc29",
+    "obs_buf": "61c0ec406ebb3c46e6ff7f74093f2cdb50817b176a6bfdde91397a11dfd9b00d",
+    "rigid_properties": "e692ea0cbf2d9fcf0a89b5056fcbfee2674c34948074c0c20ae8dd7d84d14ed6",
+    "terrain": "db52b1393c181d9dddc926c829b4d17839563714419ae4fbb173af6ca78f1290"
+  },
+  "fields": [
+    "world_x",
+    "world_y",
+    "body_yaw",
+    "body_vx",
+    "body_vy",
+    "body_wz",
+    "cmd_vx",
+    "cmd_vy",
+    "cmd_wz",
+    "ref_x",
+    "ref_y",
+    "path_s",
+    "furthest_s",
+    "cross_track",
+    "world_vx",
+    "world_vy"
+  ],
+  "flag_bits": {
+    "alive": 1,
+    "post_fault": 2,
+    "stall": 4,
+    "goal": 8
+  },
+  "dt": 0.02,
+  "no_stall_termination": true,
+  "no_speed_termination": true,
+  "pilot": false,
+  "plane": false,
+  "gpu_physx": true,
+  "num_envs": 3264,
+  "binary_survival": true
+}

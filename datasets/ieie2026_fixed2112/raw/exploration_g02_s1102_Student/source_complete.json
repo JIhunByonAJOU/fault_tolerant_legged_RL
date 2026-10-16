@@ -1,0 +1,8 @@
+{
+  "job_id": "exploration_g02_s1102_Student",
+  "episodes": 2496,
+  "result_sha256": "d034cd503a3ac7f5ee3a5742ee9a7d74c64469d86acb5ba72f5ca3c56a19a28b",
+  "trace_manifest_sha256": "665b280ec4e1686b6a52143904ce752d883137ffdf6106fb143c56b00fb529f5",
+  "elapsed_s": 539.5057585590112,
+  "pilot": false
+}

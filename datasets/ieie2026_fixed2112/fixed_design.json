@@ -1,0 +1,30 @@
+{
+  "family_units": [
+    2,
+    1,
+    1,
+    2
+  ],
+  "terrain_counts": [
+    1,
+    1,
+    1,
+    4,
+    3,
+    2
+  ],
+  "evaluation_seeds": [
+    1101,
+    1102,
+    1103
+  ],
+  "policy_seed_runs": 2196,
+  "robot_episodes": 26352,
+  "additional_simulations": 0,
+  "data_origin": "\uae30\uc874 \uccab \uc804\uc218 \uc218\uc9d1\uc5d0\uc11c \uc870\uac74 \uc2dd\ubcc4\uc790\ub85c \ucd94\ucd9c; \ucd94\uac00 \uc2dc\ubbac\ub808\uc774\uc158 \uc5c6\uc74c",
+  "analysis_subdir": "fixed2112",
+  "independent_confirmation": false,
+  "source_campaign": "/home/jihun/legged_gym/logs/evaluation/ieie2026_eight_20261016",
+  "selection_rule": "F01,F02,S20,S15 always; diagonal=(condition_index+seed_index+1)%2; lateral=(condition_index+seed_index+2)%2; all 12 columns; both policies",
+  "outcome_dependent_selection": false
+}

@@ -1,0 +1,203 @@
+{
+  "job": {
+    "id": "exploration_g02_s1103_Normal",
+    "pair_job": "exploration_g02_s1103",
+    "stage": "exploration",
+    "seed": 1103,
+    "policy": "Normal",
+    "conditions": [
+      {
+        "id": "j06_d100",
+        "joint": 6,
+        "loss": 1.0
+      },
+      {
+        "id": "j07_d020",
+        "joint": 7,
+        "loss": 0.2
+      },
+      {
+        "id": "j07_d040",
+        "joint": 7,
+        "loss": 0.4
+      },
+      {
+        "id": "j07_d060",
+        "joint": 7,
+        "loss": 0.6
+      },
+      {
+        "id": "j07_d080",
+        "joint": 7,
+        "loss": 0.8
+      },
+      {
+        "id": "j07_d100",
+        "joint": 7,
+        "loss": 1.0
+      },
+      {
+        "id": "j08_d020",
+        "joint": 8,
+        "loss": 0.2
+      },
+      {
+        "id": "j08_d040",
+        "joint": 8,
+        "loss": 0.4
+      },
+      {
+        "id": "j08_d060",
+        "joint": 8,
+        "loss": 0.6
+      },
+      {
+        "id": "j08_d080",
+        "joint": 8,
+        "loss": 0.8
+      },
+      {
+        "id": "j08_d100",
+        "joint": 8,
+        "loss": 1.0
+      },
+      {
+        "id": "j09_d020",
+        "joint": 9,
+        "loss": 0.2
+      },
+      {
+        "id": "j09_d040",
+        "joint": 9,
+        "loss": 0.4
+      },
+      {
+        "id": "j09_d060",
+        "joint": 9,
+        "loss": 0.6
+      },
+      {
+        "id": "j09_d080",
+        "joint": 9,
+        "loss": 0.8
+      },
+      {
+        "id": "j09_d100",
+        "joint": 9,
+        "loss": 1.0
+      },
+      {
+        "id": "j10_d020",
+        "joint": 10,
+        "loss": 0.2
+      },
+      {
+        "id": "j10_d040",
+        "joint": 10,
+        "loss": 0.4
+      },
+      {
+        "id": "j10_d060",
+        "joint": 10,
+        "loss": 0.6
+      },
+      {
+        "id": "j10_d080",
+        "joint": 10,
+        "loss": 0.8
+      },
+      {
+        "id": "j10_d100",
+        "joint": 10,
+        "loss": 1.0
+      },
+      {
+        "id": "j11_d020",
+        "joint": 11,
+        "loss": 0.2
+      },
+      {
+        "id": "j11_d040",
+        "joint": 11,
+        "loss": 0.4
+      },
+      {
+        "id": "j11_d060",
+        "joint": 11,
+        "loss": 0.6
+      },
+      {
+        "id": "j11_d080",
+        "joint": 11,
+        "loss": 0.8
+      },
+      {
+        "id": "j11_d100",
+        "joint": 11,
+        "loss": 1.0
+      }
+    ],
+    "family_repeats": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "column_counts": [
+      1,
+      1,
+      1,
+      4,
+      3,
+      2
+    ],
+    "num_envs": 2496
+  },
+  "protocol_sha256": "b3cd1a8cc0e876c4837705df61795a1e020b64c38dd35a5b73fdede99b7b3890",
+  "checkpoint_sha256": "516849f38942a3994ccf7aa370a889bebeff655ae867177b6c68f62709fc9ef6",
+  "initial_hashes": {
+    "root_states": "546a8bc5d58059de47fb8d7c461f62ed1f202cce28d39d7b42fce96cfa706e5e",
+    "dof_pos": "4d578bcc60c7b598dbaca6a3ec089549da0a703a334ffe1093dc2505af49fd79",
+    "dof_vel": "3456174612524c5eaadabdbdb507f9daef44f7d171d9a6bffedd609e1a0ad8ed",
+    "applied_friction": "14d4cadab998f2aec8c42d6e755be1c9aa6e4348164122a15d3f497599e07c50",
+    "added_base_mass": "7a476de2de0a401efa250e95cf805751494197e485eb3e471754aba1622520b6",
+    "nominal_motor_strength_gt": "773900801bc8ae1d8ae68ff616472f6fa01add44660448b1f990f78a5673a155",
+    "kp_scale_gt": "9fa9d6d413cd233592f0749203bf42c925828cc19435efc6411b6e26ee29c335",
+    "kd_scale_gt": "53a8595de5151c07f8256cea5e038b6769ec09ad0d55276fa78685b99443b130",
+    "obs_buf": "a46c192e30e94b5897fce3ec29d52d1601c70bb756c50ec6b7e8ea8d783be2f9",
+    "rigid_properties": "ae75318eb6bad424e0ab200c39c063092eca04e33a6885b80b45d1a25c24fd57",
+    "terrain": "db52b1393c181d9dddc926c829b4d17839563714419ae4fbb173af6ca78f1290"
+  },
+  "fields": [
+    "world_x",
+    "world_y",
+    "body_yaw",
+    "body_vx",
+    "body_vy",
+    "body_wz",
+    "cmd_vx",
+    "cmd_vy",
+    "cmd_wz",
+    "ref_x",
+    "ref_y",
+    "path_s",
+    "furthest_s",
+    "cross_track",
+    "world_vx",
+    "world_vy"
+  ],
+  "flag_bits": {
+    "alive": 1,
+    "post_fault": 2,
+    "stall": 4,
+    "goal": 8
+  },
+  "dt": 0.02,
+  "no_stall_termination": true,
+  "no_speed_termination": true,
+  "pilot": false,
+  "plane": false,
+  "gpu_physx": true,
+  "num_envs": 2496,
+  "binary_survival": true
+}

@@ -1,0 +1,17 @@
+{
+  "files": {
+    "legged_gym/evaluation/course_campaign.py": "fac146f01bd270122dddc9a63ec3688056c19bc511d0dc8a67b813eeed3fb7e6",
+    "legged_gym/evaluation/course_controller.py": "6625a81aa87281355935d96a87036c60f6612504693e06e21387c34cc8cd6899",
+    "legged_gym/scripts/collect_course_batch.py": "b64c4611a3ec9b08b9adbdaf5154e1c030e94054b9eecb5f887b17891db25f68",
+    "legged_gym/scripts/analyze_course_campaign.py": "642267555bab0ecb95e80d8256e073bc671b0795539cd6bb0f00fecf35f693aa",
+    "legged_gym/scripts/run_course_campaign.py": "d8d050082ea051741600c40e557343803faeeda5c3672deefeb113b512629ef2",
+    "legged_gym/envs/base/legged_robot.py": "bdaf5fa2dc123a539811b536c4a6feb9dadfcaf9df377d25d8ddbf434f531ff9",
+    "legged_gym/envs/a1_official_wim_teacher/a1_official_wim_joint.py": "7d335504e9348c1fe88f7d8ec8365676a0f328d23e70c3b1093660aafabf8450",
+    "legged_gym/envs/a1_official_wim_teacher/a1_official_wim_teacher.py": "6c7fc42bec40a58cbf8aac2a6246941d8a8f2b5d57b930494d2abb09776f10f6",
+    "legged_gym/learning/official_wim_teacher_actor_critic.py": "19eee934cbb0f5f4ade31814eba0c6762975d7dc5f9c8dac39627fadbb3915e2",
+    "legged_gym/learning/joint_teacher_student_actor_critic.py": "4cb828be341d0082b2195062320573f7ac384b86912e66d8dc6ab8da654421cd",
+    "legged_gym/utils/terrain.py": "f8ec6492c8d931c0b8f38a502dcbb4a34db0a5e079fc710fc83376ad7ae4fbf6",
+    "resources/robots/a1/urdf/a1.urdf": "9ab724867bd6c55c6aec0171d1072d0ab4723b8801789dc7ec14c2e50723a883"
+  },
+  "protocol_sha256": "b3cd1a8cc0e876c4837705df61795a1e020b64c38dd35a5b73fdede99b7b3890"
+}

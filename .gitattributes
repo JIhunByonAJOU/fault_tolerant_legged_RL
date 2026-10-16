@@ -2,3 +2,9 @@
 *.obj filter=lfs diff=lfs merge=lfs -text
 *.obj text !filter !merge !diff
 *.dae text !filter !merge !diff
+datasets/ieie2026_fixed2112/raw/**/*.npz filter=lfs diff=lfs merge=lfs -text
+# Preserve checksummed dataset bytes on Windows (including original CSV CRLF).
+datasets/ieie2026_fixed2112/** -text
+datasets/ieie2026_fixed2112/**/*.csv whitespace=cr-at-eol
+# Frozen upstream sources are provenance snapshots; retain their original whitespace.
+datasets/ieie2026_fixed2112/source_snapshot/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab

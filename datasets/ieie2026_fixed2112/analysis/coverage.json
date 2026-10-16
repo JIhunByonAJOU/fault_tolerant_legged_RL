@@ -1,0 +1,25 @@
+{
+  "complete": true,
+  "source_completed_jobs": 18,
+  "source_robot_episodes": 35136,
+  "selected_robot_episodes": 26352,
+  "policy_seed_runs": 2196,
+  "paired_robot_trials": 13176,
+  "missing_required_trials": 0,
+  "duplicate_required_trials": 0,
+  "family_episode_counts": {
+    "forward": 8784,
+    "diagonal": 4392,
+    "lateral": 4392,
+    "sine": 8784
+  },
+  "additional_simulations": 0,
+  "independent_confirmation": false,
+  "metric_missing_counts": {
+    "survived": 0,
+    "command_vx_rmse": 0,
+    "command_vy_rmse": 0,
+    "command_wz_rmse": 0,
+    "cross_track_rmse": 0
+  }
+}

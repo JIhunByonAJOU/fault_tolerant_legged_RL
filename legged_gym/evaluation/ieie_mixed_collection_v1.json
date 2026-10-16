@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "protocol_id": "ieie_progressive_mixed_collection_v1",
+  "status": "user_18x61_run_grid_collector_pending",
+  "counting_unit": "comparison_run: one declared motion setting and one fault setting; includes all terrain columns and both policies",
+  "comparison_run_count": 1098,
+  "additional_whole_grid_seed_repetitions": 0,
+  "task": "a1_official_wim_jt_failure_fullrange_onset",
+  "policies": {
+    "Normal": {
+      "mode": "teacher",
+      "checkpoint": "logs/manual/teacher243-seed1-500iter/model_22500.pt",
+      "sha256": "516849f38942a3994ccf7aa370a889bebeff655ae867177b6c68f62709fc9ef6"
+    },
+    "Student": {
+      "mode": "student",
+      "checkpoint": "logs/jt_wim243_width64_lr1e5_fresh_20260929/run_seed1_35000/model_77500.pt",
+      "sha256": "1d849666dae2e1c14b543dc43123bd1cfaa6b41848fb335664e39927b584b77b"
+    }
+  },
+  "terrain": {
+    "rows": 5,
+    "columns": 12,
+    "tile_length_m": 8.0,
+    "tile_width_m": 8.0,
+    "proportions": [0.1, 0.1, 0.35, 0.25, 0.2],
+    "construction_curriculum": true,
+    "runtime_curriculum": false,
+    "column_classes": ["smooth_low", "smooth_high", "rough_slope", "stairs_low", "stairs_low", "stairs_low", "stairs_low", "stairs_high", "stairs_high", "stairs_high", "obstacles", "obstacles"]
+  },
+  "route": {
+    "start_x_m": -1.0,
+    "end_x_m": 40.5,
+    "speed_mps": 0.5,
+    "sine_amplitudes_m": [1.0, 1.5, 2.0],
+    "sine_wavelengths_m": [12.0, 16.0, 20.0, 24.0],
+    "sine_phase_by_repeat_rad": [0.0],
+    "straight_tasks": [
+      {"id": "F01", "body_yaw_rad": 0.0, "body_command_mps": [0.5, 0.0]},
+      {"id": "F02", "body_yaw_rad": null, "body_command_mps": null, "definition_pending": true, "note": "Second straight run included in the user's count; do not invent a command or heading from this count clarification."},
+      {"id": "DL", "body_yaw_rad": -0.7853981633974483, "body_command_mps": [0.3535533905932738, 0.3535533905932738]},
+      {"id": "DR", "body_yaw_rad": 0.7853981633974483, "body_command_mps": [0.3535533905932738, -0.3535533905932738]},
+      {"id": "L", "body_yaw_rad": -1.5707963267948966, "body_command_mps": [0.0, 0.5]},
+      {"id": "R", "body_yaw_rad": 1.5707963267948966, "body_command_mps": [0.0, -0.5]}
+    ]
+  },
+  "conditions": {"joint_indices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "nonzero_loss_rates": [0.2, 0.4, 0.6, 0.8, 1.0], "healthy_once": true},
+  "cohorts": {
+    "exploration": {"seed_blocks": [1101], "scheduled": false}
+  },
+  "seed_note": "One reproducibility seed setup; it does not add an extra repetition of the 18x61 grid.",
+  "repeats_per_column": 1,
+  "time": {
+    "control_dt_s": 0.02,
+    "fault_onset_s": 2.0,
+    "budget_speed_mps": 0.1,
+    "budget_margin_s": 30.0,
+    "budget_clock": "post_fault; includes conservative allowance for the full route",
+    "stall_window_s": 30.0,
+    "stall_new_progress_m": 0.5,
+    "stall_early_termination": false,
+    "slow_tracking_early_termination": false,
+    "episode_end_reasons": ["fall", "goal", "administrative_cap"],
+    "survival_definition": "binary: fall=0; goal or administrative_cap without fall=1; aggregate as surviving fraction",
+    "early_goal_survival": "survived=1 at successful goal; no fixed 60-second window"
+  },
+  "physics": {
+    "friction_range": [0.5, 1.25],
+    "added_base_mass_kg": [0.0, 2.0],
+    "motor_strength_range": [0.9, 1.1],
+    "kp_scale_range": [0.95, 1.05],
+    "kd_scale_range": [0.9, 1.1],
+    "pushes": false,
+    "observation_noise": false,
+    "root_xy_jitter_m": 0.05,
+    "root_yaw_jitter_rad": 0.03,
+    "initial_dof_factor_range": [0.95, 1.05],
+    "initial_root_and_dof_velocities": "zero",
+    "require_applied_property_hashes": true
+  },
+  "batch": {"preferred_environments": 216, "pilot_candidates": [1632, 3264, 6528], "policy_execution": "separate paired jobs; GPU packing is distinct from comparison-run count", "one_episode_per_slot": true},
+  "trace": {
+    "sample_rate_hz": 50,
+    "float32_fields": ["world_x", "world_y", "body_yaw", "body_vx", "body_vy", "body_wz", "cmd_vx", "cmd_vy", "cmd_wz", "ref_x", "ref_y", "path_s", "furthest_s", "cross_track", "world_vx", "world_vy"],
+    "int32_fields": ["control_step"],
+    "uint8_fields": ["alive", "post_fault", "progress_stall", "goal"],
+    "storage": "compressed columnar arrays; active/valid rows only; atomic per-job completion",
+    "raw_results_root": "logs/evaluation/ieie2026_mixed_v1"
+  },
+  "execution_gates": [
+    "F02 command and heading specified without assuming what the second straight run means",
+    "new route controller and progressive terrain adapter implemented",
+    "GPU PhysX pilot validates applied physics, observations/history, fault onset and terminal sampling",
+    "healthy coverage reviewed before fault sweep",
+    "binary survival uses fall/goal/administrative cap; stall must not cause termination",
+    "batch throughput and disk budget measured without stopping existing GPU work"
+  ]
+}

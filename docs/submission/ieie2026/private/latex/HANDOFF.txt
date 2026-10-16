@@ -1,45 +1,68 @@
-IEIE paper handoff - 2026-10-16
+IEIE paper / complete evaluation handoff - 2026-10-16
 
 Repository: https://github.com/JIhunByonAJOU/fault_tolerant_legged_RL.git
-Branch: dev
-Main manuscript: proceedings.tex includes body.tex.
-Anonymous review manuscript: main.tex includes body_review.tex; still needs shortening to four pages.
+Branch: dev. The paper_baseline recovery branch must not move.
 
-This commit transfers the current written manuscript, figures and PDF preview.
-The 2026-10-16 Windows rebuild has SIX proceedings pages (the prior preview also
-had six). Shorten to the five-page limit before submission. Older README entries
-recording five pages describe an earlier state, not the transferred manuscript.
-The additional evaluations discussed in chat have NOT been run or inserted as results.
-Current manuscript numbers remain the existing straight-walking evaluation, including the old endpoint survival rate, forward displacement and Q metrics.
+CURRENT STATUS
+- The introduction was synchronized in body.tex and body_review.tex.
+- Abstracts now state that the same policy handles normal operation and torque degradation. Numerical results await manuscript revision; no limitations sentence is in the abstracts.
+- Korean terms: 토크 저하 / 토크 저하율 d. Citations attach directly to preceding text. The proceedings cite package has automatic space insertion disabled.
+- Current local LuaLaTeX previews: proceedings 6 pages; anonymous review 5 pages. Required shortening: 5 / 4 pages.
+- Manuscript result paragraphs and their old figures STILL describe the earlier 20-second forward-only evaluation. Replace them using the new dataset below. Do not rename old Q/displacement values as new metrics.
 
-Agreed research question:
-단일 관절의 토크가 저하된 뒤에도, 고장 대응 보행 정책은 정상학습 정책보다 다양한 이동 명령과 목표 궤적을 더 오래, 더 정확하게 수행할 수 있는가?
+COMPLETE DATASET
+Path from repository root: datasets/ieie2026_fixed2112/
+Read its README.md first. All 26,352 selected robot episodes and all 50 Hz raw records are included via Git LFS. This is not just a summary or a few selected cases.
 
-Comparison: proposed fault-aware locomotion configuration versus normal-only training.
-Joint training is the adopted learning method; this is not an SS-versus-JT superiority study.
+Windows, from repository root:
+  git lfs install
+  git switch dev
+  git pull --ff-only
+  git lfs pull --include="datasets/ieie2026_fixed2112/raw/**"
+  cd datasets/ieie2026_fixed2112
+  py -m pip install -r requirements.txt
+  py analyze.py
 
-Agreed metrics for the NEXT evaluation:
-1. 생존율: normalized mean post-fault survival time, 0 to 1.
-   This is different from the endpoint survival percentage in the current manuscript.
-2. 이동 명령 추종: vx/vy RMSE in m/s and omega_z (yaw rate) RMSE in rad/s.
-3. 경로 추종: cross-track error RMSE in m, measured perpendicular to the reference path.
-ADE, Q and forward displacement are not the intended primary metrics for the next evaluation.
-Report error calculation intervals and handle terminated/no-sample trials explicitly.
+No Isaac Gym, CUDA or PyTorch is needed to read/replot the dataset.
+Full checksum/row verification: py analyze.py --verify-raw --verify-only
+Full CSV for a selected trial: py analyze.py --trial exploration_s1101_S20_r0_slot10_j01_d100_Student
 
-Candidate tasks: forward, left/right lateral, diagonal and sinusoidal path following.
-Turning and stair traversal were discussed as additional candidates, not completed experiments.
-Use paired physical conditions, fault schedules and evaluation seeds between policies.
-Use the same path-to-velocity controller for both policies when adding path following.
-Check healthy-condition task capability before interpreting fault-condition failures.
+FINAL DESIGN
+- Family ratio forward/diagonal/lateral/sine = 2:1:1:2.
+- 6 motion slots x 61 conditions x 2 policies x 3 evaluation seeds = 2,196 policy/seed runs.
+- Each run contains the original 12 terrain columns: total 26,352 robot episodes.
+- Forward F01/F02 and sine A2/wavelength16, A1.5/wavelength16 are retained; diagonal/lateral left and right alternate across conditions/seeds.
+- Reuse of the original completed collection with evaluation seeds 1101,1102,1103. No new independent confirmation dataset is claimed. Original full collection and excluded episodes remain on Ubuntu.
+- No outcome-dependent mixture optimization or 1:1:1:1-versus-3:1:1:3 comparison belongs in the final paper.
+- Same initial/physical state and terrain between Normal and Student; original pair hashes preserved.
+- Normal22500 uses the privileged physical-information Teacher encoder. Student77500 uses the history-based Student path. This is a comparison of the complete policy configurations.
 
-Notation:
-- velocity command: v_x^{cmd}, v_y^{cmd}, omega_z^{cmd}
-- reference path: p^{ref}(s)
-- actual trajectory: p(t)
-- omega_z is body-frame z-axis angular velocity, not the yaw angle.
-The policy outputs 12 action values that set desired joint angles q_des=q0+0.25*a.
-Body velocity time series are measured rollout outcomes, not predicted future policy outputs.
+METRICS
+1. Survival: binary non-fall fraction, fall=0, goal or administrative cap without a fall=1. NOT normalized mean survival time.
+2. Motion commands: per-trial valid post-fault vx/vy/yaw-rate RMSE, then average trials. m/s,m/s,rad/s.
+3. Path tracking: cross-track RMSE perpendicular to the independent world-frame reference path. m.
+- No zero padding after falling. Zero valid samples -> NA. Compare errors with survival and valid observation length.
+- Stall flag: new maximum route progress less than 0.5 m over 30 s. No early termination for stalls or slow tracking.
+- For diagnosis, report stagnation among survivors with an explicit survivor denominator; transient stall and noncompletion are different records.
 
-Ubuntu build: see README.md. Use LuaLaTeX, not XeLaTeX.
-Font binaries are intentionally not published. Without the original template fonts,
-Ubuntu uses editing fallbacks and may paginate differently from preview/proceedings.pdf.
+MAIN FINDINGS IN THIS FIXED DESIGN
+100% torque degradation:
+  Survival Normal52.08% / Student89.24%.
+  vx RMSE .22593 / .11970 m/s; vy .26185 / .11172 m/s.
+  yaw-rate .63567 / .20612 rad/s; cross-track .22486 / .07958 m.
+These are mean PER-TRIAL RMSEs; do not substitute old pooled values.
+
+RL calf100%:
+  Survival Normal188/216=87.04%, Student198/216=91.67%.
+  Stagnation observed among survivors: Normal185/188=98.40%, Student4/198=2.02%.
+  Goal completion over all216 trials: Normal3/216=1.39%, Student195/216=90.28%.
+  A high survival rate alone can therefore conceal failure to travel.
+
+SINGLE HEATMAP RECOMMENDATION
+explanatory/paper_single_heatmap_vxy_gain.pdf (or regenerate with analyze.py).
+Rows12 joints, columns20/40/60/80/100% degradation. Value is Normal minus Student planar-velocity RMSE, m/s. Each trial uses sqrt(RMSE_vx^2+RMSE_vy^2) before averaging, with no mixing of angular units. Main overall curves retain all five agreed metrics separately.
+
+WRITING / BUILD
+proceedings.tex -> body.tex; main.tex -> body_review.tex.
+Use LuaLaTeX. Preview PDFs are in preview/. Font binaries and local font overrides are not published.
+Both manuscripts need result/abstract-number replacement and shortening before submission.

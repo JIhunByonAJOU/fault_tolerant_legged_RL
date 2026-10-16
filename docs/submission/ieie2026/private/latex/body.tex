@@ -1,9 +1,11 @@
 % !TeX root = proceedings.tex
 % 5쪽 프로시딩의 편집 본문. proceedings.tex에서 이 파일을 포함합니다.
 \section{서론}
-4족 보행 로봇은 시설 점검과 탐사처럼 다양한 지형을 이동하는 작업에 활용된다. 강화학습과 병렬 시뮬레이션으로 이러한 환경의 보행 정책을 학습할 수 있다\cite{ref1}. 다만 정상 상태에서 익힌 제어가 구동기 고장 이후에도 유효한지는 별도의 문제이다. 관절 토크가 저하되면 넘어지지 않더라도 명령한 속도와 방향을 유지하지 못할 수 있다. 따라서 고장 대응은 균형 유지와 명령 수행을 함께 평가해야 한다.
+4족 보행 로봇은 계단과 불규칙한 지형을 이동할 수 있으며, 강화학습을 이용한 보행 제어는 다양한 지면에서 균형 유지와 이동 명령 수행을 학습하는 데 활용된다\cite{ref1}. 그러나 관절의 구동 성능이 저하되면 몸체를 지지하고 추진하는 능력이 달라져, 정상 조건에서 학습한 정책의 이동 성능이 저하될 수 있다. 특히 낙상을 피하더라도 요구된 속도와 방향을 따르지 못하거나 목표 경로에서 벗어날 수 있다. 따라서 고장 대응 보행의 성능은 생존 여부와 명령·경로 추종을 함께 평가해야 한다.
 
-본 연구는 단일 관절 토크 저하 이후에도 보행과 속도 추종을 이어가도록 기존 교사·학생 공동학습을 적용한다\cite{ref4}. 교사는 시뮬레이션의 물리 조건을 사용하고, 학생은 최근 몸체·관절 반응으로 그 특징을 추정한다. 교사 특징을 학생 특징으로 점진적으로 대체하면서 제어 정책도 함께 갱신하며, 평가에서는 고장 위치와 손실률을 직접 입력받지 않는 학생 경로만 사용한다. Unitree A1의 12개 관절과 6개 손실률에서 정상 상태만 학습한 정책과 비교한다. 생존율과 속도 오차, 전방 이동량 및 명령 추종 시간율을 평가하여, 보행 유지가 명령 수행으로 이어지는지 확인하고 관절별 취약 조건을 분석한다.
+본 논문은 단일 관절의 토크 저하를 대상으로, 기존 교사·학생 공동학습을 적용한 강화학습 기반 고장 대응 보행 제어 구성을 제시한다\cite{ref4}. 학습 시에는 시뮬레이션의 특권 물리 정보를 활용하는 교사 표현과 관측 이력 기반 학생 표현을 사용하고, 평가 시에는 현재 관측과 학생 특징으로 행동을 출력한다. 학생은 고장 관절과 토크 저하 수준을 직접 입력받지 않으며, 동일한 정책으로 정상 조건과 토크 저하 조건에서 동작한다.
+
+Unitree A1 시뮬레이션에서 정상 조건만 학습한 정책과 초기 상태·물리 조건·지형·고장 조건을 맞추어 비교한다. 전진, 좌우 대각 이동, 좌우 횡이동 및 두 사인파 경로를 대상으로 생존율과 세 축 이동 명령 RMSE, 경로 횡오차 RMSE를 평가한다. 이를 통해 고장 관절·토크 저하율·이동 과제에 따른 성능 차이와 취약 조건을 분석한다.
 
 \section{시스템 모델}
 
@@ -43,14 +45,14 @@ Nominal PD gains & $K_p=20$~N$\cdot$m/rad; $K_d=0.5$~N$\cdot$m$\cdot$s/rad \\
 
 
 \subsection{단일 관절 토크 저하 모델}
-관절 토크 저하는 요구 토크의 일부만 출력되는 것으로 모델링한다\cite{ref6}. 손실률 $d\in[0,1]$에 대해 출력 배율은 $1-d$이며, $d=0.4$는 명목 출력의 40\% 손실을 뜻한다. PD 토크에 모터 강도 $m_j$와 고장 배율 $\eta_j$를 곱한 뒤 관절 한계 토크로 제한한다.
+토크 저하는 PD 토크에 곱하는 고장 배율의 감소로 모델링한다\cite{ref6}. 토크 저하율 $d\in[0,1]$에 대해 고장 배율은 $1-d$이며, $d=0.4$이면 고장 배율은 0.6이다. PD 토크에 모터 강도 $m_j$와 고장 배율 $\eta_j$를 곱한 뒤 관절 한계 토크로 제한한다.
 \begin{paperdisplay}[-0.83bp]
 \begin{align}
 \tau_j^{PD}&=K_p(q_j^{des}-q_j)-K_d\dot q_j,\label{eq:pd} \\
 \tau_j&=\mathrm{clip}(m_j\eta_j\tau_j^{PD},-\tau_j^{max},\tau_j^{max}).\label{eq:torque}
 \end{align}
 \end{paperdisplay}
-식~\eqref{eq:pd}, \eqref{eq:torque}에서 $q_j^{des}$, $q_j$, $\dot q_j$는 목표 관절각, 현재 관절각, 관절속도이며, $K_p$, $K_d$는 PD 이득이다. $\tau_j^{max}$는 관절 $j$의 최대 허용 토크이며, $\mathrm{clip}$은 출력을 $\pm\tau_j^{max}$로 제한한다. $m_j$는 [0.9, 1.1]에서 무작위화하여 고장과 별개인 $\pm10$\% 편차를 반영한다. 완전 손실($d=1$)에서는 능동 토크가 0이지만, 관절 잠금과 달리 수동 운동은 유지된다.
+식~\eqref{eq:pd}, \eqref{eq:torque}에서 $q_j^{des}$, $q_j$, $\dot q_j$는 목표 관절각, 현재 관절각, 관절속도이며, $K_p$, $K_d$는 PD 이득이다. $\tau_j^{max}$는 관절 $j$의 최대 허용 토크이며, $\mathrm{clip}$은 출력을 $\pm\tau_j^{max}$로 제한한다. $m_j$는 [0.9, 1.1]에서 무작위화하여 고장과 별개인 $\pm10$\% 편차를 반영한다. 100\% 토크 저하($d=1$)에서는 능동 토크가 0이지만, 관절 잠금과 달리 수동 운동은 유지된다.
 
 고장은 선택된 관절 $j_f$에서 시점 $t_f$에 발생하며, 나머지 관절의 배율은 1로 유지한다.
 \begin{paperdisplay}[-0.17bp]
@@ -62,7 +64,7 @@ Nominal PD gains & $K_p=20$~N$\cdot$m/rad; $K_d=0.5$~N$\cdot$m$\cdot$s/rad \\
 \end{cases}.\label{eq:fault}
 \end{equation}
 \end{paperdisplay}
-식~\eqref{eq:fault}의 $j_f$, $t_f$는 고장 관절과 발생 시점이다. 에피소드마다 관절 하나와 0, 20, 40, 60, 80, 100\% 중 하나의 손실률을 무작위로 선택한다. 시작 후 2~s부터 10~s 사이에 고장을 발생시키고 배율을 유지한다. 고장 전후를 한 에피소드에 포함하여, 정상 보행 중 반응이 달라져도 제어를 이어가도록 학습한다.
+식~\eqref{eq:fault}의 $j_f$, $t_f$는 고장 관절과 발생 시점이다. 에피소드마다 관절 하나와 0, 20, 40, 60, 80, 100\% 중 하나의 저하율을 무작위로 선택한다. 시작 후 2~s부터 10~s 사이에 고장을 발생시키고 배율을 유지한다. 고장 전후를 한 에피소드에 포함하여, 정상 보행 중 반응이 달라져도 제어를 이어가도록 학습한다.
 
 
 \section{교사·학생 공동학습 기반 보행 정책}
@@ -178,7 +180,7 @@ Foot air-time reward & 1 \\
 % selected JT configuration uses student_embedding_dim=64 (RMA paper uses 32).
 % Actor/critic [512,256,128] are our implementation choices; STL actor is [256,128].
 
-병렬 환경 4,096개에서 환경당 24개 제어 시점의 경험으로 PPO를 갱신한다. 미래 보상의 가중치를 정하는 할인 계수(discount factor) $\gamma=0.99$, generalized advantage estimation (GAE) 계수 0.95, clip 계수 0.2, 갱신당 5회 학습과 4개 미니배치를 사용한다. 공동학습 초기 학습률(learning rate)은 $10^{-5}$이고 Kullback-Leibler (KL) divergence에 따라 조절한다. 학습 과정은 그림~\ref{fig:learning}, 토크 손실률별 성능은 그림~\ref{fig:performance}에 제시한다.
+병렬 환경 4,096개에서 환경당 24개 제어 시점의 경험으로 PPO를 갱신한다. 미래 보상의 가중치를 정하는 할인 계수(discount factor) $\gamma=0.99$, generalized advantage estimation (GAE) 계수 0.95, clip 계수 0.2, 갱신당 5회 학습과 4개 미니배치를 사용한다. 공동학습 초기 학습률(learning rate)은 $10^{-5}$이고 Kullback-Leibler (KL) divergence에 따라 조절한다. 학습 과정은 그림~\ref{fig:learning}, 토크 저하율별 성능은 그림~\ref{fig:performance}에 제시한다.
 
 
 \section{시뮬레이션 결과 및 평가}
@@ -186,7 +188,7 @@ Foot air-time reward & 1 \\
 \subsection{평가 조건과 지표}
 정상 상태만 학습한 정상학습 정책(Normal)과 고장 조건에서 공동학습한 고장대응 정책(Student)을 비교한다. Normal은 현재 관측만, Student는 현재 관측과 이력 특징을 사용한다. 고장 학습과 이력 표현이 함께 적용된 정책의 비교이며, 초기 물리 조건·지형·고장 일정은 동일하게 맞춘다.
 
-관절·손실률 조합마다 평가 시드 3개와 시드별 16회 시행을 배정한다. 조건당 48회, 손실률당 576회, 정책당 3,456회이다. 고장 후 20~s를 관찰하며 종료된 로봇은 다시 시작하지 않는다. 손실률 0\%도 같은 구간으로 집계한다. 각 정책은 학습 시드 1에서 한 번 학습하여, 학습 초기화에 따른 변동성은 평가 범위에 포함하지 않았다.
+관절·저하율 조합마다 평가 시드 3개와 시드별 16회 시행을 배정한다. 조건당 48회, 저하율당 576회, 정책당 3,456회이다. 고장 후 20~s를 관찰하며 종료된 로봇은 다시 시작하지 않는다. 저하율 0\%도 같은 구간으로 집계한다. 각 정책은 학습 시드 1에서 한 번 학습하여, 학습 초기화에 따른 변동성은 평가 범위에 포함하지 않았다.
 
 \begin{table}[!t]
 \caption{정책 비교를 위한 평가 조건}\label{tab:evaluation}
@@ -198,7 +200,7 @@ Item & Setting \\
 Command & $v_x$=0.5~m/s; $v_y$=$\omega_z$=0 \\
 Conditions & 12 joints $\times$ $d\in\{0,0.2,0.4,0.6,0.8,1\}$ \\
 Onset / observation & 2–10~s / 20~s after onset \\
-Trials & Evaluation seeds 301–303 $\times$ 16; 48 per joint/loss \\
+Trials & Evaluation seeds 301–303 $\times$ 16; 48 per joint/degradation \\
 Failure & Base contact force $> 1$~N; pre-fault failure included \\
 \bottomrule
 \end{tabularx}
@@ -236,7 +238,7 @@ C_i(t)&=\paperIndicator\!\left\{
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{paper_metrics_v10.pdf}
-\caption{토크 손실률에 따른 생존율, 전진속도·yaw-rate 추종 오차 및 전방 순변위}\label{fig:performance}
+\caption{토크 저하율에 따른 생존율, 전진속도·yaw-rate 추종 오차 및 전방 순변위}\label{fig:performance}
 \end{figure}
 
 전방 순변위 $D_\parallel$는 고장 순간부터 마지막 생존 표본까지의 세계좌표 xy 변위를 고장 순간의 수평 전방 $\hat u^f$에 \mbox{투영한 값이다.}
@@ -253,7 +255,7 @@ D_{\parallel}=(x^{last}-x^f)^\top\hat u^f.\label{eq:displacement}
 
 
 \subsection{토크 저하에 따른 생존 및 명령 추종 성능}
-그림~\ref{fig:performance}에서 정책 간 차이는 토크 손실률이 커질수록 뚜렷해진다. 완전 손실의 생존율은 Normal 41.49\%에서 Student 88.89\%로 높아지고, 전진속도·yaw-rate RMSE는 각각 0.317에서 0.175~m/s, 0.753에서 0.268~rad/s로 감소한다. 보행 유지와 생존 구간의 속도 추종이 함께 개선된 것이다. 표~\ref{tab:performance_gain}에서 낮은 손실률의 차이는 작고, 0에서 40\%의 전방 순변위는 Student가 오히려 작다. 반면 80\% 이상에서는 생존율과 이동량의 차이가 함께 커진다. 따라서 이점은 모든 조건에 고르게 나타나기보다 강한 토크 저하에 집중된다. 완전 손실의 전방 순변위도 2.31~m에서 6.56~m로 증가하지만 기준 10~m에는 미치지 못한다. 생존율 향상이 정상 이동 성능의 회복을 뜻하지는 않으며, 저하된 구동 능력에서 이동을 부분적으로 유지한 결과이다. 추종 시간율은 이 차이를 더 직접적으로 보여준다. 정상 조건의 $Q_{20}$은 두 정책 모두 약 80\%지만, 완전 손실에서는 16.57\%에서 41.07\%로 증가한다. Student도 20~s 중 평균 8.21~s만 세 축의 허용오차를 만족한다. 엄격한 $Q_{10}$은 4.43\%에서 12.30\%로 개선되나, 높은 생존율에 비해 정밀 추종의 개선 여지는 크다.
+그림~\ref{fig:performance}에서 정책 간 차이는 토크 저하율이 커질수록 뚜렷해진다. 100\% 토크 저하의 생존율은 Normal 41.49\%에서 Student 88.89\%로 높아지고, 전진속도·yaw-rate RMSE는 각각 0.317에서 0.175~m/s, 0.753에서 0.268~rad/s로 감소한다. 보행 유지와 생존 구간의 속도 추종이 함께 개선된 것이다. 표~\ref{tab:performance_gain}에서 낮은 저하율의 차이는 작고, 0에서 40\%의 전방 순변위는 Student가 오히려 작다. 반면 80\% 이상에서는 생존율과 이동량의 차이가 함께 커진다. 따라서 이점은 모든 조건에 고르게 나타나기보다 강한 토크 저하에 집중된다. 100\% 토크 저하의 전방 순변위도 2.31~m에서 6.56~m로 증가하지만 기준 10~m에는 미치지 못한다. 생존율 향상이 정상 이동 성능의 회복을 뜻하지는 않으며, 저하된 구동 능력에서 이동을 부분적으로 유지한 결과이다. 추종 시간율은 이 차이를 더 직접적으로 보여준다. 정상 조건의 $Q_{20}$은 두 정책 모두 약 80\%지만, 100\% 토크 저하에서는 16.57\%에서 41.07\%로 증가한다. Student도 20~s 중 평균 8.21~s만 세 축의 허용오차를 만족한다. 엄격한 $Q_{10}$은 4.43\%에서 12.30\%로 개선되나, 높은 생존율에 비해 정밀 추종의 개선 여지는 크다.
 
 \begin{table}[!t]
 \caption{정책별 성능 차이(Student−Normal)}\label{tab:performance_gain}
@@ -261,7 +263,7 @@ D_{\parallel}=(x^{last}-x^f)^\top\hat u^f.\label{eq:displacement}
 \setlength{\tabcolsep}{2pt}
 \begin{tabularx}{\columnwidth}{@{}>{\centering\arraybackslash}p{8mm}*{4}{>{\centering\arraybackslash}X}@{}}
 \toprule
-Loss\newline (\%) & Survival\newline (\%p) & $v_x$ RMSE\newline (m/s) & yaw RMSE\newline (rad/s) & Forward\newline disp. (m) \\
+저하율\newline (\%) & Survival\newline (\%p) & $v_x$ RMSE\newline (m/s) & yaw RMSE\newline (rad/s) & Forward\newline disp. (m) \\
 \midrule
 0 & +2.26 & +0.0047 & -0.0133 & -0.437 \\
 20 & +1.22 & -0.0003 & -0.0027 & -0.881 \\
@@ -277,9 +279,9 @@ Loss\newline (\%) & Survival\newline (\%p) & $v_x$ RMSE\newline (m/s) & yaw RMSE
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{paper_joint_tracking20_v12.pdf}
-\caption{관절 및 토크 손실률별 Student 명령 추종 시간율 $Q_{20}$(\%)}\label{fig:joint_tracking}
+\caption{관절 및 토크 저하율별 Student 명령 추종 시간율 $Q_{20}$(\%)}\label{fig:joint_tracking}
 \end{figure}
-관절별 결과는 평균 성능에 가려진 취약 조건을 보여준다. 그림~\ref{fig:joint_tracking}는 Student의 $Q_{20}$을 같은 0에서 100\% 색 범위로 비교한다. front left (FL)/front right (FR)은 좌/우 앞다리, rear left (RL)/rear right (RR)은 좌/우 뒷다리이다. 완전 손실에서 RR thigh는 60.84\%, FR calf는 16.49\%이다. FR calf는 생존율이 83.33\%임에도 추종 시간이 짧아, 균형 유지 이후의 명령 수행이 과제로 남는다. 손실률 60\% 이상에서 네 calf의 평균 추종 시간율은 hip·thigh보다 낮아, calf 토크 저하에서 취약해지는 경향이 있다. 다만 완전 손실의 RR calf는 RR hip보다 높아 위치별 예외도 나타난다. 관절 종류별 보완이 필요하지만, 이 결과만으로 취약성의 원인을 특정할 수는 없다.
+관절별 결과는 평균 성능에 가려진 취약 조건을 보여준다. 그림~\ref{fig:joint_tracking}는 Student의 $Q_{20}$을 같은 0에서 100\% 색 범위로 비교한다. front left (FL)/front right (FR)은 좌/우 앞다리, rear left (RL)/rear right (RR)은 좌/우 뒷다리이다. 100\% 토크 저하에서 RR thigh는 60.84\%, FR calf는 16.49\%이다. FR calf는 생존율이 83.33\%임에도 추종 시간이 짧아, 균형 유지 이후의 명령 수행이 과제로 남는다. 저하율 60\% 이상에서 네 calf의 평균 추종 시간율은 hip·thigh보다 낮아, calf 토크 저하에서 취약해지는 경향이 있다. 다만 100\% 토크 저하의 RR calf는 RR hip보다 높아 위치별 예외도 나타난다. 관절 종류별 보완이 필요하지만, 이 결과만으로 취약성의 원인을 특정할 수는 없다.
 
 \section{결론 및 향후 연구}
 기존 교사·학생 공동학습을 단일 관절 토크 저하에 적용하여, 정상학습 정책보다 강한 저하에서 생존·속도 추종·전방 이동이 개선됨을 확인하였다. 그러나 높은 생존율에도 추종 시간은 제한적이며, calf 고장에서 취약성이 남았다. 따라서 낙상 여부와 명령 수행을 함께 평가할 필요가 있다. 결과는 시뮬레이션의 단일 관절 저하와 전진 명령에 한정된다. 향후 다양한 명령과 학습 시드에서 검증하고, 다중 관절 저하와 관절 잠금으로 확장할 예정이다.

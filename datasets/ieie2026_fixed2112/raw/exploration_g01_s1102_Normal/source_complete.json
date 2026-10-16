@@ -1,0 +1,8 @@
+{
+  "job_id": "exploration_g01_s1102_Normal",
+  "episodes": 3264,
+  "result_sha256": "6247022c53cc23720294ea4905ec7f8fba056a1657ce2745a28e1bce7659ec17",
+  "trace_manifest_sha256": "3067faf61c89e6b59ceb3190674b3cedbf120293ed9d736c0e21888e5d931d9c",
+  "elapsed_s": 592.2401924930164,
+  "pilot": false
+}
