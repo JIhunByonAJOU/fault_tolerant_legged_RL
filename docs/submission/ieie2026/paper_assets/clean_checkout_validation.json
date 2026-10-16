@@ -1,0 +1,19 @@
+{
+  "source_commit": "d25358a39dae75ecf1f693cf764f6590f4a179be",
+  "source_method": "git archive HEAD with only tracked TeX, paper_assets and dataset figures; no previous build cache or raw data",
+  "fonts": "Uses separately installed local fonts; font binaries not archived",
+  "manuscripts": {
+    "proceedings": {
+      "pages": 5,
+      "text_identical_to_published_pdf": true,
+      "text_sha256": "e259313d6b8b589d0eeca49ca7e8b15c9a9729966f576b4ed64dee3800e4861b",
+      "no_overfull_missing_glyph_or_undefined_reference": true
+    },
+    "main": {
+      "pages": 4,
+      "text_identical_to_published_pdf": true,
+      "text_sha256": "78d426bd7bc567b70d78c29194a3af954c11274f37edf22f879bffa4bf2da71f",
+      "no_overfull_missing_glyph_or_undefined_reference": true
+    }
+  }
+}
