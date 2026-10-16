@@ -6,7 +6,7 @@
   "reconstructed_terrain_hashes_pass": 3,
   "local_document_links_pass": true,
   "raw_trials_modified": false,
-  "manuscript_updated": false,
+  "manuscript_updated": true,
   "deterministic_stair_columns_verified": {
     "negative": [
       4,
@@ -30,5 +30,6 @@
     8,
     9,
     10
-  ]
+  ],
+  "manuscript_validation": "../../../docs/submission/ieie2026/paper_assets/manuscript_validation.json"
 }

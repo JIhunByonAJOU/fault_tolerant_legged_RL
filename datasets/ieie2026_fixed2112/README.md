@@ -8,11 +8,11 @@
 - [전체 데이터 상세·지형·시드·제어기·지표·필드 사전](DATA_DETAILS.md)
 - [조교 피드백과 적용 범위](TA_GUIDANCE.md)
 - [그림 글꼴·크기·셀 가독성·생성 방법](FIGURE_GUIDELINES.md)
-- [결과 절·초록·결론 작성안과 원고 반영 계획](PAPER_RESULTS_PLAN.md)
-- [Times New Roman·9 pt로 만든 새 그림 시안](figures/): 개별 곡선 폭 80 mm·히트맵 폭 80 mm의 PDF와 PNG, 글꼴·가독성 검증 JSON
+- [결과 절·초록·결론의 원고 반영 기록](PAPER_RESULTS_PLAN.md)
+- [Times New Roman·9 pt로 만든 논문 그림](figures/): 개별 곡선 폭 80 mm·히트맵 폭 80 mm의 PDF와 PNG, 글꼴·가독성 검증 JSON
 - [당시 높이맵 hash와 일치하는 세 지형 배열](terrain/), [설정·런타임 근거](reproducibility/)
 
-기존 `analysis/`와 `explanatory/`의 그림은 이전 진단 자료다. 논문용 새 그림은 공통 생성기 `paper_figures.py`로 만들며, `analyze.py`의 그림 생성도 같은 기준을 사용한다. 원고 TeX의 새 결과 반영·5/4쪽 조판 완료와는 구분한다.
+기존 `analysis/`와 `explanatory/`의 그림은 이전 진단 자료다. 논문용 새 그림은 공통 생성기 `paper_figures.py`로 만들며, `analyze.py`의 그림 생성도 같은 기준을 사용한다. 새 결과는 [프로시딩 5쪽·익명 4쪽 원고](../../docs/submission/ieie2026/REVISION_20261016.md)에 반영했다.
 
 ## Windows에서 받기
 

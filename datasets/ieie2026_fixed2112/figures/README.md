@@ -4,12 +4,12 @@
 
 | 그림 | PDF | PNG | 실제 크기 |
 |---|---|---|---|
-| 생존율 | [PDF](paper_survival_by_degradation.pdf) | [PNG](paper_survival_by_degradation.png) | 80 × 65 mm |
-| vx RMSE | [PDF](paper_vx_rmse_by_degradation.pdf) | [PNG](paper_vx_rmse_by_degradation.png) | 80 × 65 mm |
-| vy RMSE | [PDF](paper_vy_rmse_by_degradation.pdf) | [PNG](paper_vy_rmse_by_degradation.png) | 80 × 65 mm |
-| yaw-rate RMSE | [PDF](paper_yaw_rate_rmse_by_degradation.pdf) | [PNG](paper_yaw_rate_rmse_by_degradation.png) | 80 × 65 mm |
-| 경로 횡오차 RMSE | [PDF](paper_cross_track_rmse_by_degradation.pdf) | [PNG](paper_cross_track_rmse_by_degradation.png) | 80 × 65 mm |
-| Student 관절별 생존율 | [PDF](paper_student_survival_heatmap.pdf) | [PNG](paper_student_survival_heatmap.png) | 80 × 100 mm |
+| 생존율 | [PDF](paper_survival_by_degradation.pdf) | [PNG](paper_survival_by_degradation.png) | 80 × 50 mm |
+| vx RMSE | [PDF](paper_vx_rmse_by_degradation.pdf) | [PNG](paper_vx_rmse_by_degradation.png) | 80 × 50 mm |
+| vy RMSE | [PDF](paper_vy_rmse_by_degradation.pdf) | [PNG](paper_vy_rmse_by_degradation.png) | 80 × 50 mm |
+| yaw-rate RMSE | [PDF](paper_yaw_rate_rmse_by_degradation.pdf) | [PNG](paper_yaw_rate_rmse_by_degradation.png) | 80 × 50 mm |
+| 경로 횡오차 RMSE | [PDF](paper_cross_track_rmse_by_degradation.pdf) | [PNG](paper_cross_track_rmse_by_degradation.png) | 80 × 50 mm |
+| Student 관절별 생존율 | [PDF](paper_student_survival_heatmap.pdf) | [PNG](paper_student_survival_heatmap.png) | 80 × 85 mm |
 
 모든 현재 그림 파일에는 제목을 넣지 않는다. 그림 번호·제목·캡션은 원고에서 지정한다. 다섯 곡선은 각각 축·단위·범례를 포함하며 Times New Roman 9 pt다. 히트맵은 단일 청색·얇은 격자의 한 단 세로형이다. 음영은 평가 시드 3개의 평균값 최소–최대다.
 

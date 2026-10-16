@@ -1,0 +1,16 @@
+{
+  "paper_architecture": {
+    "font_size_pt": 9,
+    "width_mm": 80.0,
+    "height_mm": 40.0,
+    "internal_title": false,
+    "outside_text": []
+  },
+  "paper_learning": {
+    "font_size_pt": 9,
+    "width_mm": 80.0,
+    "height_mm": 40.0,
+    "internal_title": false,
+    "outside_text": []
+  }
+}

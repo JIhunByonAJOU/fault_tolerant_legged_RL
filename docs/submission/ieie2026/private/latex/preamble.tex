@@ -12,7 +12,7 @@
   \InputIfFileExists{fonts-local.tex}{}{\input{fonts.tex}}
 \fi
 \usepackage{amsmath,amssymb,graphicx,booktabs,tabularx,caption,titlesec,float}
-\graphicspath{{../assets/}}
+\graphicspath{{../../paper_assets/}{../../../../../datasets/ieie2026_fixed2112/figures/}{../assets/}}
 \captionsetup{font={small,sf},labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=false,skip=6pt}
 \setlength{\parindent}{1em}
 % Body leading is explicit; changing this value controls density without shrinking text.
@@ -71,4 +71,8 @@
 \fi
 
 % Official proceedings DOCX formatting; review formatting is independent.
-\ifproceedings\input{format-proceedings.tex}\fi
+\ifproceedings\input{format-proceedings.tex}\else
+\newenvironment{paperdisplay}{\par}{\par}
+\fi
+
+\usepackage[hidelinks]{hyperref}

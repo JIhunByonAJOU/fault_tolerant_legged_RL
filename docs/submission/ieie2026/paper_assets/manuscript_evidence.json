@@ -1,0 +1,131 @@
+{
+  "records_sha256": "bfdb2687494cd92b84e2ef7e24944e58a4111d9e9e7e626259eff0b0c9e58411",
+  "local_lineage_source_sha256": {
+    "logs/manual/teacher243-seed1-500iter/best_checkpoint_evaluation.json": "047e54cfbe585f078811ec43f617b7b9a89bfa2e183a7105613aad383c18b333",
+    "logs/jt_wim243_width64_lr1e5_fresh_20260929/run_seed1_35000/fresh_jt_manifest.json": "9e2cfc87fc0d154a7535bb2ed029a9d2579e7ee175b55002fdaea26e61ba43c3",
+    "logs/evaluations/jt_lr1e5_final_selection_20261001/analysis.md": "3643696c85016d92a24f5df3d6efe37e9f72ea22fc47b6f586a3ce23dd33225c",
+    "logs/evaluations/jt_lr1e5_final_selection_20261001/final_p5/final_comparison.json": "a1158a1b3bdd8e5e3e98b6723bd0cd67f5336abaf71db4cdaaaa8366baba5bdb"
+  },
+  "termination_summary": [
+    {
+      "policy": "Normal",
+      "degradation": 0,
+      "episodes": 216,
+      "fall": 3,
+      "goal": 213,
+      "administrative_cap": 0,
+      "survived": 213,
+      "mean_valid_post_s": 86.67212962962965
+    },
+    {
+      "policy": "Normal",
+      "degradation": 0.2,
+      "episodes": 2592,
+      "fall": 74,
+      "goal": 2518,
+      "administrative_cap": 0,
+      "survived": 2518,
+      "mean_valid_post_s": 82.89739969135788
+    },
+    {
+      "policy": "Normal",
+      "degradation": 0.4,
+      "episodes": 2592,
+      "fall": 91,
+      "goal": 2499,
+      "administrative_cap": 2,
+      "survived": 2501,
+      "mean_valid_post_s": 83.52106481481468
+    },
+    {
+      "policy": "Normal",
+      "degradation": 0.6,
+      "episodes": 2592,
+      "fall": 338,
+      "goal": 2208,
+      "administrative_cap": 46,
+      "survived": 2254,
+      "mean_valid_post_s": 89.89987654320986
+    },
+    {
+      "policy": "Normal",
+      "degradation": 0.8,
+      "episodes": 2592,
+      "fall": 769,
+      "goal": 1516,
+      "administrative_cap": 307,
+      "survived": 1823,
+      "mean_valid_post_s": 122.16250771604953
+    },
+    {
+      "policy": "Normal",
+      "degradation": 1.0,
+      "episodes": 2592,
+      "fall": 1242,
+      "goal": 618,
+      "administrative_cap": 732,
+      "survived": 1350,
+      "mean_valid_post_s": 170.21240740740723
+    },
+    {
+      "policy": "Student",
+      "degradation": 0,
+      "episodes": 216,
+      "fall": 2,
+      "goal": 213,
+      "administrative_cap": 1,
+      "survived": 214,
+      "mean_valid_post_s": 92.97388888888884
+    },
+    {
+      "policy": "Student",
+      "degradation": 0.2,
+      "episodes": 2592,
+      "fall": 34,
+      "goal": 2554,
+      "administrative_cap": 4,
+      "survived": 2558,
+      "mean_valid_post_s": 92.10111111111101
+    },
+    {
+      "policy": "Student",
+      "degradation": 0.4,
+      "episodes": 2592,
+      "fall": 50,
+      "goal": 2535,
+      "administrative_cap": 7,
+      "survived": 2542,
+      "mean_valid_post_s": 92.62433641975285
+    },
+    {
+      "policy": "Student",
+      "degradation": 0.6,
+      "episodes": 2592,
+      "fall": 50,
+      "goal": 2537,
+      "administrative_cap": 5,
+      "survived": 2542,
+      "mean_valid_post_s": 92.91917438271606
+    },
+    {
+      "policy": "Student",
+      "degradation": 0.8,
+      "episodes": 2592,
+      "fall": 65,
+      "goal": 2514,
+      "administrative_cap": 13,
+      "survived": 2527,
+      "mean_valid_post_s": 94.94956018518506
+    },
+    {
+      "policy": "Student",
+      "degradation": 1.0,
+      "episodes": 2592,
+      "fall": 279,
+      "goal": 2248,
+      "administrative_cap": 65,
+      "survived": 2313,
+      "mean_valid_post_s": 107.17044753086432
+    }
+  ]
+}

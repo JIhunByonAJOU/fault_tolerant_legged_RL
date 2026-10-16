@@ -1,0 +1,418 @@
+               4족 보행 로봇의 액추에이터 토크 저하에 강건한
+                           교사 ·학생 기반 강화학습 보행 제어
+
+                                   변지훈1) , 유은빈1) , 최서경1) , 김준영1) , 정소이2),*
+                           1)                         2)
+                                아주대학교 전자공학과,               아주대학교 미래모빌리티공학과
+               {josephx03021, yooeunbin98, cskeong1022, kimjy3078, sjung}@ajou.ac.kr
+
+   Teacher–Student Reinforcement Learning for Robust Quadruped Locomotion
+                                    under Actuator Torque Degradation
+
+
+              Jihun Byon1) , Eunbin Yoo1) , Seokyeong Choi1) , Junyoung Kim1) , Soyi Jung2),*
+                 1)
+                      Department of Electrical and Computer Engineering, Ajou University
+                            2)
+                                 Department of Mobility Engineering, Ajou University
+
+
+
+                        Abstract                                                I. 서론
+
+ Quadrupedal robots should maintain balance and                 4족 보행 로봇은 계단과 불규칙한 지형을 이동할 수 있으
+execute commanded motion in both nominal condi-                며, 강화학습을 이용한 보행 제어는 다양한 지면에서 균형
+tions and after joint torque degradation. This paper           유지와 이동 명령 수행을 학습하는 데 활용된다[1]. 그
+presents a teacher--student reinforcement learn-               러나 관절의 토크가 저하되면 몸체를 지지하고 추진하는
+ing control configuration whose history-based stu-             능력이 달라져 정상 조건에서 학습한 정책의 이동 성능이
+dent operates without direct inputs identifying the            저하될 수 있다. 특히 낙상을 피하더라도 요구된 속도와
+degraded joint or degradation level. In Unitree A1             방향을 따르지 못하거나 목표 경로에서 벗어날 수 있으
+simulations, we compare the student with a nom-                므로, 고장 대응 보행은 생존 여부와 명령·경로 추종을
+inally trained policy under matched initial states,            함께 평가해야 한다.
+physical parameters, terrain, and fault conditions              Rapid motor adaptation (RMA)은 관측 이력에서 환경
+across forward, diagonal, lateral, and sinusoidal-             특성을 추정하여 보행에 활용하고, 교사·학생 공동학습
+path tasks.    At 100% single-joint torque degra-              은 관절 잠금에 대응하는 정책 학습에 적용되었다[2, 3].
+dation, averaged over the fixed task mixture, sur-             토크 저하에 대한 적응 제어도 연구되었으나, 관절 잠금과
+vival increased from 52.08% to 89.24%, while the               토크 저하는 수동 운동 가능 여부가 다른 고장이다[4].
+𝑣𝑥 and 𝑣𝑦 root mean square errors (RMSEs) de-                  본 논문에서는 단일 관절 토크 저하를 고려한 교사·학생
+creased from 0.226 to 0.120 m/s and from 0.262                 기반 강화학습 보행 제어 구성을 제시한다. 학생은 고장
+to 0.112 m/s, respectively, and cross-track RMSE               관절과 토크 저하율을 직접 입력받지 않고 현재 관측과
+decreased from 0.225 to 0.080 m.            These re-          관측 이력을 사용하여 정상 상태와 토크 저하 상태에서
+sults demonstrate simultaneous improvements in fall            동작한다.
+avoidance and motion tracking under severe torque               기여는 단일 관절 토크 저하 학습과 이력 표현을 결합한
+degradation.                                                   제어 구성, 그리고 정상학습 정책과의 동일 조건 비교이다.
+                                                               전진·좌우 대각·좌우 횡이동·사인파 경로에서 생존율
+                                                               과 세 축 명령 및 경로 횡오차의 root mean square error
+
+
+
+                                                           1
+(RMSE)를 분석하여 성능 개선의 범위와 관절별 차이를
+검증한다.                                                                                 Teacher MLP                      Student CNN
+                                                                                         45 → 8                        50 × 48 → 8
+
+                        II. 시스템 모델
+                                                                                       Observation                     Mixed feature
+                                                                                          235                               8
+2.1 로봇 및 토크 저하
+ Isaac Gym의 graphics processing unit (GPU)
+PhysX에서 12개 관절을 갖는 Unitree A1을 모사한
+다[5]. 각 다리의 관절은 hip, thigh, calf이다. 정책은                                                               Actor / Critic
+                                                                                                      235 + 8 = 243
+0.02 s마다 12차원 행동 𝑎𝑡 를 출력하고, proportional-
+derivative (PD) 제어기가 목표 관절각을 토크로 변환한
+다. 물리 계산 간격은 0.005 s이다. 행동에서 실제 토크                                               그림 1. 교사·학생 특징 혼합 학습. 평가에는 혼합 없이
+까지의 관계는 식 (1)과 같다.                                                                   학생 특징을 사용한다. MLP는 multi-layer
+                                                                                                     perceptron이다.
+      des      0
+  𝑞         = 𝑞 + 0.25𝑎𝑡 ,
+                                                                       (1)
+      𝜏𝑗 = clip�𝑚𝑗 𝜂𝑗 �𝐾𝑝,𝑗 (𝑞𝑗des − 𝑞𝑗 ) − 𝐾𝑑,𝑗 𝑞̇ 𝑗 � , ±𝜏𝑗max � .             가치 함수(Critic)에 입력한다. 평가에는 [𝑜𝑡 , 𝑧𝑡𝑆 ]를 사용한
+                                                                                 다. 몸체 속도와 지형 높이는 시뮬레이터 값이므로 실제
+여기서 𝑞 0 , 𝑞𝑗 , 𝑞̇ 𝑗 는 기준 관절각, 현재 관절각, 관절속도이                                      적용에는 측정·추정이 필요하다.
+고, 0.25 rad는 행동 배율이다. 𝐾𝑝,𝑗 , 𝐾𝑑,𝑗 는 PD 이득이며                                       공동학습은 교사 특징을 학생이 모방하면서 정책 입력
+명목값은 각각 20 N⋅m/rad, 0.5 N⋅m⋅s/rad이다. 𝑚𝑗 는                                        을 학생 특징으로 전환하는 기존 구성을 따른다[3]. 특징
+명목 모터 강도 배율이고, 𝜏𝑗max 는 로봇 모델에 지정된 관절                                             혼합과 학습 손실은 식 (2)로 정의한다.
+토크 한계이다. clip은 토크를 해당 한계 안으로 제한한다.
+ 토크 저하율 𝑑 ∈ [0, 1]에 대해, 고장 발생 시점 𝑡𝑓 이후                                                   𝑧𝑡 = (1 − 𝛼)𝑧𝑡𝑇 + 𝛼𝑧𝑡𝑆 ,
+                                                                                                              𝐵
+선택한 관절 𝑗𝑓 의 𝜂𝑗𝑓 = 1 − 𝑑 로 하고 나머지는 1로 유지                                                               1−𝛼                              (2)
+                                                                                         𝐿 = 𝐿PPO +       � ‖𝑧𝑖𝑆 − sg(𝑧𝑖𝑇 )‖2 .
+한다[4]. 배율은 토크 포화 이전에 적용된다. 𝑑 = 1에서                                                                     𝐵
+                                                                                                             𝑖=1
+는 해당 관절의 능동 토크가 0이지만, 관절 잠금과 달리
+수동 운동과 접촉은 가능하다. 학습에서는 에피소드마다                                                    여기서 𝛼 = min(𝑛/10000, 1)은 공동학습 갱신 횟수 𝑛에
+관절 하나와 𝑑 ∈ {0, 0.2, 0.4, 0.6, 0.8, 1}을 선택하고, 시작                                  따른 학생 비중, 𝐵는 미니배치 크기, 𝑖 는 표본 번호, sg는
+후 2--10 s에 고장을 발생시킨다.                                                            모방 목표의 gradient 차단 연산이다. 𝐿PPO 는 proximal
+                                                                                 policy optimization (PPO)의 정책·가치 학습 손실이
+                                                                                 다[6]. 교사는 전환 중 PPO로 갱신되며, 𝛼 = 1 이후에는
+            III. 교사·학생 기반 보행 제어
+                                                                                 학생과 Actor·Critic만 갱신한다. 그림 1은 특징을 결
+                                                                                 합하는 학습 경로를 나타낸다.
+3.1 관측, 행동 및 학습 구조
+ 로봇 상태·물리 조건·지형을 상태, 𝑎𝑡 ∈ 𝑅12 를 행동
+                                                                                 3.2 보상 및 학습 설정
+으로 하는 Markov decision process (MDP)를 구성하
+                                                                                  보상은 요구한 속도 추종을 장려하고 과도한 관절·몸체
+되, 고장 상태를 직접 관측하지 못하는 학생은 관측 이
+                                                                                 운동을 억제한다. 몸체 평면 속도 𝑣𝑥𝑦 = (𝑣𝑥 , 𝑣𝑦 )와 수직축
+력으로 행동을 정한다. 현재 관측 𝑜𝑡 는 몸체 선속도·각
+                                                                                 각속도 𝜔𝑧 에 대한 추종 보상은 식 (3)와 같다[1].
+속도·중력 방향·명령 각 3차원, 관절각 편차·관절속
+도·이전 행동 각 12차원의 𝑜̃ 𝑡 ∈ 𝑅48 과 지형 높이 187                                                                         cmd 2
+                                                                                             𝑟𝑣 = exp(−‖𝑣𝑥𝑦 − 𝑣𝑥𝑦 ‖2 /σ2𝑣 ),
+차원으로 구성된다[1]. 학생 인코더는 최근 1 s의 이력                                                                                                       (3)
+                                                                                             𝑟𝜔 = exp(−|𝜔𝑧 − 𝜔𝑧cmd |2 /σ2𝜔 ).
+𝐻𝑡 = [𝑜̃ 𝑡−49 , … , 𝑜̃ 𝑡 ]를 입력받는다. 부족한 과거 표본은 0으
+로 채우며 지형 높이는 이력에서 제외한다.                                                          여기서 cmd는 현재 명령이며, σ2𝑣 = 0.25 (m/s)2 , σ2𝜔 =
+ 교사는 마찰 1, 추가 질량 1, 유효 모터 강도 12, PD 이득                                           0.25 (rad/s)2 는 보상 감소 폭이다. 두 추종항의 가중치는
+배율 24, 몸체 속도 6, 고장 표지 1의 총 45차원 특권 물리                                            1과 0.5이다. 수직·roll/pitch 운동, 토크, 관절가속도,
+정보를 8차원 특징 𝑧𝑡𝑇 로 압축한다. 학생은 convolutional                                         행동 변화, 비허용 접촉, 관절 한계 초과를 억제하고 발
+neural network (CNN)로 𝐻𝑡 에서 8차원 특징 𝑧𝑡𝑆 를 얻는                                      공중 시간 보상을 더한다. 가중합에 제어 간격을 곱하고
+다. 현재 관측과 특징의 243차원을 행동 정책(Actor)과                                               음수 총보상은 0으로 제한한다.
+
+
+                                                                             2
+                                                                           표 1. 고정 혼합 과제의 평가 설정
+              20                                               Item                        Setting
+Mean reward
+
+
+
+
+                                                               Task slots                  Forward 2; diagonal 1; lateral
+              10                                                                           1; sine 2
+                                                               Path / speed                World +x, 𝑥 = −1 to 40.5 m;
+               0                                                                           0.5 m/s
+                                                               Body yaw (line)             0∘ , ±45∘ , ±90∘
+                           Teacher        Student
+               1                                               Sine path                   Amplitudes 2 / 1.5 m;
+    Weight
+
+
+
+
+                                                                                           wavelength 16 m
+                                                               Fault conditions            12 joints × 5 levels + 1
+               0
+                   0                 43        53   77.5                                   nominal = 61
+                                           3                   Degradation / onset 𝑑 ∈ {0.2, 0.4, 0.6, 0.8, 1} / 2 s
+                           Iteration (×10 )
+                                                               Evaluation seeds            1101, 1102, 1103
+              그림 2. 학습 단계별 평균 에피소드 보상(500회
+                                                               Total trials                6 × 61 × 2 × 3 × 12 = 26, 352
+              이동평균)과 특징 혼합 비중. 가로축은 사전학습을
+                                                               Post-onset cap              Line 445 s; sine 479.88 /
+                       포함한 누적 갱신 번호이다.
+                                                                                           504.62 s
+
+     교사와 Actor·Critic의 은닉층은 [512, 256, 128]이
+                                                                모든 과제는 세계 +x로 진행하고, 대각·횡이동은 몸
+며 exponential linear unit (ELU)을 사용한다. 학생은
+                                                               체를 ±45∘ , ±90∘ 로 유지하며 좌우를 조건·시드 사이에
+64차원 프레임 표현과 세 시간 합성곱 층을 사용한다.
+                                                               서 교대한다. 전진 두 슬롯은 초기·물리 난수가 다르다.
+4,096개 환경의 24시점 경험으로 PPO를 갱신하며 할
+                                                               사인파는 열 중심 𝑦𝑐 에서 𝑦 = 𝑦𝑐 + 𝐴 sin(2π(𝑥 + 1)/16)이
+인 계수 0.99, clip 계수 0.2, 5회 학습·4개 미니배치
+                                                               다. 완료된 전수 수집에서 성능값과 무관한 식별자로 고
+를 적용한다. 공동학습 초기 학습률은 10−5 이다. 마찰
+                                                               정 2:1:1:2를 추출하였다. 평균은 이 과제 구성과 지형 열
+0.5--1.25, 추가 질량 0--2 kg, 모터 강도 ±10%, 𝐾𝑝
+                                                               비중을 반영한다.
+±5%, 𝐾𝑑 ±10%를 무작위화한다. 그림 2에서 43,000회
+                                                                두 정책에 같은 공간 경로 제어기를 사용한다. 선행 거리
+이후 10,000회에 걸쳐 학생 특징으로 전환하였다. 전환
+                                                               0.4 m의 접선 속도에 횡오차 피드백 이득 0.7을 적용하고
+완료 시점의 평균 보상 17.52는 77,500회에서 19.70으
+                                                               선속도 크기를 0.5 m/s로 정규화한다. 실제 yaw로 몸체
+로 회복되었다. 이는 학습 경과이며 고장 대응 성능은 별
+                                                               좌표 명령을 구하며, 회전 명령은 곡률 보상과 방향 오차
+도로 평가한다.
+                                                               이득 1.5의 합을 ±0.8 rad/s로 제한한다. 위치·자세에
+                                                               따라 달라지는 실제 보정 명령을 RMSE의 기준으로 쓴다.
+               IV. 시뮬레이션 결과 및 성능 분석                             종료 조건은 몸체 접촉력 > 1 N의 낙상, 출구 도달(𝑥 ≥
+                                                               40.5 m, 횡오차 절댓값 < 0.5 m), 경로 길이 𝐿에 따른 시간
+4.1 비교 정책과 평가 조건                                               상한 𝐿/(0.1 m/s) + 30 s 순으로 적용한다. 상한은 고장 후
+     Normal은 정상 조건만 학습하고, 평가 시 특권 물리 정                         기준이며 느린 이동을 기다리기 위한 예산이다. 저속·정
+보의 교사 인코더를 사용한다. Student는 정상·토크 저                              체로 조기 종료하지 않는다.
+하 조건에서 학습하고 이력 기반 학생 인코더를 사용한다.
+고장 학습·표현·학습 이력이 다른 두 구성 전체를 비교                                 4.2 생존율과 추종 오차
+한다. 각 정책의 학습 시드는 하나로, 평가 시드 세 개와                                생존율은 전체 𝑁시행 중 낙상하지 않은 비율로 식 (4)과
+구분한다.                                                          같이 정의한다. 완주와 비낙상 상한 종료를 모두 포함하
+     표 1은 평가 설정이다. 8 m × 8 m 구획을 +x 방향                         며, 고장 전 낙상도 실패로 센다.
+5행, 횡방향 12열로 배치한다. 각 열의 같은 지형 유형은
+                                                                                   𝑁
+행마다 난이도 0--0.8로 증가한다. 열 구성은 음·양의                                              100                       0,   낙상,
+                                                                       𝑆=         � 𝐼𝑖 ,       𝐼𝑖 = �                      (4)
+피라미드 경사 각 1, 거친 경사 1, 음·양의 계단 피라미드                                             𝑁                        1,   그 외 종료.
+                                                                                  𝑖=1
+4·3, 장애물 2이다. 같은 부호 계단 열은 동일 형상이며
+요철·장애물은 시드에 따라 달라진다. 대응 쌍의 초기                                  여기서 𝐼𝑖 는 시행 𝑖의 비낙상 지시값이다. 𝑆는 % 단위이며
+상태·물리·지형·고장 일정을 맞추고, 관측 잡음·외                                   완주율·평균 생존 시간이 아니다. 정책당 정상 216시행,
+부 밀기·종료 후 재시작은 해제하였다.                                          비영 저하율별 2,592시행, 관절·저하율별 216시행이다.
+
+
+                                                           3
+               100                                                                                0.25
+                                                                                                             Normal
+                                                                                                             Student
+                                                                                                  0.20
+                75
+
+
+
+
+                                                                                  vx RMSE (m/s)
+Survival (%)
+
+
+
+
+                                                                                                  0.15
+                50
+                                                                                                  0.10
+
+                25
+                                                                                                  0.05
+                                Normal
+                                Student
+                 0                                                                                0.00
+                      0           20           40       60       80     100                              0     20        40       60       80   100
+                                          Torque degradation (%)                                                    Torque degradation (%)
+               그림 3. 토크 저하율에 따른 Normal과 Student의                                  그림 4. 토크 저하율에 따른 몸체 x축 이동 명령 RMSE.
+   생존율. 점은 전체 시행 평균, 음영은 평가 시드 평균의
+                                       최소–최대이다.                                                   0.3
+                                                                                                             Normal
+                                                                                                             Student
+     이동 명령 추종은 실제 몸체 𝑣𝑥 , 𝑣𝑦 , 𝜔𝑧 와 같은 시점의
+명령 간 오차로 평가한다. 경로 추종은 세계 위치 p(𝑡)를
+                                                                                                  0.2
+                                                                                  vy RMSE (m/s)
+
+
+
+
+기준 경로 pref (𝑠)에 투영한 뒤, 그 차이의 단위 법선 방향
+성분 𝑒⟂ (𝑡)를 사용한다. 이는 몸체 좌우 오차나 같은 시각
+목표점까지의 거리가 아니다. 시행별 오차는 식 (5)로
+계산한다.                                                                                             0.1
+
+                                1     ,2                  1
+                     𝑅𝑢,𝑖 = �      � 𝑒𝑢,𝑖,𝑘 ,      𝑅𝑢 =      � 𝑅𝑢,𝑖 .   (5)
+                                𝐾𝑖                        𝑀𝑢
+                                   𝑘∈𝑉𝑖                      𝑖∶𝐾𝑖 >0
+                                                                                                  0.0
+                                                                                                         0    20         40       60       80   100
+여기서 𝑢 ∈ {𝑣𝑥 , 𝑣𝑦 , 𝜔𝑧 , ⟂}이며, 속도 오차는 실제값에서 현                                                                        Torque degradation (%)
+재 명령을 뺀 값, 경로 오차는 𝑒⟂ 이다. 𝑉𝑖 는 2 s 이후 첫
+                                                                                  그림 5. 토크 저하율에 따른 몸체 y축 이동 명령 RMSE.
+종료 전 유효 표본 집합, 𝐾𝑖 는 표본 수, 𝑀𝑢 는 오차 계산이
+가능한 시행 수이다. 0 명령도 포함하며 낙상 이후를 0
+                                                                                  크지만, 100% 저하에서는 0.226 m/s에서 0.120 m/s로
+으로 채우지 않는다. 유효 표본이 없으면 계산 불가이며
+                                                                                  47.0% 감소한다. Student의 이점은 정상 상태의 정밀
+이번 자료의 누락은 없다. 시행별 RMSE를 평균하므로
+                                                                                  도를 일률적으로 높이는 데 있지 않고, 큰 토크 저하에
+생존 표본 수로 가중하지 않는다. 조기 낙상의 짧은 구간
+                                                                                  따른 성능 악화를 줄이는 데 나타난다. 그림 5는 𝑣𝑦 명령
+오차는 생존율과 함께 해석한다. 곡선 음영은 평가 시드
+                                                                                  RMSE를 나타낸다. 100% 저하에서 Normal 0.262 m/s,
+평균의 최소–최대이며 학습 시드 신뢰구간이 아니다.
+                                                                                  Student 0.112 m/s로 57.3% 감소한다. 몸체 y축 이동
+                                                                                  을 포함한 혼합 과제에서 생존율과 속도 오차가 함께 개선
+4.3 토크 저하에 따른 낙상 및 명령 추종
+                                                                                  되었다. 그림 6는 회전속도 명령 추종 오차를 나타낸다.
+     그림 3은 토크 저하율에 따른 생존율을 나타낸다. 정상
+                                                                                  100% 저하에서 0.636 rad/s에서 0.206 rad/s로 67.6%
+상태에서 Normal과 Student는 각각 98.61%, 99.07%
+                                                                                  감소한다. 몸체 방향 유지와 곡선 주행에 사용하는 회전
+이지만 100% 저하에서 52.08%, 89.24%가 된다. Stu-
+                                                                                  속도 명령도 더 정확하게 따랐다. 다만 정상·낮은 저하
+dent의 생존율 우위는 60%에서 11.11%p, 80%에서
+                                                                                  에서는 Normal의 오차가 더 작다.
+27.16%p, 100%에서 37.15%p로 커진다. 정상학습 정
+책의 생존 성능이 큰 저하에서 급감하는 데 비해 Student
+                                                                                  4.4 경로 추종과 과제별 성능
+는 비낙상 비율을 상대적으로 높게 유지한다. 그림 4는
+                                                                                       그림 7는 경로 횡오차를 나타낸다. 100% 저하에서
+𝑣𝑥 명령 추종 오차를 나타낸다. 정상 상태에서는 Normal
+                                                                                  Normal 0.225 m, Student 0.080 m로 64.6% 감소한
+0.043 m/s, Student 0.054 m/s로 Student의 오차가 더
+                                                                                  다. 동일 상위 제어기에서 명령 추종과 실제 경로 이탈이
+
+
+                                                                              4
+                       0.8                                                        표 2. 100% 토크 저하의 과제별 성능(Normal /
+                                  Normal
+                                                                                                          Student)
+                                  Student
+                       0.6                                                     Task          Survival (%) Cross-track RMSE (m)
+ωz RMSE (rad/s)
+
+
+
+
+                                                                               Forward       49.07 / 88.89           0.245 / 0.079
+                                                                               Diagonal      59.72 / 90.74           0.174 / 0.061
+                       0.4
+                                                                               Lateral       59.72 / 95.14           0.144 / 0.049
+                                                                               Sine          47.45 / 85.88           0.271 / 0.105
+                       0.2
+                                                                                                                                100
+                                                                                 FL hip    98.6    98.1    97.7   99.1   96.3
+                       0.0
+                              0    20         40       60       80   100        FL thigh   97.2    97.7    99.1   94.9   78.7
+                                         Torque degradation (%)                                                                 80
+                                                                                 FL calf   98.6    97.2    97.2   96.3   86.6
+  그림 6. 토크 저하율에 따른 몸체 수직축 회전속도 명령
+                                                                                 FR hip    98.6    99.1    97.2   96.3   97.2
+                                            RMSE.
+                                                                               FR thigh    99.5    97.7    98.6   96.8   71.8
+                                                                                                                                60
+                       0.25
+
+
+
+
+                                                                                                                                      Survival (%)
+                                  Normal                                         FR calf   99.1    99.1    97.7   97.2   87.0
+                                  Student
+                       0.20                                                      RL hip    98.1    98.6    97.7   97.2   92.1
+Cross-track RMSE (m)
+
+
+
+
+                                                                                                                                40
+                                                                               RL thigh    99.5    99.1    99.5   98.6   92.6
+                       0.15
+                                                                                 RL calf   99.1    98.6    98.1   98.1   91.7
+                       0.10                                                      RR hip    98.1    97.2    97.2   97.7   93.1   20
+
+                                                                               RR thigh    98.6    96.8    99.1   99.1   97.2
+                       0.05
+                                                                                RR calf    99.1    97.7    97.7   98.6   86.6
+                       0.00                                                                                                     0
+                                                                                           20       40      60     80    100
+                              0     20        40       60       80   100
+                                                                                                  Torque degradation (%)
+                                         Torque degradation (%)
+                                                                                      그림 8. Student의 관절·토크 저하율별 절대
+        그림 7. 토크 저하율에 따른 기준 경로 횡오차 RMSE.
+                                                                                           생존율(%). 각 셀은 216시행이다.
+
+함께 개선되었다. 경로 위 정지에서도 횡오차는 작을 수
+있으므로 앞의 생존율과 세 축 명령 오차를 같이 해석한다.
+                                                                               4.5 Student의 관절별 성능
+                                                                                그림 8는 Student의 실제 생존 성능을 관절별로 나타낸
+         일부 비낙상 시행에서는 정체도 관찰되었다. 경로 진행
+                                                                               다. FL/FR은 좌/우 앞다리, RL/RR은 좌/우 뒷다리이다.
+최고값이 30 s 동안 0.5 m 미만 증가하면 정체로 표시한
+                                                                               100% 저하에서 FR hip와 RR thigh는 97.22%인 반면
+다. RL calf 100%에서 생존율은 87.04%/91.67%였지만
+                                                                               FL thigh는 78.70%, FR thigh는 71.76%이다. 같은 저
+생존 중 정체 경험은 98.40%/2.02%였다(Normal/Stu-
+                                                                               하율에서도 관절별 생존 성능은 다르다. 전체적으로 큰
+dent). 일시 정체 후 완주도 포함하며, 생존만으로 이
+                                                                               저하에서 낙상 감소와 명령·경로 추종 개선이 함께 나타
+동 수행을 판단할 수 없음을 보여주는 사례이다. 표 2는
+                                                                               나며, 히트맵은 평균에 가려진 관절별 성능 범위를 보여
+100% 저하의 과제별 생존율과 경로 오차를 나타낸다. 네
+                                                                               준다.
+과제 모두 생존율이 높아지고 횡오차가 작아졌으며, 각 과
+제의 세 축 명령 RMSE 평균도 모두 감소하였다. 개선은
+전진에만 국한되지 않는다. 사인파의 Student 횡오차는                                                                          V. 결론
+0.105 m로 다른 과제보다 커, 곡선 주행에서 상대적으로
+오차가 남는다.                                                                        본 논문에서는 정상 상태와 단일 관절 토크 저하에 대응
+                                                                               하는 교사·학생 기반 강화학습 보행 제어 구성을 제시
+                                                                               하고, 정상학습 정책과 다양한 이동 과제의 수행 성능을
+
+
+                                                                           5
+비교하였다. 점진적 혼합 지형의 60--100% 저하에서
+Student는 생존율과 세 축 명령 및 경로 추종 오차를 함께
+개선하였다. 특히 100% 저하에서 생존율은 52.08%에서
+89.24%로 높아지고 경로 횡오차 RMSE는 0.225 m에서
+0.080 m로 낮아졌다. 이 결과는 평가한 이동 과제에서
+관절 토크 저하 이후에도 낙상을 줄이면서 요구된 이동을
+수행하는 정책 구성의 유효성을 뒷받침한다. 향후 독립
+학습 반복과 실제 로봇에서 성능의 재현성을 검증할 계획
+이다.
+
+
+                     참고문헌
+
+[1] N. Rudin, D. Hoeller, P. Reist, and M. Hutter,
+    “Learning to walk in minutes using massively
+    parallel deep reinforcement learning,” in Proc.
+    5th Conf. Robot Learning (CoRL), London, UK,
+    PMLR, vol. 164, pp. 91--100, 2022.
+[2] A. Kumar, Z. Fu, D. Pathak, and J. Malik, “RMA:
+    Rapid motor adaptation for legged robots,” in
+    Proc. Robotics: Science and Systems (RSS),
+    Virtual, 2021.
+[3] D. Liu, T. Zhang, J. Yin, and S. See, “Saving
+    the limping: Fault-tolerant quadruped locomo-
+    tion via reinforcement learning,” arXiv preprint
+    arXiv:2210.00474v3, 2023.
+[4] X. Wu,    W. Dong,    H. Lai,   Y. Yu,    and Y.
+    Wen, “Adaptive control strategy for quadruped
+    robots in actuator degradation scenarios,” in
+    Proc. 5th Int. Conf. Distributed Artificial Intel-
+    ligence (DAI), Singapore, pp. 1--13, 2023.
+[5] V. Makoviychuk et al., “Isaac Gym: High per-
+    formance GPU based physics simulation for
+    robot learning,” in Proc. Neural Information
+    Processing Systems Track on Datasets and
+    Benchmarks (NeurIPS), Virtual, vol. 1, 2021.
+[6] J. Schulman, F. Wolski, P. Dhariwal, A. Radford,
+    and O. Klimov, “Proximal policy optimization
+    algorithms,” arXiv preprint arXiv:1707.06347,
+    2017.
+
+
+
+
+                                                         6
+

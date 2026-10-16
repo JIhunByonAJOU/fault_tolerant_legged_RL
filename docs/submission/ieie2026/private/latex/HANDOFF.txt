@@ -1,68 +1,27 @@
-IEIE paper / complete evaluation handoff - 2026-10-16
+2026-10-16 원고 개정 인계
 
-Repository: https://github.com/JIhunByonAJOU/fault_tolerant_legged_RL.git
-Branch: dev. The paper_baseline recovery branch must not move.
+브랜치 dev. 프로시딩 proceedings.tex -> body.tex, 익명 심사 main.tex -> body_review.tex.
+preview/proceedings.pdf = 5쪽. preview/main.pdf = 4쪽. 현재 build/와 같은 내용의 배포 사본.
+예전 20 s 직진 수치, Q, 전방 순변위 결과는 본문에서 제거하고 새 고정 2:1:1:2 평가로 교체함.
+새 학습·시뮬레이션 없음. 기존 26,352시행과 종료 유형을 재집계함.
 
-CURRENT STATUS
-- The introduction was synchronized in body.tex and body_review.tex.
-- Abstracts now state that the same policy handles normal operation and torque degradation. Numerical results await manuscript revision; no limitations sentence is in the abstracts.
-- Korean terms: 토크 저하 / 토크 저하율 d. Citations attach directly to preceding text. The proceedings cite package has automatic space insertion disabled.
-- Current local LuaLaTeX previews: proceedings 6 pages; anonymous review 5 pages. Required shortening: 5 / 4 pages.
-- Manuscript result paragraphs and their old figures STILL describe the earlier 20-second forward-only evaluation. Replace them using the new dataset below. Do not rename old Q/displacement values as new metrics.
+연구 주장은 단일 학습 시드의 두 고정 정책을 같은 과제·지형 구성에서 비교했을 때,
+큰 토크 저하에서 비낙상과 종료 전 명령·경로 RMSE가 함께 개선됐다는 것.
+정체는 결과 절의 짧은 보조 사례이며 초록·결론의 핵심 성과가 아님.
+생존율은 낙상 여부. 완주 비율은 생존율과 구분한 보조 확인.
+Normal은 실제 고장 배율·표지가 갱신된 특권 물리 정보 교사 인코더를 사용함.
+Student는 현재 관측과 이력 특징, 고장 식별값 직접 입력 없음.
+입력·고장학습·학습량이 다른 두 구성 비교로 공동학습/이력의 독립 효과를 주장하지 않음.
 
-COMPLETE DATASET
-Path from repository root: datasets/ieie2026_fixed2112/
-Read its README.md first. All 26,352 selected robot episodes and all 50 Hz raw records are included via Git LFS. This is not just a summary or a few selected cases.
+원자료: datasets/ieie2026_fixed2112/ (LFS 포함).
+수치·구현·선택·종료·과제별 표: docs/submission/ieie2026/paper_assets/MANUSCRIPT_EVIDENCE.md
+역할 기반 AI 독립 검토와 대응: docs/submission/ieie2026/reviewer/revision_20261016/
+조교 기준 대응·전체 검증: docs/submission/ieie2026/REVISION_20261016.md
 
-Windows, from repository root:
-  git lfs install
-  git switch dev
-  git pull --ff-only
-  git lfs pull --include="datasets/ieie2026_fixed2112/raw/**"
-  cd datasets/ieie2026_fixed2112
-  py -m pip install -r requirements.txt
-  py analyze.py
-
-No Isaac Gym, CUDA or PyTorch is needed to read/replot the dataset.
-Full checksum/row verification: py analyze.py --verify-raw --verify-only
-Full CSV for a selected trial: py analyze.py --trial exploration_s1101_S20_r0_slot10_j01_d100_Student
-
-FINAL DESIGN
-- Family ratio forward/diagonal/lateral/sine = 2:1:1:2.
-- 6 motion slots x 61 conditions x 2 policies x 3 evaluation seeds = 2,196 policy/seed runs.
-- Each run contains the original 12 terrain columns: total 26,352 robot episodes.
-- Forward F01/F02 and sine A2/wavelength16, A1.5/wavelength16 are retained; diagonal/lateral left and right alternate across conditions/seeds.
-- Reuse of the original completed collection with evaluation seeds 1101,1102,1103. No new independent confirmation dataset is claimed. Original full collection and excluded episodes remain on Ubuntu.
-- No outcome-dependent mixture optimization or 1:1:1:1-versus-3:1:1:3 comparison belongs in the final paper.
-- Same initial/physical state and terrain between Normal and Student; original pair hashes preserved.
-- Normal22500 uses the privileged physical-information Teacher encoder. Student77500 uses the history-based Student path. This is a comparison of the complete policy configurations.
-
-METRICS
-1. Survival: binary non-fall fraction, fall=0, goal or administrative cap without a fall=1. NOT normalized mean survival time.
-2. Motion commands: per-trial valid post-fault vx/vy/yaw-rate RMSE, then average trials. m/s,m/s,rad/s.
-3. Path tracking: cross-track RMSE perpendicular to the independent world-frame reference path. m.
-- No zero padding after falling. Zero valid samples -> NA. Compare errors with survival and valid observation length.
-- Stall flag: new maximum route progress less than 0.5 m over 30 s. No early termination for stalls or slow tracking.
-- For diagnosis, report stagnation among survivors with an explicit survivor denominator; transient stall and noncompletion are different records.
-
-MAIN FINDINGS IN THIS FIXED DESIGN
-100% torque degradation:
-  Survival Normal52.08% / Student89.24%.
-  vx RMSE .22593 / .11970 m/s; vy .26185 / .11172 m/s.
-  yaw-rate .63567 / .20612 rad/s; cross-track .22486 / .07958 m.
-These are mean PER-TRIAL RMSEs; do not substitute old pooled values.
-
-RL calf100%:
-  Survival Normal188/216=87.04%, Student198/216=91.67%.
-  Stagnation observed among survivors: Normal185/188=98.40%, Student4/198=2.02%.
-  Goal completion over all216 trials: Normal3/216=1.39%, Student195/216=90.28%.
-  A high survival rate alone can therefore conceal failure to travel.
-
-SINGLE HEATMAP RECOMMENDATION
-explanatory/paper_single_heatmap_vxy_gain.pdf (or regenerate with analyze.py).
-Rows12 joints, columns20/40/60/80/100% degradation. Value is Normal minus Student planar-velocity RMSE, m/s. Each trial uses sqrt(RMSE_vx^2+RMSE_vy^2) before averaging, with no mixing of angular units. Main overall curves retain all five agreed metrics separately.
-
-WRITING / BUILD
-proceedings.tex -> body.tex; main.tex -> body_review.tex.
-Use LuaLaTeX. Preview PDFs are in preview/. Font binaries and local font overrides are not published.
-Both manuscripts need result/abstract-number replacement and shortening before submission.
+Windows/Ubuntu에서 같은 레포 폴더 구조를 유지하고 LuaLaTeX으로 빌드.
+영문 그림 Times New Roman 9 pt, 그림 내부 제목 없음. 한글 본문은 기존 양식 글꼴 사용.
+글꼴 바이너리 제외. 새 PDF를 만들었으면 실제 쪽수와 캡션·잘림을 확인할 것.
+익명본에는 저자·학교·이메일·저자 GitHub 링크가 없음.
+공개 재현 명세는 저자를 식별하므로 익명 심사 보조자료에 그대로 첨부하지 말 것.
+이번 작업은 원고 개정·그림·AI 리뷰·검증을 완료한 것이며 학회 접수 완료가 아님.
+사사 공식 문구/과제번호와 저자 자격은 별도 확인 필요.

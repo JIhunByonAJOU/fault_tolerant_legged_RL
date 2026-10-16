@@ -75,7 +75,7 @@ def heatmap(rows, output, audit):
     with (output / 'paper_student_survival_heatmap.csv').open('w', newline='', encoding='utf-8-sig') as f:
         writer = csv.DictWriter(f, fieldnames=list(table[0]))
         writer.writeheader(); writer.writerows(table)
-    fig, ax = plt.subplots(figsize=(80 / 25.4, 100 / 25.4), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(80 / 25.4, 85 / 25.4), constrained_layout=True)
     im = ax.imshow(values, cmap='Blues', norm=Normalize(0, 100), aspect='auto', interpolation='nearest')
     ax.set(xticks=range(5), xticklabels=[20, 40, 60, 80, 100], yticks=range(12), yticklabels=JOINTS,
            xlabel='Torque degradation (%)')
@@ -121,7 +121,7 @@ def curves(rows, output, audit):
     names = ['survival', 'vx_rmse', 'vy_rmse', 'yaw_rate_rmse', 'cross_track_rmse']
     all_rates = [0.] + RATES
     for i, (key, title) in enumerate(METRICS):
-        fig, ax = plt.subplots(figsize=(80 / 25.4, 65 / 25.4), constrained_layout=True)
+        fig, ax = plt.subplots(figsize=(80 / 25.4, 50 / 25.4), constrained_layout=True)
         for policy, style in POLICY_STYLE.items():
             middle, low, high = [], [], []
             factor = 100 if key == 'survived' else 1
@@ -210,7 +210,7 @@ def main(argv=None):
              'font_file': font_path, 'font_sha256': hashlib.sha256(Path(font_path).read_bytes()).hexdigest(),
              'font_size_pt': 9, 'figure_titles': 'External manuscript captions only',
              'graphics_reference': 'https://conferences.ieeeauthorcenter.ieee.org/write-your-paper/improve-your-graphics/',
-             'heatmap_layout': 'Single-column 80 x 100 mm; single-hue Blues; thin rules; fixed 0-100 percent',
+             'heatmap_layout': 'Single-column 80 x 85 mm; single-hue Blues; thin rules; fixed 0-100 percent',
              'figures': {}}
     rows = json.loads((BASE / 'records.json').read_text(encoding='utf-8'))
     heatmap(rows, output, audit); curves(rows, output, audit); terrain_overview(output, audit)

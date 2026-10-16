@@ -35,5 +35,35 @@
       "FHXFSG+TimesNewRomanPSMT"
     ]
   },
-  "quantitative_evidence_source_hash_verified": true
+  "quantitative_evidence_source_hash_verified": true,
+  "active_figure_dimensions_mm": {
+    "paper_student_survival_heatmap": [
+      80.0,
+      85.0
+    ],
+    "paper_survival_by_degradation": [
+      80.0,
+      50.0
+    ],
+    "paper_vx_rmse_by_degradation": [
+      80.0,
+      50.0
+    ],
+    "paper_vy_rmse_by_degradation": [
+      80.0,
+      50.0
+    ],
+    "paper_yaw_rate_rmse_by_degradation": [
+      80.0,
+      50.0
+    ],
+    "paper_cross_track_rmse_by_degradation": [
+      80.0,
+      50.0
+    ],
+    "terrain_heightmap_s1101": [
+      170.0,
+      125.0
+    ]
+  }
 }

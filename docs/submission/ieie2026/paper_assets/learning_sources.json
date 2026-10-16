@@ -1,0 +1,22 @@
+{
+  "sources": [
+    {
+      "path": "logs/official_wim_teacher243_failure_fullrange_fromscratch/Aug13_03-44-07_seed1-50000iter-fromscratch-fullrange/metrics.jsonl",
+      "sha256": "332c24532c394ebc4a79cf376cfbbb2e2b8206ee0c1682d84a15f6c115916330",
+      "iteration_begin": 0,
+      "iteration_end": 43000
+    },
+    {
+      "path": "logs/jt_wim243_width64_lr1e5_fresh_20260929/run_seed1_35000/metrics.jsonl",
+      "sha256": "1593e0c3796fcbdde44c12410cb46ccf3d31633a6326ab9c4ca2b49e169c8092",
+      "iteration_begin": 43000,
+      "iteration_end": 77500
+    }
+  ],
+  "metric": "Train/mean_reward",
+  "smoothing": "Separate complete trailing 500-iteration windows in each training run",
+  "x_axis": "Cumulative iteration identifier including pretraining",
+  "training_seed": 1,
+  "font_family": "Times New Roman",
+  "font_size_pt": 9
+}

@@ -1,15 +1,15 @@
 % !TeX root = proceedings.tex
 % Fonts read from the official proceedings DOCX, SHA256 47a1d41f8c90...
 % Font binaries remain installed outside the repository.
-% The Windows branch preserves the template-matching local layout.
-% On Linux prefer the same installed font, otherwise use editable fallbacks.
-\IfFileExists{C:/Windows/Fonts/H2MJSM.TTF}{%
+% Use the same registered font families and shaping options on every OS.
+% Font binaries are installed separately; editable fallbacks remain available.
+\IfFontExistsTF{HYSinMyeongJo-Medium}{%
 \directlua{luaotfload.add_fallback("ieie-symbols", {"Times New Roman:mode=node;"})}
-\setmainfont{H2MJSM.TTF}[Path=C:/Windows/Fonts/,RawFeature={fallback=ieie-symbols},
-  BoldFont=H2MJSM.TTF,BoldFeatures={FakeBold=2},ItalicFont=H2MJSM.TTF,ItalicFeatures={FakeSlant=.2}]
-\setmainhangulfont{H2MJSM.TTF}[Path=C:/Windows/Fonts/,BoldFont=H2MJSM.TTF,BoldFeatures={FakeBold=2}]
-\setsansfont{H2MJSM.TTF}[Path=C:/Windows/Fonts/,BoldFont=H2MJSM.TTF,BoldFeatures={FakeBold=2}]
-\setsanshangulfont{H2MJSM.TTF}[Path=C:/Windows/Fonts/,BoldFont=H2MJSM.TTF,BoldFeatures={FakeBold=2}]
+\setmainfont{HYSinMyeongJo-Medium}[RawFeature={fallback=ieie-symbols},
+  BoldFont=HYSinMyeongJo-Medium,BoldFeatures={FakeBold=2},ItalicFont=HYSinMyeongJo-Medium,ItalicFeatures={FakeSlant=.2}]
+\setmainhangulfont{HYSinMyeongJo-Medium}[BoldFont=HYSinMyeongJo-Medium,BoldFeatures={FakeBold=2}]
+\setsansfont{HYSinMyeongJo-Medium}[BoldFont=HYSinMyeongJo-Medium,BoldFeatures={FakeBold=2}]
+\setsanshangulfont{HYSinMyeongJo-Medium}[BoldFont=HYSinMyeongJo-Medium,BoldFeatures={FakeBold=2}]
 \newfontfamily\proceedingstitlelatin{Batang}[AutoFakeBold=2,FakeStretch=.95]
 \newhangulfontfamily\proceedingstitlehangul{Batang}[AutoFakeBold=2,FakeStretch=.95]
 % Hancom Batang is installed with Hancom Office, but is not registered with Windows.
@@ -26,15 +26,8 @@
 % face cannot be loaded by fontspec; use the installed HY Shin Myeongjo face.
 \newcommand{\proceedingsauthorenglish}{\rmfamily}
 }{%
-  \IfFontExistsTF{HY신명조}{%
-    \setmainfont{HY신명조}[AutoFakeBold=2,AutoFakeSlant=.2]
-    \setmainhangulfont{HY신명조}[AutoFakeBold=2]
-    \setsansfont{HY신명조}[AutoFakeBold=2]
-    \setsanshangulfont{HY신명조}[AutoFakeBold=2]
-  }{%
-    \input{fonts.tex}
-    \PackageWarningNoLine{ieie-fonts}{Template body font unavailable; using editing fonts. Pagination may differ from the Windows preview}
-  }
+  \input{fonts.tex}
+  \PackageWarningNoLine{ieie-fonts}{Template body font unavailable; using editing fonts. Pagination may differ from the Windows preview}
   \IfFontExistsTF{Batang}{%
     \newfontfamily\proceedingstitlelatin{Batang}[AutoFakeBold=2,FakeStretch=.95]
     \newhangulfontfamily\proceedingstitlehangul{Batang}[AutoFakeBold=2,FakeStretch=.95]

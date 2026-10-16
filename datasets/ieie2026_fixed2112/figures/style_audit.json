@@ -8,11 +8,11 @@
   "font_size_pt": 9,
   "figure_titles": "External manuscript captions only",
   "graphics_reference": "https://conferences.ieeeauthorcenter.ieee.org/write-your-paper/improve-your-graphics/",
-  "heatmap_layout": "Single-column 80 x 100 mm; single-hue Blues; thin rules; fixed 0-100 percent",
+  "heatmap_layout": "Single-column 80 x 85 mm; single-hue Blues; thin rules; fixed 0-100 percent",
   "figures": {
     "paper_student_survival_heatmap": {
       "width_mm": 80.0,
-      "height_mm": 100.0,
+      "height_mm": 85.0,
       "text_sizes_pt": [
         9.0
       ],
@@ -21,7 +21,7 @@
     },
     "paper_survival_by_degradation": {
       "width_mm": 80.0,
-      "height_mm": 65.0,
+      "height_mm": 50.0,
       "text_sizes_pt": [
         9.0
       ],
@@ -30,7 +30,7 @@
     },
     "paper_vx_rmse_by_degradation": {
       "width_mm": 80.0,
-      "height_mm": 65.0,
+      "height_mm": 50.0,
       "text_sizes_pt": [
         9.0
       ],
@@ -39,7 +39,7 @@
     },
     "paper_vy_rmse_by_degradation": {
       "width_mm": 80.0,
-      "height_mm": 65.0,
+      "height_mm": 50.0,
       "text_sizes_pt": [
         9.0
       ],
@@ -48,7 +48,7 @@
     },
     "paper_yaw_rate_rmse_by_degradation": {
       "width_mm": 80.0,
-      "height_mm": 65.0,
+      "height_mm": 50.0,
       "text_sizes_pt": [
         9.0
       ],
@@ -57,7 +57,7 @@
     },
     "paper_cross_track_rmse_by_degradation": {
       "width_mm": 80.0,
-      "height_mm": 65.0,
+      "height_mm": 50.0,
       "text_sizes_pt": [
         9.0
       ],

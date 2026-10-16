@@ -1,3 +1,7 @@
+# 2026-10-16 최신 원고
+
+새 혼합 과제 평가를 반영한 [프로시딩 5쪽](private/latex/preview/proceedings.pdf)과 [익명 심사용 4쪽](private/latex/preview/main.pdf)을 제공한다. [개정·검증 기록](REVISION_20261016.md), [AI 독립 리뷰 및 수정 대응표](reviewer/revision_20261016/RESPONSE.md)를 먼저 확인한다. 아래 내용 중 이전 직진 평가·Q 관련 기록은 과거 작업이다.
+
 # 대한전자공학회 2026 추계 학부생 논문경진대회 준비
 
 최종 정책은 JT77500 Student-only이며, 연구 범위는 Isaac Gym에서 단일 관절의 PD 토크 계수 저하에 대응하는 4족보행이다. 기존 발표의 학습 이력 비교를 논문의 주요 경쟁 방법 비교로 사용하지 않는다.
