@@ -9,7 +9,7 @@
 - [조교 피드백과 적용 범위](TA_GUIDANCE.md)
 - [그림 글꼴·크기·셀 가독성·생성 방법](FIGURE_GUIDELINES.md)
 - [결과 절·초록·결론 작성안과 원고 반영 계획](PAPER_RESULTS_PLAN.md)
-- [HY신명조·9 pt로 만든 새 그림 시안](figures/): 실제 폭 170 mm의 PDF와 PNG, 글꼴·가독성 검증 JSON
+- [HY신명조·9 pt로 만든 새 그림 시안](figures/): 개별 곡선 폭 80 mm·히트맵 폭 170 mm의 PDF와 PNG, 글꼴·가독성 검증 JSON
 - [당시 높이맵 hash와 일치하는 세 지형 배열](terrain/), [설정·런타임 근거](reproducibility/)
 
 기존 `analysis/`와 `explanatory/`의 그림은 이전 진단 자료다. 논문용 새 그림은 공통 생성기 `paper_figures.py`로 만들며, `analyze.py`의 그림 생성도 같은 기준을 사용한다. 원고 TeX의 새 결과 반영·5/4쪽 조판 완료와는 구분한다.
@@ -40,7 +40,7 @@ py analyze.py
 - `analysis/`: 전체 시행CSV, 조건별 요약, 대응 차이, 원자료 색인.
 - `reports/`: 기존 논문과의 비교, 손실률별 수치와 원래 그림. 한국어 용어는 토크 저하·토크 저하율을 사용한다.
 - `explanatory/`: 관절별5지표, 비낙상 정체 분석, 원시 기록으로 검증한 주행 예시.
-- `generated/`: `analyze.py`가 새로 만드는 평면속도 RMSE 히트맵·5지표 곡선·지형 그림·정체 요약 CSV. Git에서 제외된다.
+- `generated/`: `analyze.py`가 새로 만드는 Student 절대 생존율 히트맵·5개 개별 곡선·지형 그림·정체 요약 CSV. Git에서 제외된다.
 - `source_snapshot/`: 수집 당시의실행 소스와 원래프로토콜. Isaac Gym 재실행용 출처이며 Windows에서 데이터만 분석할 때는 필요 없다.
 - `fixed_design.json`, `derivation_manifest.json`, `manifest.json`: 구성·출처·전체 파일 무결성. 원래Ubuntu의절대경로는 출처 기록이며 데이터 읽기에는 사용하지 않는다.
 
@@ -68,13 +68,13 @@ py analyze.py --trial exploration_s1101_S20_r0_slot10_j01_d100_Student
 
 `values`의열: world_x,world_y,body_yaw,body_vx,body_vy,body_wz,cmd_vx,cmd_vy,cmd_wz,ref_x,ref_y,path_s,furthest_s,cross_track,world_vx,world_vy. 위치·기준경로는세계좌표,속도명령과vx/vy/wz는몸체좌표다.
 
-## 본문 히트맵 한 개를 고른다면
+## 본문 그림의 역할
 
-**평면속도 추종RMSE의개선폭(Normal−Student)**을추천한다. 각시행의정의는
+- **Normal–Student 비교:** 생존율·vx·vy·yaw-rate·횡오차의 다섯 개별 곡선. 각 파일에 범례·축·단위가 있다.
+- **제안 정책의 성능 분포:** Student 절대 생존율 히트맵. 관절 12개 × 저하율 5개, 셀당 216시행, 0–100% 고정 색 범위다. “어느 관절의 어느 저하에서 생존율이 얼마인가?”를 보여준다.
+- **정체 해석:** 생존율과 추종 오차를 함께 읽고, RL calf 사례를 보조 표·본문으로 설명한다.
 
-`RMSE_vxy = sqrt(RMSE_vx**2 + RMSE_vy**2)`
-
-이며 시행별 값을먼저 구한뒤조건별로평균한다. 평균vx/vy RMSE를구한뒤합치면다른양이므로그렇게계산하지 않는다. 선속도두축만합쳐단위는m/s이며yaw의rad/s를섞지않는다. 전진/대각/횡이동에서명령성분이다르다는점을반영하고,몸체가정지해명령0.5m/s를못따르면약0.5m/s의오차가나온다. 전체성능곡선의vx/vy/yaw/횡오차지표는각각유지한다.
+지형 12열과 2:1:1:2는 평가 설정이다. 본문 결과의 중심은 정책 성능이며, 지형·비율 변경 효과를 주장하지 않는다. [현재 사용할 그림 목록](figures/README.md)에서 개별 PDF를 고른다. 기존 `paper_joint_vxy_gain`과 `paper_metrics_by_degradation`은 이전 시안이며 현재 본문 추천이 아니다.
 
 ## 버티기 해석
 

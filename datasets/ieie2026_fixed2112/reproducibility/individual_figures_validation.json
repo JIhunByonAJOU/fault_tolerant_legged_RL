@@ -1,0 +1,19 @@
+{
+  "curve_files": 5,
+  "student_heatmap_cells": 60,
+  "trials_per_cell": 216,
+  "curve_csv_max_difference": 7.216449660063518e-16,
+  "cell_counts_match_existing_summary": true,
+  "font_size_pt": 9,
+  "minimum_cell_contrast": 5.543850713390254,
+  "all_cell_annotations_fit": true,
+  "embedded_pdf_fonts": {
+    "paper_student_survival_heatmap": "DSMUHT+H2mjsM",
+    "paper_survival_by_degradation": "DSMUHT+H2mjsM",
+    "paper_vx_rmse_by_degradation": "DSMUHT+H2mjsM",
+    "paper_vy_rmse_by_degradation": "DSMUHT+H2mjsM",
+    "paper_yaw_rate_rmse_by_degradation": "DSMUHT+H2mjsM",
+    "paper_cross_track_rmse_by_degradation": "DSMUHT+H2mjsM",
+    "terrain_heightmap_s1101": "DSMUHT+H2mjsM"
+  }
+}

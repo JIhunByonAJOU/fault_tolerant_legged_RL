@@ -7,8 +7,8 @@
 | 요소 | 기준 | 확인 방법 |
 |---|---|---|
 | 글꼴 | HY신명조, 축·눈금·범례·셀 숫자 모두 동일 | 생성한 `style_audit.json`과 PDF의 실제 임베딩 폰트 확인 |
-| 글자 크기 | 최종 삽입 크기에서 9 pt | 시안의 실제 폭 170 mm를 유지한다. 80 mm 한 단에 그대로 축소하면 약 4.2 pt가 되므로 금지 |
-| 그림 폭 | 주결과 곡선과 히트맵은 두 단 폭 170 mm | 현재 프로시딩 양식 분석의 본문 폭 약 170 mm와 맞춘 제작값. 최종 TeX의 `textwidth`를 다시 확인 |
+| 글자 크기 | 최종 삽입 크기에서 9 pt | 개별 곡선은 처음부터 80 mm 폭·9 pt로 만든다. 170 mm 히트맵을 80 mm로 축소해 약 4.2 pt가 되게 만들지 않는다 |
+| 그림 폭 | 개별 곡선은 80 × 65 mm, 히트맵은 170 × 95 mm | 현재 프로시딩 양식 분석의 본문 폭 약 170 mm와 맞춘 제작값. 최종 TeX의 `textwidth`를 다시 확인 |
 | 곡선 | Normal은 주황 점선·원 표식, Student는 파랑 실선·사각 표식 | 흑백에서도 선·표식으로 구별 |
 | 축 | 모든 저하율 곡선에 0, 20, 40, 60, 80, 100% 표시 | 정상 조건을 특정 관절에 12번 복제하지 않음 |
 | 단위 | vx/vy: m/s, yaw-rate: rad/s, 횡오차: m, 생존율: % | 서로 다른 물리 단위를 한 점수로 합치지 않음 |
@@ -17,28 +17,26 @@
 
 ## 본문 히트맵 한 장
 
-선택한 지표는 **평면 이동 명령 RMSE의 개선량**이다. 각 시행에서
+선택한 지표는 **Student의 절대 생존율(%)**이다. 이 그림의 질문은 “제안 정책이 어느 관절의 어느 토크 저하에서 얼마나 낙상을 피하는가?”다. Normal 대비 비교는 다섯 개별 곡선에서 하고, 히트맵은 전체 평균에 가려진 Student의 관절별 취약성을 보여준다.
 
-`E_vxy = sqrt((SSE_vx + SSE_vy) / valid_post_samples)`
-
-를 구한 뒤 각 관절·저하율 셀에서 정책별 평균을 내고 `Normal - Student`를 표시한다. 이는 `sqrt(RMSE_vx² + RMSE_vy²)`와 같다. 평균 RMSE 두 개를 나중에 합치지 않는다. yaw-rate는 포함하지 않는다.
-
-- 12관절 × 5저하율. 셀당 각 정책 216시행.
-- 0 중심의 대칭 색 범위. 양수 파랑은 Student의 오차가 작다는 의미, 음수 빨강은 반대다.
-- 숫자는 부호 포함 소수점 세 자리. CSV는 원래 정밀도를 보존한다.
-- 배경색을 sRGB에서 선형 밝기로 변환한 뒤, 검은색·흰색 중 대비가 큰 색을 선택한다. 절대값 임계치만으로 글자색을 정하지 않는다.
-- 생성기에서 숫자의 렌더링 영역이 셀 경계 안에 들어오는지 확인한다. 60셀 모두 검증한다.
-- 최종 실제 크기로 인쇄하거나 PDF 100% 배율로 읽어 본다. 색만으로 설명하지 않고 숫자·색 막대·부호를 함께 쓴다.
+- 세로 12관절 × 가로 5저하율. 각 셀은 Student 216시행의 생존 비율이다.
+- 값은 `100 * survived / episodes`. 색은 0–100% 고정 범위의 순차 색상이며 차이·증가량이 아니다.
+- 셀 숫자는 소수점 한 자리, 색 막대 단위는 %. 정확한 생존 수·분모는 `paper_student_survival_heatmap.csv`에 저장한다.
+- 배경색의 실제 밝기에 따라 흰색/검은색 숫자를 선택하고 60셀의 텍스트 경계를 검사한다.
+- 정상 조건은 특정 고장 관절이 없으므로 히트맵에 12번 복제하지 않는다.
+- 생존율은 낙상 여부이며 정체한 비낙상도 포함한다. 명령·경로 수행은 네 RMSE 곡선과 정체 사례로 함께 해석한다.
 
 시안 캡션:
 
-> Reduction in planar velocity-command RMSE (Normal − Student) by degraded joint and torque degradation. Positive values indicate lower error for Student. Each cell averages 216 trials per policy over the fixed 2:1:1:2 task mixture, 12 terrain columns, and three evaluation seeds. Trial errors use valid post-fault samples before termination.
+> Student survival rate by degraded joint and torque degradation. Each cell reports the percentage of 216 trials that terminated at the goal or administrative cap without a fall. Motion-tracking errors and stagnation are evaluated separately.
 
-생존율·vx·vy·yaw-rate·횡오차의 기존 5패널 히트맵은 보조 진단 자료다. 본문에 이들을 모두 삽입하는 계획이 아니다.
+100% 저하에서 FR thigh 71.76%, FL thigh 78.70%, FR hip와 RR thigh 각각 97.22%다. 이 수치 차이를 근거로 같은 토크 저하에서도 제안 정책의 생존 성능이 관절에 따라 달라진다고 설명한다. 지형이나 과제 비율의 효과를 이 그림으로 주장하지 않는다.
+
+이전 평면속도 RMSE 차이 히트맵과 5패널 진단 히트맵은 과거 시안·보조 자료로 보존한다. 현재 본문 추천은 Student 생존율 히트맵 한 장이다.
 
 ## 저하율별 다섯 곡선
 
-- 같은 행·열의 5패널에서 생존율과 네 오차를 각각 표시한다. 서로 다른 지표의 y축을 공유하지 않는다.
+- 생존율, vx RMSE, vy RMSE, yaw-rate RMSE, 경로 횡오차 RMSE를 **각각 별도 PDF·PNG**로 저장한다. 각 파일에 축·단위·Normal/Student 범례를 넣는다. 합본 패널을 잘라 쓰지 않는다.
 - 각 점은 시행별 지표의 평균이며, 임의로 곡선을 매끈하게 보간하지 않는다.
 - 음영은 3개 **평가 시드 평균의 최소–최대**다. 학습 반복의 신뢰구간 또는 95% 신뢰구간이라고 쓰지 않는다.
 - 100%뿐 아니라 정상·낮은 저하 조건도 포함한다. 모든 지표가 단조롭게 나빠지거나 Student가 전 조건에서 우수하다는 인상을 만들지 않는다.

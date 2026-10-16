@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Generate paper-sized figures with one explicit, embedded text font."""
 import argparse
+import csv
 from collections import defaultdict
 import hashlib
 import json
@@ -13,6 +14,7 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager
 from matplotlib.colors import Normalize
 from matplotlib.text import Text
+from matplotlib.ticker import MaxNLocator
 
 BASE = Path(__file__).resolve().parent
 JOINTS = [f'{leg} {part}' for leg in ['FL', 'FR', 'RL', 'RR'] for part in ['hip', 'thigh', 'calf']]
@@ -56,36 +58,38 @@ def save(fig, name, output, audit):
 def heatmap(rows, output, audit):
     groups = defaultdict(list)
     for r in rows:
-        if r['condition']['loss']:
-            groups[r['condition']['joint'], r['condition']['loss'], r['policy']].append(r)
+        if r['policy'] == 'Student' and r['condition']['loss']:
+            groups[r['condition']['joint'], r['condition']['loss']].append(r)
     values = np.zeros((12, 5))
+    table = []
     for j in range(12):
         for k, d in enumerate(RATES):
-            means = {}
-            for policy in POLICY_STYLE:
-                rs = groups[j, d, policy]
-                assert len(rs) == 216
-                assert all(r['valid_post_samples'] > 0 for r in rs)
-                means[policy] = np.mean([np.sqrt(sum(r['error_sum_sq'][:2]) / r['valid_post_samples']) for r in rs])
-            values[j, k] = means['Normal'] - means['Student']
-    bound = max(float(np.abs(values).max()), 1e-9)
+            rs = groups[j, d]
+            assert len(rs) == 216
+            survived = sum(r['survived'] for r in rs)
+            values[j, k] = 100 * survived / len(rs)
+            table.append(dict(joint_index=j, joint=JOINTS[j], degradation=d, policy='Student',
+                              episodes=len(rs), survived=survived, survival_percent=values[j, k]))
+    with (output / 'paper_student_survival_heatmap.csv').open('w', newline='', encoding='utf-8-sig') as f:
+        writer = csv.DictWriter(f, fieldnames=list(table[0]))
+        writer.writeheader(); writer.writerows(table)
     fig, ax = plt.subplots(figsize=(170 / 25.4, 95 / 25.4), constrained_layout=True)
-    im = ax.imshow(values, cmap='RdBu', norm=Normalize(-bound, bound), aspect='auto')
+    im = ax.imshow(values, cmap='YlGnBu', norm=Normalize(0, 100), aspect='auto')
     ax.set(xticks=range(5), xticklabels=[20, 40, 60, 80, 100], yticks=range(12), yticklabels=JOINTS,
-           xlabel='Torque degradation (%)', title='Planar velocity-command RMSE: Normal - Student')
+           xlabel='Torque degradation (%)', title='Student survival (%)')
     annotations, contrasts = [], []
     for j in range(12):
         for k in range(5):
             color, contrast = text_color(im.cmap(im.norm(values[j, k])))
-            annotations.append((j, k, ax.text(k, j, f'{values[j, k]:+.3f}',
+            annotations.append((j, k, ax.text(k, j, f'{values[j, k]:.1f}',
                                 ha='center', va='center', color=color, fontsize=9)))
             contrasts.append(contrast)
     ax.set_xticks(np.arange(-.5, 5, 1), minor=True)
     ax.set_yticks(np.arange(-.5, 12, 1), minor=True)
     ax.grid(which='minor', color='white', linewidth=.35)
     ax.tick_params(which='minor', bottom=False, left=False)
-    fig.colorbar(im, ax=ax, label='RMSE reduction (m/s)', fraction=.07, pad=.025,
-                 ticks=np.linspace(-bound, bound, 5), format='%.2f')
+    fig.colorbar(im, ax=ax, label='Survival (%)', fraction=.07, pad=.025,
+                 ticks=[0, 20, 40, 60, 80, 100], format='%.0f')
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
     clipped = []
@@ -97,20 +101,21 @@ def heatmap(rows, output, audit):
             clipped.append([j, k])
     assert not clipped, clipped
     audit['heatmap'] = {'cells': len(annotations), 'trials_per_policy_cell': 216,
-                        'decimals': 3, 'minimum_text_background_contrast': min(contrasts),
-                        'annotations_outside_cells': clipped, 'symmetric_color_limit_mps': bound,
-                        'metric': 'mean_i sqrt((SSE_vx_i+SSE_vy_i)/N_i), Normal minus Student'}
-    save(fig, 'paper_joint_vxy_gain', output, audit)
+                        'policy': 'Student', 'decimals': 1,
+                        'minimum_text_background_contrast': min(contrasts),
+                        'annotations_outside_cells': clipped, 'color_limits_percent': [0, 100],
+                        'metric': '100 * nonfall trials / all trials; goal and nonfall administrative cap count as survival'}
+    save(fig, 'paper_student_survival_heatmap', output, audit)
 
 
 def curves(rows, output, audit):
     groups = defaultdict(list)
     for r in rows:
         groups[r['policy'], r['condition']['loss']].append(r)
-    fig, axes = plt.subplots(2, 3, figsize=(170 / 25.4, 112 / 25.4), constrained_layout=True)
+    names = ['survival', 'vx_rmse', 'vy_rmse', 'yaw_rate_rmse', 'cross_track_rmse']
     all_rates = [0.] + RATES
     for i, (key, title) in enumerate(METRICS):
-        ax = axes.flat[i]
+        fig, ax = plt.subplots(figsize=(80 / 25.4, 65 / 25.4), constrained_layout=True)
         for policy, style in POLICY_STYLE.items():
             middle, low, high = [], [], []
             factor = 100 if key == 'survived' else 1
@@ -119,19 +124,23 @@ def curves(rows, output, audit):
                 middle.append(factor * np.mean([r[key] for r in rs]))
                 seeds = [factor * np.mean([r[key] for r in rs if r['seed'] == s]) for s in [1101, 1102, 1103]]
                 low.append(min(seeds)); high.append(max(seeds))
+            audit.setdefault('curve_values', {}).setdefault(key, {})[policy] = {
+                'degradation': all_rates, 'mean': middle, 'seed_min': low, 'seed_max': high}
             ax.plot(np.array(all_rates) * 100, middle, label=policy, markersize=3, linewidth=1.1, **style)
             ax.fill_between(np.array(all_rates) * 100, low, high, color=style['color'], alpha=.13, linewidth=0)
-        ax.set(title=f'({chr(97 + i)}) {title}', xlabel='Torque degradation (%)',
+        ax.set(ylabel=title, xlabel='Torque degradation (%)',
                xticks=[0, 20, 40, 60, 80, 100], xlim=(-3, 103))
         ax.set_ylim(bottom=0)
-        if key == 'survived': ax.set_ylim(0, 105); ax.set_yticks([0, 25, 50, 75, 100])
+        if key == 'survived':
+            ax.set_ylim(0, 105); ax.set_yticks([0, 25, 50, 75, 100])
+        else:
+            ticks = MaxNLocator(nbins=5, steps=[1, 2, 2.5, 5, 10]).tick_values(0, ax.get_ylim()[1])
+            ax.set_yticks(ticks); ax.set_ylim(0, ticks[-1])
         ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
         ax.grid(axis='y', alpha=.2, linewidth=.4)
-    handles, labels = axes.flat[0].get_legend_handles_labels()
-    axes.flat[5].axis('off')
-    axes.flat[5].legend(handles, labels, loc='center', frameon=False)
+        ax.legend(loc='best', frameon=False, handlelength=1.7, borderaxespad=.25)
+        save(fig, f'paper_{names[i]}_by_degradation', output, audit)
     audit['curve_bands'] = 'Minimum to maximum of the three evaluation-seed means; not a confidence interval.'
-    save(fig, 'paper_metrics_by_degradation', output, audit)
 
 
 def terrain_overview(output, audit):
