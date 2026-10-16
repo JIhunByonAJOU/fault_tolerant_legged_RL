@@ -35,3 +35,9 @@ Windows/Ubuntu에서 같은 레포 폴더 구조를 유지하고 LuaLaTeX으로 
 
 최신 추가: 그림4 생존율 / 그림5 RMSE 2x2 / 그림6 낙상률로 분리.
 히트맵은 숫자 그대로, 색만0.4-30% 로그 스케일. 현재 TeX body.tex/body_review.tex에 반영.
+
+참조 오류 수정: 루트 .vscode/settings.json도 LuaLaTeX으로 통일.
+모든 recipe는 LuaLaTeX, 자동 빌드는 저장 시. 두 진입 TeX는 다른 엔진을 차단함.
+build/를 청소 후 다시 빌드해 미해결 참조/인용0, 클릭 대상 페이지 전수 확인.
+validate_manuscript.py --publish-previews 통과 후에만 preview/를 갱신할 것.
+REFERENCE_FIX_20261017.md 및 reference_audit_20261017.json 참고.

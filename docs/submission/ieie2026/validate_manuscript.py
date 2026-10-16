@@ -1,15 +1,89 @@
 """Audit manuscript numbers, references, PDF layout logs and anonymization."""
-import argparse,csv,hashlib,json,re,subprocess,zlib
+import argparse,csv,hashlib,json,re,shutil,subprocess,zlib
 from pathlib import Path
 BASE=Path(__file__).resolve().parent
 ROOT=BASE.parents[2]
 LATEX=BASE/'private/latex'
 DATA=ROOT/'datasets/ieie2026_fixed2112'
 def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
-def run(*args):return subprocess.check_output(args,text=True)
+def run(*args):return subprocess.check_output(args,text=True,encoding='utf-8')
+def brace_groups(text):
+ result=[];depth=0;start=None
+ for i,c in enumerate(text):
+  if c=='{':
+   if depth==0:start=i+1
+   depth+=1
+  elif c=='}':
+   depth-=1
+   if depth==0:result.append(text[start:i])
+ assert depth==0,text
+ return result
+
+def audit_pdf_references(pdf,aux,body,bibs):
+ import xml.etree.ElementTree as ET
+ contents=run('pdftotext','-layout',str(pdf),'-')
+ assert not re.search(r'\?\?|\[\s*\?\s*\]',contents),str(pdf)+' has unresolved references'
+ labels={}
+ for line in aux.splitlines():
+  match=re.match(r'\\newlabel\{([^}]+)\}(\{.*\})$',line)
+  if match:
+   fields=brace_groups(brace_groups(match[2])[0]);labels[match[1]]=fields
+ source_labels=re.findall(r'\\label\{([^}]+)\}',body)
+ assert len(source_labels)==len(set(source_labels)),'Duplicate source labels'
+ refs=re.findall(r'\\(?:eqref|ref)\{([^}]+)\}',body)
+ assert set(refs)<=set(labels),(set(refs)-set(labels))
+ destinations={m[2]:int(m[1]) for m in re.finditer(r'^\s*(\d+)\s+.*"([^"]+)"\s*$',run('pdfinfo','-dests',str(pdf)),re.M)}
+ expected={}
+ for label in source_labels:
+  number,page,_,dest,*rest=labels[label]
+  assert destinations.get(dest)==int(page),(label,dest,page)
+  expected[({'fig':'그림','tab':'표','eq':'식'}[label.split(':')[0]],int(number))]=int(page)
+ bib_pages={}
+ for i,key in enumerate(bibs,1):
+  assert re.search(r'\\bibcite\{'+re.escape(key)+r'\}\{'+str(i)+r'\}',aux),(key,i)
+  assert 'cite.'+key in destinations,key
+  bib_pages[i]=destinations['cite.'+key]
+ tree=ET.fromstring(run('pdftohtml','-q','-xml','-hidden','-stdout',str(pdf)))
+ seen=set();cited=set();links=0
+ prefix='';category=None;previous_top=None;previous_right=None
+ for text in tree.iter('text'):
+  top=float(text.get('top',0));left=float(text.get('left',0))
+  if previous_top is None or abs(top-previous_top)>3 or left<previous_right-3 or left-previous_right>35:
+   prefix='';category=None
+  prefix+=text.text or ''
+  previous_top=top;previous_right=left+float(text.get('width',0))
+  for child in text:
+   value=''.join(child.itertext())
+   if child.tag=='a':
+    target=re.search(r'#(\d+)$',child.get('href',''));assert target is not None,child.attrib
+    page=int(target[1]);links+=1
+    marker=re.search(r'(그림|표|식)\s*$',prefix)
+    if marker:category=marker[1]
+    matches=re.findall(r'\[([\d,\s\-]+)\]',value)
+    if matches:
+     for group in matches:
+      numbers=list(map(int,re.findall(r'\d+',group)))
+      if '-' in group and len(numbers)==2:numbers=list(range(numbers[0],numbers[1]+1))
+      for number in numbers:assert bib_pages[number]==page,(number,page);cited.add(number)
+    elif category:
+     for number in map(int,re.findall(r'\d+',value)):
+      key=(category,number);assert expected[key]==page,(key,page,expected[key]);seen.add(key)
+   prefix+=value+(child.tail or '')
+ assert cited==set(bib_pages),('Citations without verified clickable links',set(bib_pages)-cited)
+ assert seen==set(expected),('References without verified clickable links',set(expected)-seen)
+ return {'cross_reference_labels':len(source_labels),'reference_occurrences':len(refs),'bibliography_entries':len(bibs),'internal_pdf_links':links,'all_reference_target_pages_verified':True,'all_citation_target_pages_verified':True,'no_duplicate_labels':True,'no_unresolved_reference_or_citation_markers':True,'reference_destinations':destinations}
+
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('--require-page-limits',action='store_true');parser.add_argument('--build-dir',type=Path,default=LATEX/'build');args=parser.parse_args();build=args.build_dir
- records=json.loads((DATA/'records.json').read_text());assert len(records)==26352
+ parser=argparse.ArgumentParser();parser.add_argument('--publish-previews',action='store_true');parser.add_argument('--require-page-limits',action='store_true');parser.add_argument('--build-dir',type=Path,default=LATEX/'build');args=parser.parse_args();build=args.build_dir
+ configs=[ROOT/'.vscode/settings.json',ROOT/'ieie-paper.code-workspace',LATEX/'.vscode/settings.json',LATEX/'ieie-paper.code-workspace']
+ for config in configs:
+  settings=json.loads(config.read_text(encoding='utf-8'));settings=settings.get('settings',settings)
+  assert settings['latex-workshop.latex.recipe.default']=='LuaLaTeX (한글 논문)',str(config)
+  assert settings['latex-workshop.latex.autoBuild.run']=='onSave',str(config)
+  for tool in settings['latex-workshop.latex.tools']:
+   assert '-lualatex' in tool['args'] and '-xelatex' not in tool['args'],str(config)
+ for entry in ['proceedings.tex','main.tex']:assert '\\RequireLuaTeX' in (LATEX/entry).read_text(encoding='utf-8')
+ records=json.loads((DATA/'records.json').read_text(encoding='utf-8'));assert len(records)==26352
  evidence={}
  for policy in ['Normal','Student']:
   rs=[r for r in records if r['policy']==policy and r['condition']['loss']==1]
@@ -32,14 +106,15 @@ def main():
   assert sum(r['termination']=='goal' for r in rs)==int(cell['completed'])
   assert sum(r['survived'] for r in rs)==int(cell['survived'])
  pdfs={}
- references=(LATEX/'references.tex').read_text();bibs=re.findall(r'\\bibitem\{([^}]+)\}',references)
+ references=(LATEX/'references.tex').read_text(encoding='utf-8');bibs=re.findall(r'\\bibitem\{([^}]+)\}',references)
  for name,limit in [('proceedings',5),('main',4)]:
   pdf=build/f'{name}.pdf';info=run('pdfinfo',str(pdf));pages=int(re.search(r'Pages:\s+(\d+)',info)[1])
-  text=run('pdftotext','-layout',str(pdf),'-');log=(build/f'{name}.log').read_text()
+  text=run('pdftotext','-layout',str(pdf),'-');log=(build/f'{name}.log').read_text(encoding='utf-8')
+  assert log.startswith('This is LuaHBTeX') or log.startswith('This is LuaTeX'),name+' used the wrong TeX engine'
   assert not any(x in log for x in ['Overfull \\hbox','Overfull \\vbox','Missing character:','undefined references','Undefined control sequence','Fatal error','There were undefined references','Rerun to get cross-references right','Citation `'])
   assert '??' not in text
   assert '52.08%' in text and '89.24%' in text and '86.73%' in text
-  body=(LATEX/('body.tex' if name=='proceedings' else 'body_review.tex')).read_text()
+  body=(LATEX/('body.tex' if name=='proceedings' else 'body_review.tex')).read_text(encoding='utf-8')
   intro=body.split('\\section{서론}',1)[1].split('\\section{시스템 모델}',1)[0]
   assert not any(w in intro for w in ['RMA','ADAPT','기여는'])
   for token in ['fig:environment','tab:system','tab:observation','tab:encoders','tab:reward','paper_workflow_v8.pdf','50\\times48','235+8=243','187','45','12']:
@@ -48,9 +123,10 @@ def main():
   assert '발 디딤 위치와 다리의 움직임을 조절하여' in intro
   assert '교사·학생 공동학습을 통해 학생이 현재 관측과 과거 관측 이력으로부터' in intro
   assert 'paper_survival_compact.pdf' in body and 'paper_tracking_rmse_2x2.pdf' in body
-  aux=(build/f'{name}.aux').read_text()
+  aux=(build/f'{name}.aux').read_text(encoding='utf-8')
   for label,index in [('fig:survival',4),('fig:tracking',5),('fig:joint',6)]:assert ('\\newlabel{'+label+'}{{'+str(index)+'}') in aux,(name,label)
   assert '^{,2}' not in body and 'e_{u,i,k}^{2}' in body
+  reference_audit=audit_pdf_references(pdf,aux,body,bibs)
   citations=re.findall(r'\\cite\{([^}]+)\}',body);order=[]
   for keys in citations:
    for key in keys.split(','):
@@ -79,8 +155,8 @@ def main():
   fonts=run('pdffonts',str(pdf)).splitlines()[2:]
   assert fonts
   for line in fonts:assert line.split()[-5]=='yes',line
-  pdfs[name]={'pages':pages,'target_pages':limit,'page_limit_met':pages<=limit,'restored_photos_four_tables_and_dimensions_verified':True,'sha256':digest(pdf),'all_pdf_fonts_embedded':True,'no_overfull_or_missing_glyphs':True,'citations_sentence_end_attached_and_first_appearance_order':True,'all_figures_tables_equations_referenced':True,'conclusion_has_no_stagnation_claim':True,'anonymous_text_and_author_link_removed':True if name=='main' else None}
- a=json.loads((DATA/'figures/style_audit.json').read_text());assert a['font_size_pt']==9
+  pdfs[name]={'reference_audit':reference_audit,'pages':pages,'target_pages':limit,'page_limit_met':pages<=limit,'restored_photos_four_tables_and_dimensions_verified':True,'sha256':digest(pdf),'all_pdf_fonts_embedded':True,'no_overfull_or_missing_glyphs':True,'citations_sentence_end_attached_and_first_appearance_order':True,'all_figures_tables_equations_referenced':True,'conclusion_has_no_stagnation_claim':True,'anonymous_text_and_author_link_removed':True if name=='main' else None}
+ a=json.loads((DATA/'figures/style_audit.json').read_text(encoding='utf-8'));assert a['font_size_pt']==9
  assert a['heatmap']['color_limits_percent']==[.4,30]
  assert a['heatmap']['normalization']=='logarithmic' and not a['heatmap']['values_log_transformed']
  assert a['compact_performance']['data_identical_to_individual_curves']
@@ -105,12 +181,21 @@ def main():
   assert int(cell['fallen'])==216-int(cell['survived'])
   assert abs(float(cell['fall_rate_percent'])-100*int(cell['fallen'])/216)<1e-12
   assert abs(float(cell['fall_rate_percent'])+float(cell['survival_percent'])-100)<1e-12
- asset_audit=json.loads((BASE/'paper_assets/figure_audit.json').read_text())
+ asset_audit=json.loads((BASE/'paper_assets/figure_audit.json').read_text(encoding='utf-8'))
  for name,fig in asset_audit.items():assert fig['font_size_pt']==9 and not fig['internal_title'] and not fig['outside_text'],name
- abstract=(LATEX/'abstract-proceedings.tex').read_text()
+ abstract=(LATEX/'abstract-proceedings.tex').read_text(encoding='utf-8')
  assert 'pre-termination cross-track' in abstract and all(x not in abstract for x in ['0.226','0.120','0.262','0.112','0.636','0.206'])
- assert '시행별 root mean square error' in (LATEX/'frontmatter.tex').read_text()
+ assert '시행별 root mean square error' in (LATEX/'frontmatter.tex').read_text(encoding='utf-8')
  result={'editorial_revision':'20261017_user_requested_introduction_compact_plots','user_introduction_applied':True,'paper_has_no_data_file_paths_or_repository_instructions':True,'task_survival_and_completion_counts_verified':True,'restoration_base_commit':'0d34639','submission_ready':False,'page_limits_met':all(x['page_limit_met'] for x in pdfs.values()),'heatmap_metric':'fall_rate_percent = 100 - survival_percent','heatmap_survival_complements_verified':True,'heatmap_color_limits_percent':[.4,30],'heatmap_color_normalization':'logarithmic, original rates unchanged','active_legacy_architecture':'private/assets/paper_workflow_v8.pdf; preserved original diagram, not asserted to have new quantitative figure font styling','records_sha256':digest(DATA/'records.json'),'primary_d100_evidence':evidence,'per_family_d100_all_primary_metrics_improved':True,'pdfs':pdfs,'new_quantitative_figure_font_size_pt':9,'new_quantitative_figure_titles_absent':True,'all_plotted_points_csv_max_difference':max(differences),'all_60_heatmap_counts_verified':True,'generated_assets_audit_including_unused_simplified_architecture':asset_audit,'heatmap_cells':a['heatmap']['cells'],'heatmap_minimum_text_contrast':a['heatmap']['minimum_text_background_contrast'],'raw_simulation_reexecuted':False,'training_reexecuted':False}
- out=BASE/'paper_assets/manuscript_validation.json';out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n');print(json.dumps(result,ensure_ascii=False,indent=2))
+ for name,details in pdfs.items():
+  source=build/f'{name}.pdf';preview=LATEX/'preview'/f'{name}.pdf'
+  if args.publish_previews:
+   assert build.resolve()==(LATEX/'build').resolve(),'Publish the canonical editor build only'
+   shutil.copyfile(source,preview)
+  assert digest(preview)==details['sha256'],name+' preview differs from validated build'
+  details['editor_build_and_preview_byte_identical']=True
+ result['all_four_editor_configurations_use_lualatex_on_save']=True
+ result['wrong_engine_guard_in_both_entry_files']=True
+ out=BASE/'paper_assets/manuscript_validation.json';out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8');print(json.dumps(result,ensure_ascii=False,indent=2))
  if args.require_page_limits and not result['page_limits_met']:raise SystemExit('Page limits not met; restored content retained.')
 if __name__=='__main__':main()

@@ -1,5 +1,7 @@
 # 2026-10-16 최신 원고
 
+[편집기 PDF 참조·인용 오류 수정 및 전체 검사](REFERENCE_FIX_20261017.md): 루트 설정의 XeLaTeX 충돌을 수정하고 canonical build와 preview를 동기화했다.
+
 최신 편집본은 [프로시딩 6쪽](private/latex/preview/proceedings.pdf)과 [익명 심사용 6쪽](private/latex/preview/main.pdf)이다. [서론·그림·결과 편집 기록](EDITORIAL_20261017.md)을 확인한다. 목표 5쪽·4쪽은 아직 미충족이다. [이전 복구·리뷰](RESTORATION_20261017.md)는 직전 7쪽·6쪽 원고에 대한 기록이다.
 
 # 대한전자공학회 2026 추계 학부생 논문경진대회 준비
