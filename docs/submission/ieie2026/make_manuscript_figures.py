@@ -59,14 +59,31 @@ def main():
  save_checked(fig,'paper_architecture')
  plt.close(fig)
  rows=list(csv.DictReader((OUT/'learning_curve.csv').open()))
- fig,ax=plt.subplots(figsize=(80/25.4,40/25.4),constrained_layout=True)
- for phase,color in [('teacher','#666666'),('joint_student','#1466a2')]:
-  rr=[r for r in rows if r['phase']==phase];ax.plot([int(r['iteration'])/1000 for r in rr],[float(r['mean_reward_trailing500']) for r in rr],color=color,lw=1.1)
- ax.set(ylabel='Mean reward',ylim=(0,25),yticks=[0,10,20],xlabel=r'Iteration ($\times10^3$)',xticks=[0,43,53,77.5],xticklabels=['0','43','53','77.5'],xlim=(0,77.5))
- for at in [43,53]:ax.axvline(at,color='#888',ls=':',lw=.6)
- for side in ['top','right']:ax.spines[side].set_visible(False)
- ax.tick_params(length=2);ax.grid(alpha=.15)
+ fig,(ax,mix)=plt.subplots(2,1,figsize=(80/25.4,63/25.4),sharex=True,
+                           gridspec_kw={'height_ratios':[2.6,1]},constrained_layout=True)
+ for phase,color in [('teacher','#586477'),('joint_student','#007fa3')]:
+  rr=[r for r in rows if r['phase']==phase]
+  ax.plot([int(r['iteration'])/1000 for r in rr],[float(r['mean_reward_trailing500']) for r in rr],color=color,lw=1.1)
+ rr=[r for r in rows if r['phase']=='joint_student']
+ assert np.allclose([float(r['alpha']) for r in rr],np.clip([(int(r['iteration'])-43000)/10000 for r in rr],0,1))
+ for panel in [ax,mix]:
+  for left,right,color in [(0,43,'#eef0f3'),(43,53,'#f4cadb'),(53,77.5,'#fff2f7')]:
+   panel.axvspan(left,right,color=color,zorder=0)
+  for at in [43,53]:panel.axvline(at,color='#777',ls='--',lw=.6)
+  for side in ['top','right']:panel.spines[side].set_visible(False)
+  panel.tick_params(length=2,pad=2);panel.grid(alpha=.15);panel.set_xlim(0,77.5)
+ ax.set(ylabel='Mean reward',ylim=(0,26),yticks=[0,10,20])
+ for at,label in [(21.5,'Teacher'),(48,'Joint'),(65.25,'Student only')]:
+  ax.text(at,24.0,label,ha='center',va='center',fontsize=9)
+ weight_x=np.array([0,43,53,77.5]);alpha=np.array([0,0,1,1])
+ mix.plot(weight_x,1-alpha,color='#586477',lw=1,ls='--',label=r'Teacher: $1-\alpha$')
+ mix.plot(weight_x,alpha,color='#007fa3',lw=1,label=r'Student: $\alpha$')
+ mix.set(ylabel='Weight',ylim=(-.08,1.15),yticks=[0,1],xlabel=r'Iteration ($\times10^3$)',
+         xticks=[0,43,53,77.5],xticklabels=['0','43','53','77.5'])
+ mix.legend(loc='center left',frameon=False,handlelength=1.2,handletextpad=.3,borderaxespad=.15,labelspacing=.15)
  save_checked(fig,'paper_learning')
+ AUDIT['paper_learning']['restored_design']='Reward and Teacher/Joint/Student-only phases with pink transition band; lower teacher/student weights'
+ AUDIT['paper_learning']['weight_schedule_verified_against_archived_alpha']=True
  plt.close(fig)
  (OUT/'figure_audit.json').write_text(json.dumps(AUDIT,indent=2)+'\n')
  print('Saved title-free architecture and learning figures in',OUT)

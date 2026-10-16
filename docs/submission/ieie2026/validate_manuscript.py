@@ -25,6 +25,12 @@ def main():
   n=next(r for r in table if r['policy']=='Normal' and r['family']==family and float(r['loss'])==1);s=next(r for r in table if r['policy']=='Student' and r['family']==family and float(r['loss'])==1)
   assert float(s['survival'])>float(n['survival'])
   for metric in metrics:assert float(s[metric])<float(n[metric])
+ mobility=list(csv.DictReader((BASE/'paper_assets/task_mobility.csv').open()))
+ for cell in mobility:
+  rs=[r for r in records if r['policy']==cell['policy'] and r['profile']['family']==cell['family'] and r['condition']['loss']==1]
+  assert len(rs)==int(cell['episodes'])
+  assert sum(r['termination']=='goal' for r in rs)==int(cell['completed'])
+  assert sum(r['survived'] for r in rs)==int(cell['survived'])
  pdfs={}
  references=(LATEX/'references.tex').read_text();bibs=re.findall(r'\\bibitem\{([^}]+)\}',references)
  for name,limit in [('proceedings',5),('main',4)]:
@@ -37,6 +43,10 @@ def main():
   assert not any(w in intro for w in ['RMA','ADAPT','기여는'])
   for token in ['fig:environment','tab:system','tab:observation','tab:encoders','tab:reward','paper_workflow_v8.pdf','50\\times48','235+8=243','187','45','12']:
    assert token in body,(name,token)
+  assert all(x not in body for x in ['task_metrics','\\url{','\\href{','계열로'])
+  assert '발 디딤 위치와 다리의 움직임을 조절하여' in intro
+  assert '교사·학생 공동학습을 통해 학생이 현재 관측과 과거 관측 이력으로부터' in intro
+  assert 'paper_performance_compact.pdf' in body
   assert '^{,2}' not in body and 'e_{u,i,k}^{2}' in body
   citations=re.findall(r'\\cite\{([^}]+)\}',body);order=[]
   for keys in citations:
@@ -68,6 +78,8 @@ def main():
   for line in fonts:assert line.split()[-5]=='yes',line
   pdfs[name]={'pages':pages,'target_pages':limit,'page_limit_met':pages<=limit,'restored_photos_four_tables_and_dimensions_verified':True,'sha256':digest(pdf),'all_pdf_fonts_embedded':True,'no_overfull_or_missing_glyphs':True,'citations_sentence_end_attached_and_first_appearance_order':True,'all_figures_tables_equations_referenced':True,'conclusion_has_no_stagnation_claim':True,'anonymous_text_and_author_link_removed':True if name=='main' else None}
  a=json.loads((DATA/'figures/style_audit.json').read_text());assert a['font_size_pt']==9
+ assert a['heatmap']['color_limits_percent']==[0,30]
+ assert a['compact_performance']['data_identical_to_individual_curves']
  for name,f in a['figures'].items():assert not f['internal_title'] and not f['outside_text'] and f['text_sizes_pt']==[9.0],name
  for f in list((BASE/'paper_assets').glob('paper_*.pdf')):
   for line in run('pdffonts',str(f)).splitlines()[2:]:assert 'TimesNewRoman' in line and line.split()[-5]=='yes',line
@@ -94,7 +106,7 @@ def main():
  abstract=(LATEX/'abstract-proceedings.tex').read_text()
  assert 'pre-termination cross-track' in abstract and all(x not in abstract for x in ['0.226','0.120','0.262','0.112','0.636','0.206'])
  assert '시행별 root mean square error' in (LATEX/'frontmatter.tex').read_text()
- result={'restoration_base_commit':'0d34639','submission_ready':False,'page_limits_met':all(x['page_limit_met'] for x in pdfs.values()),'heatmap_metric':'fall_rate_percent = 100 - survival_percent','heatmap_survival_complements_verified':True,'active_legacy_architecture':'private/assets/paper_workflow_v8.pdf; preserved original diagram, not asserted to have new quantitative figure font styling','records_sha256':digest(DATA/'records.json'),'primary_d100_evidence':evidence,'per_family_d100_all_primary_metrics_improved':True,'pdfs':pdfs,'new_quantitative_figure_font_size_pt':9,'new_quantitative_figure_titles_absent':True,'all_plotted_points_csv_max_difference':max(differences),'all_60_heatmap_counts_verified':True,'generated_assets_audit_including_unused_simplified_architecture':asset_audit,'heatmap_cells':a['heatmap']['cells'],'heatmap_minimum_text_contrast':a['heatmap']['minimum_text_background_contrast'],'raw_simulation_reexecuted':False,'training_reexecuted':False}
+ result={'editorial_revision':'20261017_user_requested_introduction_compact_plots','user_introduction_applied':True,'paper_has_no_data_file_paths_or_repository_instructions':True,'task_survival_and_completion_counts_verified':True,'restoration_base_commit':'0d34639','submission_ready':False,'page_limits_met':all(x['page_limit_met'] for x in pdfs.values()),'heatmap_metric':'fall_rate_percent = 100 - survival_percent','heatmap_survival_complements_verified':True,'heatmap_color_limits_percent':[0,30],'active_legacy_architecture':'private/assets/paper_workflow_v8.pdf; preserved original diagram, not asserted to have new quantitative figure font styling','records_sha256':digest(DATA/'records.json'),'primary_d100_evidence':evidence,'per_family_d100_all_primary_metrics_improved':True,'pdfs':pdfs,'new_quantitative_figure_font_size_pt':9,'new_quantitative_figure_titles_absent':True,'all_plotted_points_csv_max_difference':max(differences),'all_60_heatmap_counts_verified':True,'generated_assets_audit_including_unused_simplified_architecture':asset_audit,'heatmap_cells':a['heatmap']['cells'],'heatmap_minimum_text_contrast':a['heatmap']['minimum_text_background_contrast'],'raw_simulation_reexecuted':False,'training_reexecuted':False}
  out=BASE/'paper_assets/manuscript_validation.json';out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n');print(json.dumps(result,ensure_ascii=False,indent=2))
  if args.require_page_limits and not result['page_limits_met']:raise SystemExit('Page limits not met; restored content retained.')
 if __name__=='__main__':main()

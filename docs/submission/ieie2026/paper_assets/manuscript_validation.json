@@ -1,9 +1,17 @@
 {
+  "editorial_revision": "20261017_user_requested_introduction_compact_plots",
+  "user_introduction_applied": true,
+  "paper_has_no_data_file_paths_or_repository_instructions": true,
+  "task_survival_and_completion_counts_verified": true,
   "restoration_base_commit": "0d34639",
   "submission_ready": false,
   "page_limits_met": false,
   "heatmap_metric": "fall_rate_percent = 100 - survival_percent",
   "heatmap_survival_complements_verified": true,
+  "heatmap_color_limits_percent": [
+    0,
+    30
+  ],
   "active_legacy_architecture": "private/assets/paper_workflow_v8.pdf; preserved original diagram, not asserted to have new quantitative figure font styling",
   "records_sha256": "bfdb2687494cd92b84e2ef7e24944e58a4111d9e9e7e626259eff0b0c9e58411",
   "primary_d100_evidence": {
@@ -29,11 +37,11 @@
   "per_family_d100_all_primary_metrics_improved": true,
   "pdfs": {
     "proceedings": {
-      "pages": 7,
+      "pages": 6,
       "target_pages": 5,
       "page_limit_met": false,
       "restored_photos_four_tables_and_dimensions_verified": true,
-      "sha256": "2891de257170fb004537a6be709feec8db84ad20cc943f74db291b6c0f09211f",
+      "sha256": "1590855b9e847dd0430021e0649dfdae82477f6c01ebbe1d8fe71b080f3f36f9",
       "all_pdf_fonts_embedded": true,
       "no_overfull_or_missing_glyphs": true,
       "citations_sentence_end_attached_and_first_appearance_order": true,
@@ -46,7 +54,7 @@
       "target_pages": 4,
       "page_limit_met": false,
       "restored_photos_four_tables_and_dimensions_verified": true,
-      "sha256": "5326f7aef2ff0b484374dcabdea970fa8946ba3b8e37af1e7091f3d9a16b0818",
+      "sha256": "7f97233dbe7d88faeacb823e0080d6e4ba201157414eb3295a7b0a4e64f3e61b",
       "all_pdf_fonts_embedded": true,
       "no_overfull_or_missing_glyphs": true,
       "citations_sentence_end_attached_and_first_appearance_order": true,
@@ -70,13 +78,15 @@
     "paper_learning": {
       "font_size_pt": 9,
       "width_mm": 80.0,
-      "height_mm": 40.0,
+      "height_mm": 63.0,
       "internal_title": false,
-      "outside_text": []
+      "outside_text": [],
+      "restored_design": "Reward and Teacher/Joint/Student-only phases with pink transition band; lower teacher/student weights",
+      "weight_schedule_verified_against_archived_alpha": true
     }
   },
   "heatmap_cells": 60,
-  "heatmap_minimum_text_contrast": 14.012789034876363,
+  "heatmap_minimum_text_contrast": 4.682029836693136,
   "raw_simulation_reexecuted": false,
   "training_reexecuted": false
 }

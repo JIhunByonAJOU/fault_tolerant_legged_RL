@@ -1,6 +1,6 @@
 # 논문 수치·설정·선택 규칙의 재현 명세
 
-대상은 2026-10-17 복구 원고다. 현재 프로시딩 7쪽·익명본 6쪽으로 제출 분량은 미충족이다. 원자료는 저장소의 [고정 2:1:1:2 데이터](../../../../datasets/ieie2026_fixed2112/README.md), 전체 조건 설명은 [DATA_DETAILS.md](../../../../datasets/ieie2026_fixed2112/DATA_DETAILS.md)에 있다. 이 명세는 새 학습이나 새 보행 평가의 결과가 아니다. 각 정책을 한 번 학습한 고정 체크포인트의 기술통계이며, 외부 방법 또는 학습 알고리즘의 일반적인 순위를 주장하지 않는다.
+대상은 2026-10-17 편집 원고다. 현재 프로시딩6쪽·익명본6쪽으로 제출 분량은 미충족이다. 상세 재현 안내는 이 외부 문서에 보존하며 논문 본문에서는 제거했다. 원자료는 저장소의 [고정 2:1:1:2 데이터](../../../../datasets/ieie2026_fixed2112/README.md), 전체 조건 설명은 [DATA_DETAILS.md](../../../../datasets/ieie2026_fixed2112/DATA_DETAILS.md)에 있다. 이 명세는 새 학습이나 새 보행 평가의 결과가 아니다. 각 정책을 한 번 학습한 고정 체크포인트의 기술통계이며, 외부 방법 또는 학습 알고리즘의 일반적인 순위를 주장하지 않는다.
 
 ## 정책과 학습 계보
 
@@ -52,7 +52,7 @@ RMSE는 고장 후 첫 종료 전 pre-action 유효 표본으로 시행별 계�
 
 ## 그림과 재현 명령
 
-성능 곡선 5개와 Student 절대 낙상률 히트맵은 데이터 폴더의 `paper_figures.py`로 생성한다. 학습 곡선은 `../make_manuscript_figures.py`로 생성한다. 현재 구조도는 복구한 `private/assets/paper_workflow_v8.pdf`다. 생성기의 단순화 구조도는 과거 시안이다. 이 폴더의 학습 CSV는 각 학습 런에서 독립적으로 완전한 500회 trailing window를 계산해 보존한 값이며 로그를 합친 경계에서 이동평균을 만들지 않았다. 일반 재생성에는 CSV만 필요하고 원 로그는 필요 없다.
+성능 곡선 5개 및 생존율 위+RMSE 2×2의 합본과 Student 절대 낙상률 히트맵은 데이터 폴더의 `paper_figures.py`로 생성한다. 학습 곡선은 `../make_manuscript_figures.py`로 생성한다. 현재 구조도는 복구한 `private/assets/paper_workflow_v8.pdf`다. 생성기의 단순화 구조도는 과거 시안이다. 이 폴더의 학습 CSV는 각 학습 런에서 독립적으로 완전한 500회 trailing window를 계산해 보존한 값이며 로그를 합친 경계에서 이동평균을 만들지 않았다. 일반 재생성에는 CSV만 필요하고 원 로그는 필요 없다.
 
 ```sh
 python3 docs/submission/ieie2026/make_manuscript_figures.py
@@ -85,3 +85,5 @@ latexmk -lualatex -outdir=build main.tex
 식 (5)의 모방항은 제곱 없는 특징 L2 노름의 배치 평균이다. 동결 `source_snapshot/legged_gym/learning/joint_teacher_student_actor_critic.py::adaptation_loss`의 `torch.linalg.vector_norm(predicted − target, dim=−1).mean()`과 대조했다. 제곱평균오차로 바꾸지 않았다. 감소율 47.0%, 57.3%, 67.6%, 64.6%는 반올림 전 기록 평균에서 계산한다.
 
 낙상률 히트맵은 100−생존율이며 낮은 값은 밝고 높은 값은 진하다. 100% 열 낙상 합계 279/2,592는 생존 2,313/2,592=89.2361%와 여집합이다.
+
+현재 학습 그림은 Teacher/Joint/Student only 배경과 하단 교사·학생 가중치를 복구했다. 낙상률 색 범위는 0–30%이다. 과제별 본문 표는 생존율·완주율이며 `task_mobility.csv`는 원기록의 낙상/완주 정수 집계다. 생존과 실제 진행을 구분하며 비낙상 시간 상한을 전부 정체로 간주하지 않는다.

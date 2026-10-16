@@ -78,7 +78,7 @@ def heatmap(rows, output, audit):
         writer = csv.DictWriter(f, fieldnames=list(table[0]))
         writer.writeheader(); writer.writerows(table)
     fig, ax = plt.subplots(figsize=(80 / 25.4, 85 / 25.4), constrained_layout=True)
-    im = ax.imshow(values, cmap='Blues', norm=Normalize(0, 100), aspect='auto', interpolation='nearest')
+    im = ax.imshow(values, cmap='Blues', norm=Normalize(0, 30), aspect='auto', interpolation='nearest')
     ax.set(xticks=range(5), xticklabels=[20, 40, 60, 80, 100], yticks=range(12), yticklabels=JOINTS,
            xlabel='Torque degradation (%)')
     annotations, contrasts = [], []
@@ -95,7 +95,7 @@ def heatmap(rows, output, audit):
     ax.tick_params(axis='both', length=2, width=.5, pad=2)
     for spine in ax.spines.values(): spine.set_linewidth(.5)
     bar = fig.colorbar(im, ax=ax, label='Fall rate (%)', fraction=.045, pad=.035, aspect=40,
-                 ticks=[0, 20, 40, 60, 80, 100], format='%.0f')
+                 ticks=[0, 5, 10, 15, 20, 25, 30], format='%.0f')
     bar.outline.set_linewidth(.5)
     bar.ax.tick_params(length=2, width=.5, pad=2)
     fig.canvas.draw()
@@ -111,7 +111,7 @@ def heatmap(rows, output, audit):
     audit['heatmap'] = {'cells': len(annotations), 'trials_per_policy_cell': 216,
                         'policy': 'Student', 'decimals': 1,
                         'minimum_text_background_contrast': min(contrasts),
-                        'annotations_outside_cells': clipped, 'color_limits_percent': [0, 100],
+                        'annotations_outside_cells': clipped, 'color_limits_percent': [0, 30],
                         'metric': '100 * fallen trials / all trials = 100 - survival percent',
                         'visual_mapping': 'Lower fall rates are lighter; higher fall rates are darker',
                         'survival_definition_unchanged': True}
@@ -151,6 +151,37 @@ def curves(rows, output, audit):
         ax.legend(loc='best', frameon=False, handlelength=1.7, borderaxespad=.25)
         save(fig, f'paper_{names[i]}_by_degradation', output, audit)
     audit['curve_bands'] = 'Minimum to maximum of the three evaluation-seed means; not a confidence interval.'
+
+
+def compact_performance(output, audit):
+    """One-column survival panel above four error panels at final print size."""
+    fig = plt.figure(figsize=(80 / 25.4, 107 / 25.4))
+    grid = fig.add_gridspec(3, 2, height_ratios=[.82, 1, 1], left=.23, right=.98,
+                           top=.98, bottom=.11, wspace=.90, hspace=.62)
+    axes = [fig.add_subplot(grid[0, :])] + [fig.add_subplot(grid[i, j]) for i in [1, 2] for j in [0, 1]]
+    labels = ['Survival (%)', r'$v_x$ RMSE'+'\n(m/s)', r'$v_y$ RMSE'+'\n(m/s)',
+              r'$\omega_z$ RMSE'+'\n(rad/s)', 'Cross-track RMSE\n(m)']
+    for ax, (key, _), label in zip(axes, METRICS, labels):
+        for policy, style in POLICY_STYLE.items():
+            series = audit['curve_values'][key][policy]
+            x = np.array(series['degradation']) * 100
+            ax.plot(x, series['mean'], label=policy, markersize=2.4, linewidth=.9, **style)
+            ax.fill_between(x, series['seed_min'], series['seed_max'], color=style['color'], alpha=.13, linewidth=0)
+        ax.set(xlim=(-3, 103), xticks=[0, 50, 100]); ax.set_ylabel(label,labelpad=1)
+        if key == 'survived':
+            ax.set(ylim=(0, 105), yticks=[0, 50, 100])
+            ax.legend(loc='lower left', ncol=2, frameon=False, handlelength=1.4, columnspacing=.8,
+                      handletextpad=.35, borderaxespad=.15)
+        else:
+            ax.set_ylim(bottom=0)
+            ax.yaxis.set_major_locator(MaxNLocator(nbins=3, steps=[1, 2, 2.5, 5, 10]))
+        ax.tick_params(length=2, width=.6, pad=1.5)
+        ax.spines['top'].set_visible(False); ax.spines['right'].set_visible(False)
+        ax.grid(axis='y', alpha=.2, linewidth=.4)
+    fig.supxlabel('Torque degradation (%)', y=.012, fontsize=9)
+    audit['compact_performance'] = {'layout': 'One survival panel above a 2x2 RMSE grid',
+                                    'data_identical_to_individual_curves': True}
+    save(fig, 'paper_performance_compact', output, audit)
 
 
 def terrain_overview(output, audit):
@@ -214,10 +245,10 @@ def main(argv=None):
              'font_file': font_path, 'font_sha256': hashlib.sha256(Path(font_path).read_bytes()).hexdigest(),
              'font_size_pt': 9, 'figure_titles': 'External manuscript captions only',
              'graphics_reference': 'https://conferences.ieeeauthorcenter.ieee.org/write-your-paper/improve-your-graphics/',
-             'heatmap_layout': 'Single-column 80 x 85 mm; single-hue Blues; fall rate = 100 - survival; lower fall rates lighter; fixed 0-100 percent',
+             'heatmap_layout': 'Single-column 80 x 85 mm; single-hue Blues; fall rate = 100 - survival; lower fall rates lighter; fixed 0-30 percent',
              'figures': {}}
     rows = json.loads((BASE / 'records.json').read_text(encoding='utf-8'))
-    heatmap(rows, output, audit); curves(rows, output, audit); terrain_overview(output, audit)
+    heatmap(rows, output, audit); curves(rows, output, audit); compact_performance(output, audit); terrain_overview(output, audit)
     (output / 'style_audit.json').write_text(json.dumps(audit, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print(json.dumps(audit, ensure_ascii=False, indent=2))
 

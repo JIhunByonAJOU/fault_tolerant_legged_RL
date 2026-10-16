@@ -32,9 +32,9 @@
     10
   ],
   "manuscript_validation": "../../../docs/submission/ieie2026/paper_assets/manuscript_validation.json",
-  "manuscript_revision": "restoration_20261017",
+  "manuscript_revision": "editorial_20261017",
   "manuscript_pages": {
-    "proceedings": 7,
+    "proceedings": 6,
     "anonymous": 6
   },
   "page_limits_met": false,

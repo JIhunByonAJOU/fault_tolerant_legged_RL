@@ -1,0 +1,34 @@
+{
+  "validation_type": "fresh staged tracked files, no build cache or ignored sources",
+  "page_limits_met": false,
+  "new_independent_ai_review_performed": false,
+  "pdfs": {
+    "proceedings": {
+      "pages": 6,
+      "target_pages": 5,
+      "text_exactly_matches_delivered_pdf": true,
+      "page_limit_met": false
+    },
+    "main": {
+      "pages": 6,
+      "target_pages": 4,
+      "text_exactly_matches_delivered_pdf": true,
+      "page_limit_met": false
+    }
+  },
+  "source_sha256": {
+    "docs/submission/ieie2026/private/latex/body_review.tex": "0024643802279a4f8df569f0cf8d10b494a30bead9d28c4637d34bc9dce5bba2",
+    "docs/submission/ieie2026/private/latex/authors.tex": "93073d12d19e62ee4ff72a878baf7456271799543d5678f10cc9d9762ebe4e96",
+    "docs/submission/ieie2026/private/latex/fonts-proceedings.tex": "0c087499927d12ab8ae6c47dcb2d2df6d4d28047f1edff6036f7a3727562f51d",
+    "docs/submission/ieie2026/private/latex/references.tex": "073effff528273894551521a8fd74a136181b45c879b3b152cf78d2073eccc38",
+    "docs/submission/ieie2026/private/latex/format-proceedings.tex": "4ec31386e9907f9f76b1202692d339955aff92a003f207b572a2ca0134b1795d",
+    "docs/submission/ieie2026/private/latex/preamble.tex": "51ac2aec4fa2bc5cc030b4016deac834448ef4b1f6f99468db15c8f71f171918",
+    "docs/submission/ieie2026/private/latex/fonts.tex": "0a391077bfa8384130e6507f469c3794d5caf1471ff115c0343aa5ba6f5e1783",
+    "docs/submission/ieie2026/private/latex/abstract-proceedings.tex": "3741a69d9d15bac9c0b4151bb5ba0f5c0e1bcb1023c01133b1f7460494fd5a2e",
+    "docs/submission/ieie2026/private/latex/frontmatter-proceedings.tex": "5a2ed075dc1460350eddf44def1f5a8c6394e4c1c08f3c1cb55eca58da30ab81",
+    "docs/submission/ieie2026/private/latex/proceedings.tex": "4eb9f92fbc290e6fe1160d35674fef1bd2a097e1d942da7a3eee1848f93f4a4e",
+    "docs/submission/ieie2026/private/latex/body.tex": "9415fa1ec7937549c5f6c3a532a8164468a36fb2a7b648b3feaab2b3fdb59407",
+    "docs/submission/ieie2026/private/latex/frontmatter.tex": "2c840e7e3b8afa38ffea53eb71da1e9f4501256cc4505f9035c3d2e3bfe0a1f0",
+    "docs/submission/ieie2026/private/latex/main.tex": "e1532dff8bffadc6dce9e4ac899770d26d2b107d773b3ddb2dc6b1bb5ded6bfe"
+  }
+}

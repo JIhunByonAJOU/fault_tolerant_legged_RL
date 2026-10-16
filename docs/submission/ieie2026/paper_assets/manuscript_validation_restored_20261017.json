@@ -1,0 +1,82 @@
+{
+  "restoration_base_commit": "0d34639",
+  "submission_ready": false,
+  "page_limits_met": false,
+  "heatmap_metric": "fall_rate_percent = 100 - survival_percent",
+  "heatmap_survival_complements_verified": true,
+  "active_legacy_architecture": "private/assets/paper_workflow_v8.pdf; preserved original diagram, not asserted to have new quantitative figure font styling",
+  "records_sha256": "bfdb2687494cd92b84e2ef7e24944e58a4111d9e9e7e626259eff0b0c9e58411",
+  "primary_d100_evidence": {
+    "Normal": {
+      "n": 2592,
+      "survival_percent": 52.083333333333336,
+      "goal_percent": 23.84259259259259,
+      "command_vx_rmse": 0.22593019791572283,
+      "command_vy_rmse": 0.26185025712126586,
+      "command_wz_rmse": 0.6356730746017273,
+      "cross_track_rmse": 0.22486186992146726
+    },
+    "Student": {
+      "n": 2592,
+      "survival_percent": 89.23611111111111,
+      "goal_percent": 86.72839506172839,
+      "command_vx_rmse": 0.11970306218516884,
+      "command_vy_rmse": 0.1117242860866551,
+      "command_wz_rmse": 0.20611751787037025,
+      "cross_track_rmse": 0.0795837064626804
+    }
+  },
+  "per_family_d100_all_primary_metrics_improved": true,
+  "pdfs": {
+    "proceedings": {
+      "pages": 7,
+      "target_pages": 5,
+      "page_limit_met": false,
+      "restored_photos_four_tables_and_dimensions_verified": true,
+      "sha256": "2891de257170fb004537a6be709feec8db84ad20cc943f74db291b6c0f09211f",
+      "all_pdf_fonts_embedded": true,
+      "no_overfull_or_missing_glyphs": true,
+      "citations_sentence_end_attached_and_first_appearance_order": true,
+      "all_figures_tables_equations_referenced": true,
+      "conclusion_has_no_stagnation_claim": true,
+      "anonymous_text_and_author_link_removed": null
+    },
+    "main": {
+      "pages": 6,
+      "target_pages": 4,
+      "page_limit_met": false,
+      "restored_photos_four_tables_and_dimensions_verified": true,
+      "sha256": "5326f7aef2ff0b484374dcabdea970fa8946ba3b8e37af1e7091f3d9a16b0818",
+      "all_pdf_fonts_embedded": true,
+      "no_overfull_or_missing_glyphs": true,
+      "citations_sentence_end_attached_and_first_appearance_order": true,
+      "all_figures_tables_equations_referenced": true,
+      "conclusion_has_no_stagnation_claim": true,
+      "anonymous_text_and_author_link_removed": true
+    }
+  },
+  "new_quantitative_figure_font_size_pt": 9,
+  "new_quantitative_figure_titles_absent": true,
+  "all_plotted_points_csv_max_difference": 7.216449660063518e-16,
+  "all_60_heatmap_counts_verified": true,
+  "generated_assets_audit_including_unused_simplified_architecture": {
+    "paper_architecture": {
+      "font_size_pt": 9,
+      "width_mm": 80.0,
+      "height_mm": 40.0,
+      "internal_title": false,
+      "outside_text": []
+    },
+    "paper_learning": {
+      "font_size_pt": 9,
+      "width_mm": 80.0,
+      "height_mm": 40.0,
+      "internal_title": false,
+      "outside_text": []
+    }
+  },
+  "heatmap_cells": 60,
+  "heatmap_minimum_text_contrast": 14.012789034876363,
+  "raw_simulation_reexecuted": false,
+  "training_reexecuted": false
+}

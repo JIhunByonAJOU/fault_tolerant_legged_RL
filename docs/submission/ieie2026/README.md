@@ -1,6 +1,6 @@
 # 2026-10-16 최신 원고
 
-최신은 이전 서론·시스템·방법을 복구한 [프로시딩 7쪽](private/latex/preview/proceedings.pdf)과 [익명 심사용 6쪽](private/latex/preview/main.pdf)이다. [복구·검증 기록](RESTORATION_20261017.md)과 [새 AI 리뷰 대응표](reviewer/restoration_20261017/RESPONSE.md)를 확인한다. 목표 5쪽·4쪽은 아직 미충족이다. 2026-10-16의 5쪽·4쪽 개정 기록과 아래 이전 직진·Q 기록은 과거 상태다.
+최신 편집본은 [프로시딩 6쪽](private/latex/preview/proceedings.pdf)과 [익명 심사용 6쪽](private/latex/preview/main.pdf)이다. [서론·그림·결과 편집 기록](EDITORIAL_20261017.md)을 확인한다. 목표 5쪽·4쪽은 아직 미충족이다. [이전 복구·리뷰](RESTORATION_20261017.md)는 직전 7쪽·6쪽 원고에 대한 기록이다.
 
 # 대한전자공학회 2026 추계 학부생 논문경진대회 준비
 

@@ -169,8 +169,8 @@
       "sha256": "150013329e71880dfa4486d9ff2c563ce925934be8c6ccf8771b347e0e17e65c"
     },
     "README.md": {
-      "bytes": 7825,
-      "sha256": "fb4ca877fc1791a793e9d203c1f5843afc2bb3bc8680e266a9df87c838a15f21"
+      "bytes": 8150,
+      "sha256": "e5e2bdf6e77c68f0ef944ae930f1cbed2320a9ecab83edde7749cf43606c2d64"
     },
     "derivation_manifest.json": {
       "bytes": 28645,
@@ -6705,12 +6705,12 @@
       "sha256": "d0f11209a8115e14f66277f515a0cf79b1703764824870cbffeb765aa108bef7"
     },
     "FIGURE_GUIDELINES.md": {
-      "bytes": 6619,
-      "sha256": "bbaea4267a2c98bf4e4c68c2ef70989fd6c763dc22671ee52ffeadb6e019baae"
+      "bytes": 6946,
+      "sha256": "37b9983fca104c96006018cd78b81f6ad46100ca61fa67795abb98e06e401346"
     },
     "PAPER_RESULTS_PLAN.md": {
-      "bytes": 4305,
-      "sha256": "a0f05ba124bea2e96a95307b3fa61106bcd5cb006043e1589ce96f4c5af9e2d2"
+      "bytes": 4708,
+      "sha256": "db81b99d94586a1b73669af8d2f340e40b10710acc8f566fe2ac4b22c34a2c46"
     },
     "TA_GUIDANCE.md": {
       "bytes": 5178,
@@ -6721,8 +6721,8 @@
       "sha256": "34d2649998894c1cad38a9ecb8d89d234be2171b795c205f46cb5cdb85301163"
     },
     "figures/VALIDATION.md": {
-      "bytes": 2070,
-      "sha256": "28d9ac2d8ec274a45e14e1dfeeaed807402c07d507e7937709896aad0f8743b0"
+      "bytes": 2425,
+      "sha256": "69d266210fbcfc7a734dce8c73fb5bb54e97d49962c4246415c975f7b740b528"
     },
     "figures/paper_joint_vxy_gain.pdf": {
       "bytes": 27010,
@@ -6741,8 +6741,8 @@
       "sha256": "f5f1be61e0213679f54b86ddc345f0b06ef6f063e4bc0ec4e3737d7f3b736e7d"
     },
     "figures/style_audit.json": {
-      "bytes": 10669,
-      "sha256": "1c8fce6cc0b200f587a03759682c1c39a20e3380073abace35d39fe1d7605d33"
+      "bytes": 10998,
+      "sha256": "ae3e7e14c13675c75f5de55896fa980dbbc1ac74f630318153d8432da4b4099a"
     },
     "figures/terrain_heightmap_s1101.pdf": {
       "bytes": 121686,
@@ -6753,8 +6753,8 @@
       "sha256": "525820ec1469e32d082f57459c9644d03562705c541f56629625ffbd95acfefa"
     },
     "paper_figures.py": {
-      "bytes": 12552,
-      "sha256": "ab77ea35af0c4953d62c2e391d8b9874f1661851e07072b41e1164dae4e06f7b"
+      "bytes": 14545,
+      "sha256": "559521ef36e7e39d7f024d7c7975e90177e205d3982e6509f058fc0088e5f698"
     },
     "reports/manifest.json": {
       "bytes": 3028,
@@ -6805,8 +6805,8 @@
       "sha256": "1749c4749778cdda08ff374b4b3a3d66a91d834d135e0f2efd2fcdf9c195c7d3"
     },
     "reproducibility/documentation_validation.json": {
-      "bytes": 920,
-      "sha256": "c5b015794f857057ee9a2591218f8b1bf2c7a40d9f5a2ed2f67c75b343bb0159"
+      "bytes": 918,
+      "sha256": "7b24ea177d90d91f7c1d0c1a4382fa024383f83dac5590104b25ced2f0c8140c"
     },
     "reproducibility/reconstruct_terrain.py": {
       "bytes": 1990,
@@ -6829,8 +6829,8 @@
       "sha256": "282302979a79ec6d7c299b11c41b51dbf56ecda385f1ae2b98c3a9bc22bfa251"
     },
     "figures/README.md": {
-      "bytes": 2513,
-      "sha256": "89eb31e7c48eeb86777bc5d8f5489b770f5d54a47b48dd269a07c5773acf38e9"
+      "bytes": 2922,
+      "sha256": "3b0bcbc381198702dce72cb37ab4e58c2c60d2887c2080075a157077014d5f85"
     },
     "figures/paper_cross_track_rmse_by_degradation.pdf": {
       "bytes": 32413,
@@ -6885,8 +6885,8 @@
       "sha256": "b3ccbc932046a0217327f2ff54336d96c542db801a88249aad83cb0e02741479"
     },
     "reproducibility/individual_figures_validation.json": {
-      "bytes": 1765,
-      "sha256": "c17f1d45b30adf0fc6d317e5094949e152ee3c7e0a7e8f048161a362c9b64058"
+      "bytes": 1977,
+      "sha256": "a24509329f8998bd198d1415c587627194deacd2cda1cba6c4b58874de792ad3"
     },
     "reports/quantitative_argument_evidence.json": {
       "bytes": 8293,
@@ -6897,16 +6897,24 @@
       "sha256": "adb121233bed828c14d2db8be1689306c920986d2c2d72efc7675edabf7c2f74"
     },
     "figures/paper_student_fall_rate_heatmap.pdf": {
-      "bytes": 34097,
-      "sha256": "3db382b14b86f0d15115fe6e92b02a4c5417004427b1c7b7c7bf06303995a274"
+      "bytes": 35851,
+      "sha256": "123f09b3b4e0da9ce27bd4991db1a52995ee4b262605e20731619eaa547c4308"
     },
     "figures/paper_student_fall_rate_heatmap.png": {
-      "bytes": 144640,
-      "sha256": "ff0c52e370f034c782eae35516c59f9dc290d2609297b739d9bfca9ff1a11291"
+      "bytes": 146037,
+      "sha256": "312189bfbab9f5441b6fe8b4705d814979e9ad5ad488856ab5155bd50b693c85"
+    },
+    "figures/paper_performance_compact.pdf": {
+      "bytes": 46400,
+      "sha256": "d279af7857df41714bc9f396a1fcb16df687dbe3846aa6e9d2c16b6157286fa5"
+    },
+    "figures/paper_performance_compact.png": {
+      "bytes": 128932,
+      "sha256": "a62a56cc6c92c0dfc70f2b70253e8050d7fb17d3db9d00188950e4de83bcba96"
     }
   },
-  "total_bytes": 7507942290,
+  "total_bytes": 7508125124,
   "created_at": 1792157045.4827263,
-  "documentation_updated_at": 1792167730.0490763,
-  "documentation_revision": 6
+  "documentation_updated_at": 1792170162.8436742,
+  "documentation_revision": 7
 }

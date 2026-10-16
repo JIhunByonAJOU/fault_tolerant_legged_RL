@@ -8,7 +8,7 @@
   "font_size_pt": 9,
   "figure_titles": "External manuscript captions only",
   "graphics_reference": "https://conferences.ieeeauthorcenter.ieee.org/write-your-paper/improve-your-graphics/",
-  "heatmap_layout": "Single-column 80 x 85 mm; single-hue Blues; fall rate = 100 - survival; lower fall rates lighter; fixed 0-100 percent",
+  "heatmap_layout": "Single-column 80 x 85 mm; single-hue Blues; fall rate = 100 - survival; lower fall rates lighter; fixed 0-30 percent",
   "figures": {
     "paper_student_fall_rate_heatmap": {
       "width_mm": 80.0,
@@ -64,6 +64,15 @@
       "outside_text": [],
       "internal_title": false
     },
+    "paper_performance_compact": {
+      "width_mm": 80.0,
+      "height_mm": 107.0,
+      "text_sizes_pt": [
+        9.0
+      ],
+      "outside_text": [],
+      "internal_title": false
+    },
     "terrain_heightmap_s1101": {
       "width_mm": 170.0,
       "height_mm": 125.0,
@@ -79,11 +88,11 @@
     "trials_per_policy_cell": 216,
     "policy": "Student",
     "decimals": 1,
-    "minimum_text_background_contrast": 14.012789034876363,
+    "minimum_text_background_contrast": 4.682029836693136,
     "annotations_outside_cells": [],
     "color_limits_percent": [
       0,
-      100
+      30
     ],
     "metric": "100 * fallen trials / all trials = 100 - survival percent",
     "visual_mapping": "Lower fall rates are lighter; higher fall rates are darker",
@@ -441,5 +450,9 @@
       }
     }
   },
-  "curve_bands": "Minimum to maximum of the three evaluation-seed means; not a confidence interval."
+  "curve_bands": "Minimum to maximum of the three evaluation-seed means; not a confidence interval.",
+  "compact_performance": {
+    "layout": "One survival panel above a 2x2 RMSE grid",
+    "data_identical_to_individual_curves": true
+  }
 }

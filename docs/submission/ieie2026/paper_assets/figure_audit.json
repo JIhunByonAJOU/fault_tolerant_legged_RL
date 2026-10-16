@@ -9,8 +9,10 @@
   "paper_learning": {
     "font_size_pt": 9,
     "width_mm": 80.0,
-    "height_mm": 40.0,
+    "height_mm": 63.0,
     "internal_title": false,
-    "outside_text": []
+    "outside_text": [],
+    "restored_design": "Reward and Teacher/Joint/Student-only phases with pink transition band; lower teacher/student weights",
+    "weight_schedule_verified_against_archived_alpha": true
   }
 }
