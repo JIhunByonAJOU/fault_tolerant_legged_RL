@@ -9,9 +9,9 @@
 | vy RMSE | [PDF](paper_vy_rmse_by_degradation.pdf) | [PNG](paper_vy_rmse_by_degradation.png) | 80 × 65 mm |
 | yaw-rate RMSE | [PDF](paper_yaw_rate_rmse_by_degradation.pdf) | [PNG](paper_yaw_rate_rmse_by_degradation.png) | 80 × 65 mm |
 | 경로 횡오차 RMSE | [PDF](paper_cross_track_rmse_by_degradation.pdf) | [PNG](paper_cross_track_rmse_by_degradation.png) | 80 × 65 mm |
-| Student 관절별 생존율 | [PDF](paper_student_survival_heatmap.pdf) | [PNG](paper_student_survival_heatmap.png) | 170 × 95 mm |
+| Student 관절별 생존율 | [PDF](paper_student_survival_heatmap.pdf) | [PNG](paper_student_survival_heatmap.png) | 80 × 100 mm |
 
-다섯 곡선은 각각 축·단위·범례를 포함하며 HY신명조 9 pt다. 음영은 평가 시드 3개의 평균값 최소–최대다.
+모든 현재 그림 파일에는 제목을 넣지 않는다. 그림 번호·제목·캡션은 원고에서 지정한다. 다섯 곡선은 각각 축·단위·범례를 포함하며 Times New Roman 9 pt다. 히트맵은 단일 청색·얇은 격자의 한 단 세로형이다. 음영은 평가 시드 3개의 평균값 최소–최대다.
 
 히트맵은 세로 12관절, 가로 20–100% 토크 저하율이다. 셀당 Student 216시행의 생존 비율을 0–100% 고정 색 범위와 소수점 한 자리로 표시한다. [정확한 셀별 생존 수와 비율](paper_student_survival_heatmap.csv)도 제공한다. 생존은 완주 또는 비낙상 상한 종료이며, 정체한 비낙상도 포함한다.
 

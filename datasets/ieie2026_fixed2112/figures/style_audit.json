@@ -2,18 +2,22 @@
   "ta_guidance_source": "TA_GUIDANCE.md",
   "ta_guidance_reviewed": true,
   "font_and_9pt_are_project_choices": true,
-  "font_family": "HYSinMyeongJo-Medium",
-  "font_file": "/home/jihun/.local/share/fonts/ieie-paper/H2MJSM.TTF",
-  "font_sha256": "f78f538885b29f956cf84286e430898462d11430604625857ad587c0ea73925b",
+  "font_family": "Times New Roman",
+  "font_file": "/home/jihun/.local/share/fonts/ieie-paper/times.ttf",
+  "font_sha256": "931c5de5c70401d9324d5014c123802b4fb753000360ceb2f56c589403cd58c5",
   "font_size_pt": 9,
+  "figure_titles": "External manuscript captions only",
+  "graphics_reference": "https://conferences.ieeeauthorcenter.ieee.org/write-your-paper/improve-your-graphics/",
+  "heatmap_layout": "Single-column 80 x 100 mm; single-hue Blues; thin rules; fixed 0-100 percent",
   "figures": {
     "paper_student_survival_heatmap": {
-      "width_mm": 170.0,
-      "height_mm": 95.0,
+      "width_mm": 80.0,
+      "height_mm": 100.0,
       "text_sizes_pt": [
         9.0
       ],
-      "outside_text": []
+      "outside_text": [],
+      "internal_title": false
     },
     "paper_survival_by_degradation": {
       "width_mm": 80.0,
@@ -21,7 +25,8 @@
       "text_sizes_pt": [
         9.0
       ],
-      "outside_text": []
+      "outside_text": [],
+      "internal_title": false
     },
     "paper_vx_rmse_by_degradation": {
       "width_mm": 80.0,
@@ -29,7 +34,8 @@
       "text_sizes_pt": [
         9.0
       ],
-      "outside_text": []
+      "outside_text": [],
+      "internal_title": false
     },
     "paper_vy_rmse_by_degradation": {
       "width_mm": 80.0,
@@ -37,7 +43,8 @@
       "text_sizes_pt": [
         9.0
       ],
-      "outside_text": []
+      "outside_text": [],
+      "internal_title": false
     },
     "paper_yaw_rate_rmse_by_degradation": {
       "width_mm": 80.0,
@@ -45,7 +52,8 @@
       "text_sizes_pt": [
         9.0
       ],
-      "outside_text": []
+      "outside_text": [],
+      "internal_title": false
     },
     "paper_cross_track_rmse_by_degradation": {
       "width_mm": 80.0,
@@ -53,7 +61,8 @@
       "text_sizes_pt": [
         9.0
       ],
-      "outside_text": []
+      "outside_text": [],
+      "internal_title": false
     },
     "terrain_heightmap_s1101": {
       "width_mm": 170.0,
@@ -61,7 +70,8 @@
       "text_sizes_pt": [
         9.0
       ],
-      "outside_text": []
+      "outside_text": [],
+      "internal_title": false
     }
   },
   "heatmap": {
@@ -69,7 +79,7 @@
     "trials_per_policy_cell": 216,
     "policy": "Student",
     "decimals": 1,
-    "minimum_text_background_contrast": 5.543850713390254,
+    "minimum_text_background_contrast": 4.603450894973763,
     "annotations_outside_cells": [],
     "color_limits_percent": [
       0,

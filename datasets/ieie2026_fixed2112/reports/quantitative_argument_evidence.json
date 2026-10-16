@@ -1,0 +1,234 @@
+{
+  "source": "records.json",
+  "source_sha256": "bfdb2687494cd92b84e2ef7e24944e58a4111d9e9e7e626259eff0b0c9e58411",
+  "normal_and_loss": {
+    "Normal": {
+      "0.0": {
+        "episodes": 216,
+        "survived": 213,
+        "survival_percent": 98.61111111111111,
+        "goal": 213,
+        "surviving_stagnation_experience": 0,
+        "stagnation_among_survivors_percent": 0.0,
+        "command_vx_rmse": 0.04349254709485127,
+        "command_vy_rmse": 0.06046510847344916,
+        "command_wz_rmse": 0.0547244328815532,
+        "cross_track_rmse": 0.03673851612036826
+      },
+      "0.6": {
+        "episodes": 2592,
+        "survived": 2254,
+        "survival_percent": 86.95987654320987,
+        "goal": 2208,
+        "surviving_stagnation_experience": 47,
+        "stagnation_among_survivors_percent": 2.085181898846495,
+        "command_vx_rmse": 0.07133668428643893,
+        "command_vy_rmse": 0.07680071705594345,
+        "command_wz_rmse": 0.11106913358194047,
+        "cross_track_rmse": 0.04803430949646647
+      },
+      "0.8": {
+        "episodes": 2592,
+        "survived": 1823,
+        "survival_percent": 70.33179012345678,
+        "goal": 1516,
+        "surviving_stagnation_experience": 309,
+        "stagnation_among_survivors_percent": 16.950082281952824,
+        "command_vx_rmse": 0.13081811018059608,
+        "command_vy_rmse": 0.13298925831072345,
+        "command_wz_rmse": 0.2533873770461794,
+        "cross_track_rmse": 0.09730436023745084
+      },
+      "1.0": {
+        "episodes": 2592,
+        "survived": 1350,
+        "survival_percent": 52.083333333333336,
+        "goal": 618,
+        "surviving_stagnation_experience": 741,
+        "stagnation_among_survivors_percent": 54.888888888888886,
+        "command_vx_rmse": 0.2259301979157231,
+        "command_vy_rmse": 0.26185025712126514,
+        "command_wz_rmse": 0.635673074601727,
+        "cross_track_rmse": 0.2248618699214677
+      }
+    },
+    "Student": {
+      "0.0": {
+        "episodes": 216,
+        "survived": 214,
+        "survival_percent": 99.07407407407408,
+        "goal": 213,
+        "surviving_stagnation_experience": 1,
+        "stagnation_among_survivors_percent": 0.4672897196261682,
+        "command_vx_rmse": 0.053827348449090325,
+        "command_vy_rmse": 0.053315124584405404,
+        "command_wz_rmse": 0.06767466023450466,
+        "cross_track_rmse": 0.03429710306415908
+      },
+      "0.6": {
+        "episodes": 2592,
+        "survived": 2542,
+        "survival_percent": 98.07098765432099,
+        "goal": 2537,
+        "surviving_stagnation_experience": 5,
+        "stagnation_among_survivors_percent": 0.1966955153422502,
+        "command_vx_rmse": 0.061977546876169284,
+        "command_vy_rmse": 0.06041910078947406,
+        "command_wz_rmse": 0.09177135913524223,
+        "cross_track_rmse": 0.0414598277761158
+      },
+      "0.8": {
+        "episodes": 2592,
+        "survived": 2527,
+        "survival_percent": 97.49228395061728,
+        "goal": 2514,
+        "surviving_stagnation_experience": 14,
+        "stagnation_among_survivors_percent": 0.554016620498615,
+        "command_vx_rmse": 0.0732681164145892,
+        "command_vy_rmse": 0.07108901394831915,
+        "command_wz_rmse": 0.11497263075619693,
+        "cross_track_rmse": 0.0496655373901816
+      },
+      "1.0": {
+        "episodes": 2592,
+        "survived": 2313,
+        "survival_percent": 89.23611111111111,
+        "goal": 2248,
+        "surviving_stagnation_experience": 86,
+        "stagnation_among_survivors_percent": 3.718115002161695,
+        "command_vx_rmse": 0.11970306218516891,
+        "command_vy_rmse": 0.11172428608665519,
+        "command_wz_rmse": 0.20611751787037016,
+        "cross_track_rmse": 0.07958370646268043
+      }
+    }
+  },
+  "families_at_full_loss": {
+    "Normal": {
+      "forward": {
+        "episodes": 864,
+        "survived": 424,
+        "survival_percent": 49.074074074074076,
+        "goal": 190,
+        "surviving_stagnation_experience": 236,
+        "stagnation_among_survivors_percent": 55.660377358490564,
+        "command_vx_rmse": 0.23900688493221076,
+        "command_vy_rmse": 0.25556661946019893,
+        "command_wz_rmse": 0.6805148916766017,
+        "cross_track_rmse": 0.24490848181972733
+      },
+      "diagonal": {
+        "episodes": 432,
+        "survived": 258,
+        "survival_percent": 59.72222222222222,
+        "goal": 129,
+        "surviving_stagnation_experience": 129,
+        "stagnation_among_survivors_percent": 50.0,
+        "command_vx_rmse": 0.22080615131936476,
+        "command_vy_rmse": 0.2600391430218408,
+        "command_wz_rmse": 0.5387760719365265,
+        "cross_track_rmse": 0.1739399638959
+      },
+      "lateral": {
+        "episodes": 432,
+        "survived": 258,
+        "survival_percent": 59.72222222222222,
+        "goal": 126,
+        "surviving_stagnation_experience": 136,
+        "stagnation_among_survivors_percent": 52.713178294573645,
+        "command_vx_rmse": 0.1746913689077347,
+        "command_vy_rmse": 0.27800707883896414,
+        "command_wz_rmse": 0.5635251245061533,
+        "cross_track_rmse": 0.14390563376966184
+      },
+      "sine": {
+        "episodes": 864,
+        "survived": 410,
+        "survival_percent": 47.4537037037037,
+        "goal": 173,
+        "surviving_stagnation_experience": 240,
+        "stagnation_among_survivors_percent": 58.53658536585366,
+        "command_vx_rmse": 0.2410349487014088,
+        "command_vy_rmse": 0.260961040973194,
+        "command_wz_rmse": 0.6753537339072395,
+        "cross_track_rmse": 0.2707543291118949
+      }
+    },
+    "Student": {
+      "forward": {
+        "episodes": 864,
+        "survived": 768,
+        "survival_percent": 88.88888888888889,
+        "goal": 744,
+        "surviving_stagnation_experience": 35,
+        "stagnation_among_survivors_percent": 4.557291666666667,
+        "command_vx_rmse": 0.13332827267968406,
+        "command_vy_rmse": 0.10815309375840448,
+        "command_wz_rmse": 0.19461811040229252,
+        "cross_track_rmse": 0.07893210855415018
+      },
+      "diagonal": {
+        "episodes": 432,
+        "survived": 392,
+        "survival_percent": 90.74074074074075,
+        "goal": 382,
+        "surviving_stagnation_experience": 11,
+        "stagnation_among_survivors_percent": 2.806122448979592,
+        "command_vx_rmse": 0.1043866867247405,
+        "command_vy_rmse": 0.10935387526185857,
+        "command_wz_rmse": 0.20435268976704804,
+        "cross_track_rmse": 0.060686075091545714
+      },
+      "lateral": {
+        "episodes": 432,
+        "survived": 411,
+        "survival_percent": 95.13888888888889,
+        "goal": 408,
+        "surviving_stagnation_experience": 4,
+        "stagnation_among_survivors_percent": 0.9732360097323601,
+        "command_vx_rmse": 0.08134891653879293,
+        "command_vy_rmse": 0.11389433633268863,
+        "command_wz_rmse": 0.2162568647689146,
+        "cross_track_rmse": 0.04868406936110824
+      },
+      "sine": {
+        "episodes": 864,
+        "survived": 742,
+        "survival_percent": 85.87962962962963,
+        "goal": 714,
+        "surviving_stagnation_experience": 36,
+        "stagnation_among_survivors_percent": 4.8517520215633425,
+        "command_vx_rmse": 0.13291311224405594,
+        "command_vy_rmse": 0.11539565870428756,
+        "command_wz_rmse": 0.21342966594083673,
+        "cross_track_rmse": 0.10513393860756409
+      }
+    }
+  },
+  "rl_calf_at_full_loss": {
+    "Normal": {
+      "episodes": 216,
+      "survived": 188,
+      "survival_percent": 87.03703703703704,
+      "goal": 3,
+      "surviving_stagnation_experience": 185,
+      "stagnation_among_survivors_percent": 98.40425531914893,
+      "command_vx_rmse": 0.3727933769281683,
+      "command_vy_rmse": 0.19372389108925306,
+      "command_wz_rmse": 0.27070496818326717,
+      "cross_track_rmse": 0.15732859908624672
+    },
+    "Student": {
+      "episodes": 216,
+      "survived": 198,
+      "survival_percent": 91.66666666666667,
+      "goal": 195,
+      "surviving_stagnation_experience": 4,
+      "stagnation_among_survivors_percent": 2.0202020202020203,
+      "command_vx_rmse": 0.14666723934322534,
+      "command_vy_rmse": 0.11940783687132145,
+      "command_wz_rmse": 0.19950169736728027,
+      "cross_track_rmse": 0.11503999911728394
+    }
+  }
+}

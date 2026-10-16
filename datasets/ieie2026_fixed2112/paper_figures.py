@@ -19,8 +19,8 @@ from matplotlib.ticker import MaxNLocator
 BASE = Path(__file__).resolve().parent
 JOINTS = [f'{leg} {part}' for leg in ['FL', 'FR', 'RL', 'RR'] for part in ['hip', 'thigh', 'calf']]
 RATES = [.2, .4, .6, .8, 1.]
-METRICS = [('survived', 'Survival (%)'), ('command_vx_rmse', 'vx RMSE (m/s)'),
-           ('command_vy_rmse', 'vy RMSE (m/s)'), ('command_wz_rmse', 'Yaw-rate RMSE (rad/s)'),
+METRICS = [('survived', 'Survival (%)'), ('command_vx_rmse', r'$v_x$ RMSE (m/s)'),
+           ('command_vy_rmse', r'$v_y$ RMSE (m/s)'), ('command_wz_rmse', r'$\omega_z$ RMSE (rad/s)'),
            ('cross_track_rmse', 'Cross-track RMSE (m)')]
 POLICY_STYLE = {'Normal': dict(color='#b35a00', linestyle='--', marker='o'),
                 'Student': dict(color='#1466a2', linestyle='-', marker='s')}
@@ -35,6 +35,8 @@ def text_color(rgb):
 
 
 def save(fig, name, output, audit):
+    assert not any(ax.get_title(loc=loc) for ax in fig.axes for loc in ['left', 'center', 'right']), name
+    assert fig._suptitle is None or not fig._suptitle.get_text(), name
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
     outside = []
@@ -51,7 +53,7 @@ def save(fig, name, output, audit):
         fig.savefig(output / f'{name}.{ext}', dpi=300)
     audit['figures'][name] = {'width_mm': float(fig.get_figwidth() * 25.4),
                              'height_mm': float(fig.get_figheight() * 25.4),
-                             'text_sizes_pt': sorted(sizes), 'outside_text': outside}
+                             'text_sizes_pt': sorted(sizes), 'outside_text': outside, 'internal_title': False}
     plt.close(fig)
 
 
@@ -73,10 +75,10 @@ def heatmap(rows, output, audit):
     with (output / 'paper_student_survival_heatmap.csv').open('w', newline='', encoding='utf-8-sig') as f:
         writer = csv.DictWriter(f, fieldnames=list(table[0]))
         writer.writeheader(); writer.writerows(table)
-    fig, ax = plt.subplots(figsize=(170 / 25.4, 95 / 25.4), constrained_layout=True)
-    im = ax.imshow(values, cmap='YlGnBu', norm=Normalize(0, 100), aspect='auto')
+    fig, ax = plt.subplots(figsize=(80 / 25.4, 100 / 25.4), constrained_layout=True)
+    im = ax.imshow(values, cmap='Blues', norm=Normalize(0, 100), aspect='auto', interpolation='nearest')
     ax.set(xticks=range(5), xticklabels=[20, 40, 60, 80, 100], yticks=range(12), yticklabels=JOINTS,
-           xlabel='Torque degradation (%)', title='Student survival (%)')
+           xlabel='Torque degradation (%)')
     annotations, contrasts = [], []
     for j in range(12):
         for k in range(5):
@@ -86,10 +88,14 @@ def heatmap(rows, output, audit):
             contrasts.append(contrast)
     ax.set_xticks(np.arange(-.5, 5, 1), minor=True)
     ax.set_yticks(np.arange(-.5, 12, 1), minor=True)
-    ax.grid(which='minor', color='white', linewidth=.35)
+    ax.grid(which='minor', color='#eeeeee', linewidth=.25)
     ax.tick_params(which='minor', bottom=False, left=False)
-    fig.colorbar(im, ax=ax, label='Survival (%)', fraction=.07, pad=.025,
+    ax.tick_params(axis='both', length=2, width=.5, pad=2)
+    for spine in ax.spines.values(): spine.set_linewidth(.5)
+    bar = fig.colorbar(im, ax=ax, label='Survival (%)', fraction=.045, pad=.035, aspect=40,
                  ticks=[0, 20, 40, 60, 80, 100], format='%.0f')
+    bar.outline.set_linewidth(.5)
+    bar.ax.tick_params(length=2, width=.5, pad=2)
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
     clipped = []
@@ -153,8 +159,7 @@ def terrain_overview(output, audit):
     names = ['01  -Slope', '02  +Slope', '03  Rough'] + [f'{c:02d}  -Stairs' for c in range(4, 8)]
     names += [f'{c:02d}  +Stairs' for c in range(8, 11)] + ['11  Obstacles', '12  Obstacles']
     ax.set(yticks=np.arange(4, 96, 8), yticklabels=names, xticks=[0, 8, 16, 24, 32, 40],
-           xlabel='World x (m)', ylabel='Terrain column (world y increases upward)',
-           title='Verified height map, seed 1101 (axis scales differ)')
+           xlabel='World x (m)', ylabel='Terrain column (world y increases upward)')
     for y in np.arange(0, 97, 8): ax.axhline(y, color='black', linewidth=.35, alpha=.4)
     for x in [8, 16, 24, 32]: ax.axvline(x, color='black', linewidth=.35, alpha=.4)
     fig.colorbar(im, ax=ax, label='Height (m)', fraction=.06,
@@ -165,7 +170,7 @@ def terrain_overview(output, audit):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--font', type=Path, help='Local font file; not copied into the dataset')
-    parser.add_argument('--font-family', default='HYSinMyeongJo-Medium')
+    parser.add_argument('--font-family', default='Times New Roman')
     parser.add_argument('--output', type=Path, default=BASE / 'generated/paper_figures')
     args = parser.parse_args(argv)
     if args.font:
@@ -186,23 +191,27 @@ def main(argv=None):
                 try:
                     if font_manager.FontProperties(fname=candidate).get_name() == args.font_family:
                         font_manager.fontManager.addfont(candidate)
-                        break
                 except (RuntimeError, ValueError):
                     continue
             try:
                 font_path = font_manager.findfont(font_manager.FontProperties(family=[args.font_family]), fallback_to_default=False)
             except ValueError as e:
-                raise SystemExit('Required font unavailable. Install HY Shin Myeongjo or pass --font PATH / --font-family NAME.') from e
+                raise SystemExit('Required font unavailable. Install Times New Roman or pass --font PATH / --font-family NAME.') from e
         family = font_manager.FontProperties(fname=font_path).get_name()
     plt.rcParams.update({'font.family': [family], 'font.size': 9, 'axes.titlesize': 9,
                          'axes.labelsize': 9, 'xtick.labelsize': 9, 'ytick.labelsize': 9,
                          'legend.fontsize': 9, 'pdf.fonttype': 42, 'ps.fonttype': 42,
+                         'mathtext.fontset': 'custom', 'mathtext.rm': family,
+                         'mathtext.it': family + ':italic', 'mathtext.bf': family + ':bold',
                          'axes.unicode_minus': False, 'savefig.dpi': 300})
     output = args.output; output.mkdir(parents=True, exist_ok=True)
     audit = {'ta_guidance_source': 'TA_GUIDANCE.md', 'ta_guidance_reviewed': True,
              'font_and_9pt_are_project_choices': True, 'font_family': family,
              'font_file': font_path, 'font_sha256': hashlib.sha256(Path(font_path).read_bytes()).hexdigest(),
-             'font_size_pt': 9, 'figures': {}}
+             'font_size_pt': 9, 'figure_titles': 'External manuscript captions only',
+             'graphics_reference': 'https://conferences.ieeeauthorcenter.ieee.org/write-your-paper/improve-your-graphics/',
+             'heatmap_layout': 'Single-column 80 x 100 mm; single-hue Blues; thin rules; fixed 0-100 percent',
+             'figures': {}}
     rows = json.loads((BASE / 'records.json').read_text(encoding='utf-8'))
     heatmap(rows, output, audit); curves(rows, output, audit); terrain_overview(output, audit)
     (output / 'style_audit.json').write_text(json.dumps(audit, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')

@@ -9,7 +9,7 @@
 - [조교 피드백과 적용 범위](TA_GUIDANCE.md)
 - [그림 글꼴·크기·셀 가독성·생성 방법](FIGURE_GUIDELINES.md)
 - [결과 절·초록·결론 작성안과 원고 반영 계획](PAPER_RESULTS_PLAN.md)
-- [HY신명조·9 pt로 만든 새 그림 시안](figures/): 개별 곡선 폭 80 mm·히트맵 폭 170 mm의 PDF와 PNG, 글꼴·가독성 검증 JSON
+- [Times New Roman·9 pt로 만든 새 그림 시안](figures/): 개별 곡선 폭 80 mm·히트맵 폭 80 mm의 PDF와 PNG, 글꼴·가독성 검증 JSON
 - [당시 높이맵 hash와 일치하는 세 지형 배열](terrain/), [설정·런타임 근거](reproducibility/)
 
 기존 `analysis/`와 `explanatory/`의 그림은 이전 진단 자료다. 논문용 새 그림은 공통 생성기 `paper_figures.py`로 만들며, `analyze.py`의 그림 생성도 같은 기준을 사용한다. 원고 TeX의 새 결과 반영·5/4쪽 조판 완료와는 구분한다.
@@ -44,7 +44,7 @@ py analyze.py
 - `source_snapshot/`: 수집 당시의실행 소스와 원래프로토콜. Isaac Gym 재실행용 출처이며 Windows에서 데이터만 분석할 때는 필요 없다.
 - `fixed_design.json`, `derivation_manifest.json`, `manifest.json`: 구성·출처·전체 파일 무결성. 원래Ubuntu의절대경로는 출처 기록이며 데이터 읽기에는 사용하지 않는다.
 
-그림은 설치된 HY신명조를 사용한다. 폰트를 찾지 못하면 자동 대체하지 않는다. 직접 지정하려면 `py analyze.py --font "C:\Windows\Fonts\H2MJSM.TTF"` 또는 `py paper_figures.py --font "C:\Windows\Fonts\H2MJSM.TTF"`를 사용한다. 글꼴 파일 자체는 저장소에 포함하지 않는다.
+그림은 설치된 Times New Roman을 사용한다. 폰트를 찾지 못하면 자동 대체하지 않는다. 직접 지정하려면 `py analyze.py --font "C:\Windows\Fonts\times.ttf"` 또는 `py paper_figures.py --font "C:\Windows\Fonts\times.ttf"`를 사용한다. 글꼴 파일 자체는 저장소에 포함하지 않는다.
 
 ## 모든 원시 기록 검증
 
