@@ -1,6 +1,6 @@
 # 논문 LaTeX 편집과 최종 개정본
 
-사용자 서론과 그림·표 편집을 반영한 최신 원고는 **프로시딩 6쪽·익명본 6쪽**이다. 목표 5쪽·4쪽은 미충족이다. [최신 편집 기록](../../EDITORIAL_20261017.md)을 기준으로 사용한다. 이전 시스템·방법·사진·표 1–4는 보존했다.
+사용자 서론과 그림·표 편집을 반영한 최신 원고는 **프로시딩 6쪽·익명본 6쪽**이다. 목표 5쪽·4쪽은 미충족이다. [최신 용어 및 문단 수정](../../TERMINOLOGY_20261017.md)을 기준으로 사용한다. 이전 시스템·방법·사진·표 1–4는 보존했다.
 편집기 참조 오류는 [수정 기록](../../REFERENCE_FIX_20261017.md)을 따른다. 루트 폴더를 열어도 LuaLaTeX을 사용하도록 설정을 통일했다. 자동 빌드는 저장 시 실행하며, `build/`와 검증 후 배포하는 `preview/` PDF를 동기화했다.
 
 | 용도 | 편집 파일 | 진입 파일 | 최신 PDF |
@@ -34,9 +34,9 @@ Ubuntu 패키지가 필요하면 `latexmk`, `texlive-luatex`, `texlive-lang-kore
 
 - `fonts-proceedings.tex`는 설치된 HY신명조를 우선하며, 제목 바탕·저자 한컴바탕·수식 Cambria Math 설정을 사용한다. 시작 시 이미 있던 OS 공통 글꼴 선택 수정을 보존해 현재 빌드 설정으로 포함했다. 글꼴 바이너리는 배포하지 않는다.
 - 동일 글꼴이 없는 PC는 편집용 대체 글꼴을 사용하므로 쪽수·배치가 달라질 수 있다. 현재 PDF는 본문 글자·여백을 줄여 한도에 맞춘 결과가 아니다.
-- 그래프는 Times New Roman 9 pt이며 PDF 안에 글꼴을 포함한다. 생존율 80×38 mm, 오차 2×2 80×74 mm, 히트맵 80×85 mm, 보상·가중치 학습 그림 80×63 mm다. 독립 곡선은 80×50 mm다. 복구한 이전 구조도 `paper_workflow_v8.pdf`는 원래 서체·배치를 보존했다. 내부 제목 없이 원고 캡션으로 구별한다.
+- 그래프는 Times New Roman 9 pt이며 PDF 안에 글꼴을 포함한다. 생존율 80×38 mm, 오차 2×2 80×74 mm, 히트맵 80×85 mm, 보상·가중치 학습 그림 80×63 mm다. 독립 곡선은 80×50 mm다. 구조도 `paper_workflow_clean.pdf`는 이전 그림의 원래 상자, 화살표, 차원과 서체를 보존하고 그림 밖 설명 세 줄만 제거했다. 내부 제목 없이 원고 캡션으로 구별한다.
 - `preamble.tex`의 `graphicspath`는 저장소의 `datasets/ieie2026_fixed2112/figures/`와 `docs/submission/ieie2026/paper_assets/`를 직접 참조한다. 폴더 구조를 그대로 유지한다.
-- [그림 생성기](../../make_manuscript_figures.py)는 보존한 학습 CSV로 학습 곡선과 이전 단순화 구조도 시안을 생성한다. 현재 원고의 복구 구조도는 `private/assets/paper_workflow_v8.pdf`이며 생성기가 덮어쓰지 않는다. 성능 곡선은 데이터 폴더의 `paper_figures.py`를 사용한다.
+- [그림 생성기](../../make_manuscript_figures.py)는 보존한 학습 CSV로 학습 곡선과 이전 단순화 구조도 시안을 생성한다. 현재 구조도는 `private/assets/paper_workflow_clean.pdf`이며 `clean_architecture_figure.py`로 이전 `paper_workflow_v8.pdf`에서 설명 세 줄을 제거한다. 원래 구조도는 보존한다. 성능 곡선은 데이터 폴더의 `paper_figures.py`를 사용한다.
 
 공식 양식은 DOCX/HWP이며 이 TeX는 공식 LaTeX 양식이 아니다. 기존에 측정한 공식 양식의 글꼴·여백·줄 간격을 보존했다. 같은 글꼴 환경에서 최종 PDF를 확인한다. 사사 문구·과제번호는 제공되지 않아 임의로 만들지 않았으며 저자 자격과 함께 제출 전에 확인해야 한다.
 

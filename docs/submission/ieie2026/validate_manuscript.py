@@ -117,11 +117,13 @@ def main():
   body=(LATEX/('body.tex' if name=='proceedings' else 'body_review.tex')).read_text(encoding='utf-8')
   intro=body.split('\\section{서론}',1)[1].split('\\section{시스템 모델}',1)[0]
   assert not any(w in intro for w in ['RMA','ADAPT','기여는'])
-  for token in ['fig:environment','tab:system','tab:observation','tab:encoders','tab:reward','paper_workflow_v8.pdf','50\\times48','235+8=243','187','45','12']:
+  for token in ['fig:environment','tab:system','tab:observation','tab:encoders','tab:reward','paper_workflow_clean.pdf','50\\times48','235+8=243','187','45','12']:
    assert token in body,(name,token)
-  assert all(x not in body for x in ['task_metrics','\\url{','\\href{','계열로'])
+  assert all(x not in body for x in ['task_metrics','\\url{','\\href{','계열로','·','base 링크','토크 저하 수준','손실률','보조 사례','보조 해석','고장 후 시간 상한'])
+  for caption in re.findall(r'\\caption\{([^\n]+)',body):
+   assert not any(word in caption for word in ['음영','각 셀','상단','하단','스케일','이다.']),caption
   assert '발 디딤 위치와 다리의 움직임을 조절하여' in intro
-  assert '교사·학생 공동학습을 통해 학생이 현재 관측과 과거 관측 이력으로부터' in intro
+  assert '교사, 학생 공동학습을 통해 학생이 현재 관측과 과거 관측 이력으로부터' in intro
   assert 'paper_survival_compact.pdf' in body and 'paper_tracking_rmse_2x2.pdf' in body
   aux=(build/f'{name}.aux').read_text(encoding='utf-8')
   for label,index in [('fig:survival',4),('fig:tracking',5),('fig:joint',6)]:assert ('\\newlabel{'+label+'}{{'+str(index)+'}') in aux,(name,label)
@@ -185,8 +187,11 @@ def main():
  for name,fig in asset_audit.items():assert fig['font_size_pt']==9 and not fig['internal_title'] and not fig['outside_text'],name
  abstract=(LATEX/'abstract-proceedings.tex').read_text(encoding='utf-8')
  assert 'pre-termination cross-track' in abstract and all(x not in abstract for x in ['0.226','0.120','0.262','0.112','0.636','0.206'])
+ architecture_text=run('pdftotext',str(BASE/'private/assets/paper_workflow_clean.pdf'),'-')
+ assert not any(x in architecture_text for x in ['Training:', 'Critic also receives', 'Inference:'])
+ assert all(x in architecture_text for x in ['Teacher MLP','Student CNN','Feature mixing','Shared Actor','235 + 8 = 243','output: 12D'])
  assert '시행별 root mean square error' in (LATEX/'frontmatter.tex').read_text(encoding='utf-8')
- result={'editorial_revision':'20261017_user_requested_introduction_compact_plots','user_introduction_applied':True,'paper_has_no_data_file_paths_or_repository_instructions':True,'task_survival_and_completion_counts_verified':True,'restoration_base_commit':'0d34639','submission_ready':False,'page_limits_met':all(x['page_limit_met'] for x in pdfs.values()),'heatmap_metric':'fall_rate_percent = 100 - survival_percent','heatmap_survival_complements_verified':True,'heatmap_color_limits_percent':[.4,30],'heatmap_color_normalization':'logarithmic, original rates unchanged','active_legacy_architecture':'private/assets/paper_workflow_v8.pdf; preserved original diagram, not asserted to have new quantitative figure font styling','records_sha256':digest(DATA/'records.json'),'primary_d100_evidence':evidence,'per_family_d100_all_primary_metrics_improved':True,'pdfs':pdfs,'new_quantitative_figure_font_size_pt':9,'new_quantitative_figure_titles_absent':True,'all_plotted_points_csv_max_difference':max(differences),'all_60_heatmap_counts_verified':True,'generated_assets_audit_including_unused_simplified_architecture':asset_audit,'heatmap_cells':a['heatmap']['cells'],'heatmap_minimum_text_contrast':a['heatmap']['minimum_text_background_contrast'],'raw_simulation_reexecuted':False,'training_reexecuted':False}
+ result={'editorial_revision':'20261017_unified_terminology_concise_results_and_captions','user_introduction_applied':True,'paper_has_no_data_file_paths_or_repository_instructions':True,'task_survival_and_completion_counts_verified':True,'restoration_base_commit':'0d34639','submission_ready':False,'page_limits_met':all(x['page_limit_met'] for x in pdfs.values()),'heatmap_metric':'fall_rate_percent = 100 - survival_percent','heatmap_survival_complements_verified':True,'heatmap_color_limits_percent':[.4,30],'heatmap_color_normalization':'logarithmic, original rates unchanged','active_legacy_architecture':'private/assets/paper_workflow_clean.pdf; three peripheral notes removed; original boxes, arrows, dimensions and font styling retained','records_sha256':digest(DATA/'records.json'),'primary_d100_evidence':evidence,'per_family_d100_all_primary_metrics_improved':True,'pdfs':pdfs,'new_quantitative_figure_font_size_pt':9,'new_quantitative_figure_titles_absent':True,'all_plotted_points_csv_max_difference':max(differences),'all_60_heatmap_counts_verified':True,'generated_assets_audit_including_unused_simplified_architecture':asset_audit,'heatmap_cells':a['heatmap']['cells'],'heatmap_minimum_text_contrast':a['heatmap']['minimum_text_background_contrast'],'raw_simulation_reexecuted':False,'training_reexecuted':False}
  for name,details in pdfs.items():
   source=build/f'{name}.pdf';preview=LATEX/'preview'/f'{name}.pdf'
   if args.publish_previews:

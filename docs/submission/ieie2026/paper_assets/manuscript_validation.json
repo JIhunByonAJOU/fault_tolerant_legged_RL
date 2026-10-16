@@ -1,5 +1,5 @@
 {
-  "editorial_revision": "20261017_user_requested_introduction_compact_plots",
+  "editorial_revision": "20261017_unified_terminology_concise_results_and_captions",
   "user_introduction_applied": true,
   "paper_has_no_data_file_paths_or_repository_instructions": true,
   "task_survival_and_completion_counts_verified": true,
@@ -13,7 +13,7 @@
     30
   ],
   "heatmap_color_normalization": "logarithmic, original rates unchanged",
-  "active_legacy_architecture": "private/assets/paper_workflow_v8.pdf; preserved original diagram, not asserted to have new quantitative figure font styling",
+  "active_legacy_architecture": "private/assets/paper_workflow_clean.pdf; three peripheral notes removed; original boxes, arrows, dimensions and font styling retained",
   "records_sha256": "bfdb2687494cd92b84e2ef7e24944e58a4111d9e9e7e626259eff0b0c9e58411",
   "primary_d100_evidence": {
     "Normal": {
@@ -40,9 +40,9 @@
     "proceedings": {
       "reference_audit": {
         "cross_reference_labels": 21,
-        "reference_occurrences": 24,
+        "reference_occurrences": 26,
         "bibliography_entries": 6,
-        "internal_pdf_links": 34,
+        "internal_pdf_links": 35,
         "all_reference_target_pages_verified": true,
         "all_citation_target_pages_verified": true,
         "no_duplicate_labels": true,
@@ -80,12 +80,12 @@
           "page.4": 4,
           "section.4": 4,
           "subsection.4.1": 4,
+          "subsection.4.2": 4,
           "table.caption.8": 4,
           "figure.caption.10": 5,
+          "figure.caption.12": 5,
           "figure.caption.9": 5,
           "page.5": 5,
-          "section.5": 5,
-          "subsection.4.2": 5,
           "subsection.4.3": 5,
           "table.caption.11": 5,
           "cite.adapt": 6,
@@ -94,15 +94,15 @@
           "cite.ppo": 6,
           "cite.rma": 6,
           "cite.rudin": 6,
-          "figure.caption.12": 6,
-          "page.6": 6
+          "page.6": 6,
+          "section.5": 6
         }
       },
       "pages": 6,
       "target_pages": 5,
       "page_limit_met": false,
       "restored_photos_four_tables_and_dimensions_verified": true,
-      "sha256": "9ceeee33b673034f40931828c66c44c8889b091a0a0d6480a49b7c1dabd6e715",
+      "sha256": "d3fe2e74f6d465d9d19612ce3605d5195c5f22807770c44bcbd6abb11880f2f7",
       "all_pdf_fonts_embedded": true,
       "no_overfull_or_missing_glyphs": true,
       "citations_sentence_end_attached_and_first_appearance_order": true,
@@ -114,9 +114,9 @@
     "main": {
       "reference_audit": {
         "cross_reference_labels": 21,
-        "reference_occurrences": 24,
+        "reference_occurrences": 26,
         "bibliography_entries": 6,
-        "internal_pdf_links": 74,
+        "internal_pdf_links": 78,
         "all_reference_target_pages_verified": true,
         "all_citation_target_pages_verified": true,
         "no_duplicate_labels": true,
@@ -152,13 +152,13 @@
           "equation.8": 4,
           "equation.9": 4,
           "figure.caption.7": 4,
+          "figure.caption.9": 4,
           "page.4": 4,
           "subsection.4.1": 4,
           "subsection.4.2": 4,
           "table.caption.8": 4,
           "figure.caption.10": 5,
           "figure.caption.12": 5,
-          "figure.caption.9": 5,
           "page.5": 5,
           "section.5": 5,
           "subsection.4.3": 5,
@@ -176,7 +176,7 @@
       "target_pages": 4,
       "page_limit_met": false,
       "restored_photos_four_tables_and_dimensions_verified": true,
-      "sha256": "4c44e5de5d19d2138598fb287c4c26588d1827f6b9095dec282648a16af322a5",
+      "sha256": "d2b6a962902de13a81375432b08f2d5870ed01f1aca07537b562a084cf7b2fbd",
       "all_pdf_fonts_embedded": true,
       "no_overfull_or_missing_glyphs": true,
       "citations_sentence_end_attached_and_first_appearance_order": true,
