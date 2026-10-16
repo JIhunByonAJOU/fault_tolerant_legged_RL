@@ -9,9 +9,10 @@
   "heatmap_metric": "fall_rate_percent = 100 - survival_percent",
   "heatmap_survival_complements_verified": true,
   "heatmap_color_limits_percent": [
-    0,
+    0.4,
     30
   ],
+  "heatmap_color_normalization": "logarithmic, original rates unchanged",
   "active_legacy_architecture": "private/assets/paper_workflow_v8.pdf; preserved original diagram, not asserted to have new quantitative figure font styling",
   "records_sha256": "bfdb2687494cd92b84e2ef7e24944e58a4111d9e9e7e626259eff0b0c9e58411",
   "primary_d100_evidence": {
@@ -41,7 +42,7 @@
       "target_pages": 5,
       "page_limit_met": false,
       "restored_photos_four_tables_and_dimensions_verified": true,
-      "sha256": "1590855b9e847dd0430021e0649dfdae82477f6c01ebbe1d8fe71b080f3f36f9",
+      "sha256": "908b0436f67931683d1c8819509cc28bba3100f3a8eb3eae940dd162fd1fb671",
       "all_pdf_fonts_embedded": true,
       "no_overfull_or_missing_glyphs": true,
       "citations_sentence_end_attached_and_first_appearance_order": true,
@@ -54,7 +55,7 @@
       "target_pages": 4,
       "page_limit_met": false,
       "restored_photos_four_tables_and_dimensions_verified": true,
-      "sha256": "7f97233dbe7d88faeacb823e0080d6e4ba201157414eb3295a7b0a4e64f3e61b",
+      "sha256": "6fb7a6fa4d3192272d04e495bd258d00f43e5762c743592e8d89ffdcae615365",
       "all_pdf_fonts_embedded": true,
       "no_overfull_or_missing_glyphs": true,
       "citations_sentence_end_attached_and_first_appearance_order": true,
@@ -86,7 +87,7 @@
     }
   },
   "heatmap_cells": 60,
-  "heatmap_minimum_text_contrast": 4.682029836693136,
+  "heatmap_minimum_text_contrast": 4.743159324013457,
   "raw_simulation_reexecuted": false,
   "training_reexecuted": false
 }

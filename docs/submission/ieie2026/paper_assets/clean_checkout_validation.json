@@ -1,10 +1,11 @@
 {
   "status": "superseded_by_editorial_revision",
   "historical_validation": "clean_checkout_validation_20261016.json",
-  "current_validation": "tracked_snapshot_validation_editorial_20261017.json",
+  "current_validation": "manuscript_validation.json",
   "current_pages": {
     "proceedings": 6,
     "main": 6
   },
-  "page_limits_met": false
+  "page_limits_met": false,
+  "historical_tracked_snapshot": "tracked_snapshot_validation_editorial_20261017.json"
 }

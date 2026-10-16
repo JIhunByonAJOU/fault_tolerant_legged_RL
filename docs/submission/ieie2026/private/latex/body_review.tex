@@ -175,7 +175,7 @@ Foot air-time reward & 1 \\
 % Local implementation: legged_gym/learning/joint_teacher_student_actor_critic.py;
 % Actor/critic [512,256,128] are our implementation choices; STL actor is [256,128].
 
-병렬 환경 4,096개에서 환경당 24개 제어 시점의 경험으로 PPO를 갱신한다. 미래 보상의 가중치를 정하는 할인 계수(discount factor) $\gamma=0.99$, generalized advantage estimation (GAE) 계수 0.95, clip 계수 0.2, 갱신당 5회 학습과 4개 미니배치를 사용한다. 공동학습 초기 학습률(learning rate)은 $10^{-5}$이고 Kullback-Leibler (KL) divergence에 따라 조절한다. 학습 과정은 그림~\ref{fig:learning}, 토크 저하율별 성능은 그림~\ref{fig:performance}에 제시한다.
+병렬 환경 4,096개에서 환경당 24개 제어 시점의 경험으로 PPO를 갱신한다. 미래 보상의 가중치를 정하는 할인 계수(discount factor) $\gamma=0.99$, generalized advantage estimation (GAE) 계수 0.95, clip 계수 0.2, 갱신당 5회 학습과 4개 미니배치를 사용한다. 공동학습 초기 학습률(learning rate)은 $10^{-5}$이고 Kullback-Leibler (KL) divergence에 따라 조절한다. 학습 과정은 그림~\ref{fig:learning}, 토크 저하율별 생존율과 추종 오차는 그림~\ref{fig:survival}, \ref{fig:tracking}에 제시한다.
 
 
 
@@ -229,13 +229,17 @@ base 링크의 접촉력 노름이 1~N을 초과하면 낙상, $x\geq40.5$~m이�
 여기서 $u\in\{v_x,v_y,\omega_z,\perp\}$이며, 속도 오차는 실제값에서 현재 명령을 뺀 값, 경로 오차는 $e_\perp$이다. $V_i$는 2~s 이후 첫 종료 전 유효 표본 집합, $K_i$는 표본 수, $M_u$는 오차 계산이 가능한 시행 수이다. 0 명령도 포함하며 낙상 이후를 0으로 채우지 않는다. 유효 표본이 없으면 계산 불가이며 이번 자료의 누락은 없다. 시행별 RMSE를 평균하므로 시행의 유효 시간 표본 수로 가중하지 않는다. 정책별 종료 시점과 방문 지형이 달라 동일 시간·난이도의 오차 비교는 아니며 생존율과 함께 해석한다. 곡선 음영은 평가 시드 평균의 최소–최대이며 학습 시드 신뢰구간이 아니다.
 
 \begin{figure}[!t]
-\centering\includegraphics[width=\columnwidth]{paper_performance_compact.pdf}
-\caption{토크 저하율에 따른 생존율(상단)과 명령·경로 추종 RMSE(중단: $v_x$, $v_y$; 하단: $\omega_z$, 경로 횡오차). 점은 전체 평균, 음영은 3평가 시드 평균의 최소--최대이다.}\label{fig:performance}
+\centering\includegraphics[width=\columnwidth]{paper_survival_compact.pdf}
+\caption{토크 저하율에 따른 생존율. 점은 전체 평균, 음영은 3평가 시드 평균의 최소--최대이다.}\label{fig:survival}
+\end{figure}
+\begin{figure}[!t]
+\centering\includegraphics[width=\columnwidth]{paper_tracking_rmse_2x2.pdf}
+\caption{토크 저하율에 따른 명령·경로 추종 RMSE. 상단은 $v_x$와 $v_y$, 하단은 $\omega_z$와 경로 횡오차이다. 음영은 3평가 시드 평균의 최소--최대이다.}\label{fig:tracking}
 \end{figure}
 \subsection{토크 저하에 따른 보행 및 추종 성능}
-그림~\ref{fig:performance}에서 정상 상태의 생존율은 Normal 98.61\%, Student 99.07\%로 유사하지만, 100\% 토크 저하에서는 각각 52.08\%, 89.24\%이다. Student의 생존율 우위는 60\%에서 11.11\%p, 80\%에서 27.16\%p, 100\%에서 37.15\%p로 커진다. 큰 토크 저하에서 정상학습 정책의 낙상이 증가하는 데 비해 Student는 보행을 더 안정적으로 유지한다.
+그림~\ref{fig:survival}에서 정상 상태의 생존율은 Normal 98.61\%, Student 99.07\%로 유사하지만, 100\% 토크 저하에서는 각각 52.08\%, 89.24\%이다. Student의 생존율 우위는 60\%에서 11.11\%p, 80\%에서 27.16\%p, 100\%에서 37.15\%p로 커진다. 큰 토크 저하에서 정상학습 정책의 낙상이 증가하는 데 비해 Student는 보행을 더 안정적으로 유지한다.
 
-100\% 저하에서 $v_x$, $v_y$, $\omega_z$ 명령 RMSE는 각각 0.226에서 0.120~m/s, 0.262에서 0.112~m/s, 0.636에서 0.206~rad/s로 감소한다. 감소율은 각각 47.0\%, 57.3\%, 67.6\%이다. 정상 상태의 $v_x$ RMSE는 Normal 0.043~m/s, Student 0.054~m/s이고 낮은 저하의 회전속도 오차도 Normal이 작으므로, Student의 이점은 모든 조건의 정밀도 향상보다 큰 저하에서의 성능 유지에 있다.
+그림~\ref{fig:tracking}에서 100\% 저하의 $v_x$, $v_y$, $\omega_z$ 명령 RMSE는 각각 0.226에서 0.120~m/s, 0.262에서 0.112~m/s, 0.636에서 0.206~rad/s로 감소한다. 감소율은 각각 47.0\%, 57.3\%, 67.6\%이다. 정상 상태의 $v_x$ RMSE는 Normal 0.043~m/s, Student 0.054~m/s이고 낮은 저하의 회전속도 오차도 Normal이 작으므로, Student의 이점은 모든 조건의 정밀도 향상보다 큰 저하에서의 성능 유지에 있다.
 
 경로 횡오차 RMSE도 100\% 저하에서 0.225~m에서 0.080~m로 64.6\% 감소한다. 생존율과 명령·경로 오차가 함께 개선되어, 낙상 회피와 요구된 움직임의 수행이 동시에 향상되었다. 다만 경로 위 정지에서도 횡오차는 작을 수 있으므로 생존율과 추종 오차를 실제 진행 여부와 함께 살펴본다.
 
@@ -259,9 +263,9 @@ Sine & 47.45 / 85.88 & 20.02 / 82.64 \\
 
 \begin{figure}[!t]
 \centering\includegraphics[width=\columnwidth]{paper_student_fall_rate_heatmap.pdf}
-\caption{Student의 관절·토크 저하율별 낙상률(\%). 각 셀은 216시행이며, 색 범위는 0--30\%이다.}\label{fig:joint}
+\caption{Student의 관절·토크 저하율별 낙상률(\%). 각 셀은 216시행이며, 색은 0.4--30\% 범위의 로그 스케일로 표시하였다. 셀 숫자는 원래 낙상률이다.}\label{fig:joint}
 \end{figure}
-그림~\ref{fig:joint}는 전체 평균에 가려진 Student의 관절별 성능을 나타낸다. FL/FR은 좌/우 앞다리, RL/RR은 좌/우 뒷다리이다. 100\% 저하에서 FR hip과 RR thigh의 낙상률은 각각 2.78\%인 반면 FL thigh는 21.30\%, FR thigh는 28.24\%이다. 동일한 토크 저하율에서도 관절에 따라 보행 유지 성능이 달라진다.
+그림~\ref{fig:joint}은 전체 평균에 가려진 Student의 관절별 성능을 나타낸다. FL/FR은 좌/우 앞다리, RL/RR은 좌/우 뒷다리이다. 100\% 저하에서 FR hip과 RR thigh의 낙상률은 각각 2.78\%인 반면 FL thigh는 21.30\%, FR thigh는 28.24\%이다. 동일한 토크 저하율에서도 관절에 따라 보행 유지 성능이 달라진다.
 
 \section{결론}
 본 논문에서는 단일 관절 토크 저하 학습과 관측 이력 표현을 결합한 교사·학생 기반 보행 제어 구성을 제시하였다. 단일 학습 시드의 두 고정 정책을 해당 과제·지형 혼합에서 비교한 결과, 60–100\% 저하에서 Student의 생존율과 종료 전 명령·경로 추종 오차가 함께 개선되었다. 100\% 저하에서는 생존율이 52.08\%에서 89.24\%로 높아지고 경로 횡오차 RMSE가 0.225~m에서 0.080~m로 낮아졌다. 향후 독립 학습 반복과 실제 로봇에서 재현성을 검증할 계획이다.

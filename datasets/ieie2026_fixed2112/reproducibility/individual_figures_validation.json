@@ -6,10 +6,13 @@
   "cell_counts_match_existing_summary": true,
   "font_family": "Times New Roman",
   "font_size_pt": 9,
-  "minimum_cell_contrast": 4.682029836693136,
+  "minimum_cell_contrast": 4.743159324013457,
   "all_cell_annotations_fit": true,
   "all_active_figures_title_free": true,
   "embedded_pdf_fonts": {
+    "paper_student_fall_rate_heatmap": [
+      "FHXFSG+TimesNewRomanPSMT"
+    ],
     "paper_survival_by_degradation": [
       "FHXFSG+TimesNewRomanPSMT"
     ],
@@ -28,15 +31,23 @@
     "paper_cross_track_rmse_by_degradation": [
       "FHXFSG+TimesNewRomanPSMT"
     ],
-    "terrain_heightmap_s1101": [
+    "paper_survival_compact": [
       "FHXFSG+TimesNewRomanPSMT"
     ],
-    "paper_student_fall_rate_heatmap": [
+    "paper_tracking_rmse_2x2": [
+      "FHXFSG+TimesNewRomanPSMT",
+      "FEUMDM+TimesNewRomanPS-ItalicMT"
+    ],
+    "terrain_heightmap_s1101": [
       "FHXFSG+TimesNewRomanPSMT"
     ]
   },
   "quantitative_evidence_source_hash_verified": true,
   "active_figure_dimensions_mm": {
+    "paper_student_fall_rate_heatmap": [
+      80.0,
+      85.0
+    ],
     "paper_survival_by_degradation": [
       80.0,
       50.0
@@ -57,25 +68,26 @@
       80.0,
       50.0
     ],
+    "paper_survival_compact": [
+      80.0,
+      38.0
+    ],
+    "paper_tracking_rmse_2x2": [
+      80.0,
+      74.0
+    ],
     "terrain_heightmap_s1101": [
       170.0,
       125.0
-    ],
-    "paper_student_fall_rate_heatmap": [
-      80.0,
-      85.0
-    ],
-    "paper_performance_compact": [
-      80,
-      107
     ]
   },
   "heatmap_metric": "fall_rate_percent = 100 - survival_percent",
   "survival_complements_verified": true,
   "heatmap_color_limits_percent": [
-    0,
+    0.4,
     30
   ],
-  "compact_layout": "Survival above 2x2 RMSE panels",
-  "compact_curve_values_identical": true
+  "compact_layout": "Separate survival figure and 2x2 RMSE figure",
+  "compact_curve_values_identical": true,
+  "heatmap_normalization": "logarithmic color, original rates unchanged"
 }
