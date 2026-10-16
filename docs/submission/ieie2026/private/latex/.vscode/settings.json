@@ -1,10 +1,10 @@
 {
   "latex-workshop.latex.tools": [
     {
-      "name": "latexmk-xelatex",
+      "name": "latexmk-lualatex",
       "command": "latexmk",
       "args": [
-        "-xelatex",
+        "-lualatex",
         "-synctex=1",
         "-interaction=nonstopmode",
         "-file-line-error",
@@ -16,9 +16,9 @@
   ],
   "latex-workshop.latex.recipes": [
     {
-      "name": "XeLaTeX (한글 논문)",
+      "name": "LuaLaTeX (한글 논문)",
       "tools": [
-        "latexmk-xelatex"
+        "latexmk-lualatex"
       ]
     }
   ],

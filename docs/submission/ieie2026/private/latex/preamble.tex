@@ -1,8 +1,16 @@
+\ifproceedings
+\usepackage[no-math]{fontspec}
+\else
 \usepackage{fontspec}
+\fi
 \usepackage{kotex}
-% 다운로드한 안심글꼴 ZIP의 KoPubWorld를 사용한다.
-% HY신명조/한양신명조/HY중고딕은 ZIP에 없으므로 대체 글꼴임.
-\input{fonts.tex}
+% Proceedings use the fonts read from the official DOCX.
+% Review font settings are independent and may use a local override.
+\ifproceedings
+  \input{fonts-proceedings.tex}
+\else
+  \InputIfFileExists{fonts-local.tex}{}{\input{fonts.tex}}
+\fi
 \usepackage{amsmath,amssymb,graphicx,booktabs,tabularx,caption,titlesec,float}
 \graphicspath{{../assets/}}
 \captionsetup{font={small,sf},labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=false,skip=6pt}
@@ -53,11 +61,14 @@
 \renewcommand{\cite}[1]{\textsuperscript{\originalcite{#1}}}
 \raggedbottom
 
-% Proceedings follow the inline placement of the Word sample.
+% Proceedings figures and tables use column-top placement.
 \ifproceedings
-\floatplacement{figure}{H}
-\floatplacement{table}{H}
+\floatplacement{figure}{!t}
+\floatplacement{table}{!t}
 \else
 \floatplacement{figure}{!htbp}
 \floatplacement{table}{!htbp}
 \fi
+
+% Official proceedings DOCX formatting; review formatting is independent.
+\ifproceedings\input{format-proceedings.tex}\fi

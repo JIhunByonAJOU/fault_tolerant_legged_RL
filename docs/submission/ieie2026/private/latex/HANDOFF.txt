@@ -1,0 +1,45 @@
+IEIE paper handoff - 2026-10-16
+
+Repository: https://github.com/JIhunByonAJOU/fault_tolerant_legged_RL.git
+Branch: dev
+Main manuscript: proceedings.tex includes body.tex.
+Anonymous review manuscript: main.tex includes body_review.tex; still needs shortening to four pages.
+
+This commit transfers the current written manuscript, figures and PDF preview.
+The 2026-10-16 Windows rebuild has SIX proceedings pages (the prior preview also
+had six). Shorten to the five-page limit before submission. Older README entries
+recording five pages describe an earlier state, not the transferred manuscript.
+The additional evaluations discussed in chat have NOT been run or inserted as results.
+Current manuscript numbers remain the existing straight-walking evaluation, including the old endpoint survival rate, forward displacement and Q metrics.
+
+Agreed research question:
+단일 관절의 토크가 저하된 뒤에도, 고장 대응 보행 정책은 정상학습 정책보다 다양한 이동 명령과 목표 궤적을 더 오래, 더 정확하게 수행할 수 있는가?
+
+Comparison: proposed fault-aware locomotion configuration versus normal-only training.
+Joint training is the adopted learning method; this is not an SS-versus-JT superiority study.
+
+Agreed metrics for the NEXT evaluation:
+1. 생존율: normalized mean post-fault survival time, 0 to 1.
+   This is different from the endpoint survival percentage in the current manuscript.
+2. 이동 명령 추종: vx/vy RMSE in m/s and omega_z (yaw rate) RMSE in rad/s.
+3. 경로 추종: cross-track error RMSE in m, measured perpendicular to the reference path.
+ADE, Q and forward displacement are not the intended primary metrics for the next evaluation.
+Report error calculation intervals and handle terminated/no-sample trials explicitly.
+
+Candidate tasks: forward, left/right lateral, diagonal and sinusoidal path following.
+Turning and stair traversal were discussed as additional candidates, not completed experiments.
+Use paired physical conditions, fault schedules and evaluation seeds between policies.
+Use the same path-to-velocity controller for both policies when adding path following.
+Check healthy-condition task capability before interpreting fault-condition failures.
+
+Notation:
+- velocity command: v_x^{cmd}, v_y^{cmd}, omega_z^{cmd}
+- reference path: p^{ref}(s)
+- actual trajectory: p(t)
+- omega_z is body-frame z-axis angular velocity, not the yaw angle.
+The policy outputs 12 action values that set desired joint angles q_des=q0+0.25*a.
+Body velocity time series are measured rollout outcomes, not predicted future policy outputs.
+
+Ubuntu build: see README.md. Use LuaLaTeX, not XeLaTeX.
+Font binaries are intentionally not published. Without the original template fonts,
+Ubuntu uses editing fallbacks and may paginate differently from preview/proceedings.pdf.

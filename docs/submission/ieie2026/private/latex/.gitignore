@@ -13,3 +13,5 @@ build/
 *.bak
 archive*/
 fonts/
+fonts-local.tex
+fonts-proceedings-local.tex

@@ -1,0 +1,124 @@
+{
+  "source": {
+    "filename": "theieie_conference_2column.docx",
+    "url": "https://conf.theieie.org/2026f/download/theieie_conference_2column.docx",
+    "sha256": "47a1d41f8c90df76ba1e2863e63caf8016f849b80dd9d26d7a2bf071ee9d7f99",
+    "method": "DOCX OOXML extraction and native Microsoft Word PDF export on this Windows PC"
+  },
+  "geometry_bp": {
+    "page": [
+      595.3,
+      841.9
+    ],
+    "margins": {
+      "top": 85.05,
+      "bottom": 85.05,
+      "left": 56.7,
+      "right": 56.7
+    },
+    "column_gap": 28.35,
+    "body_columns": 2
+  },
+  "typography": {
+    "body": {
+      "font": "HY Shin Myeongjo",
+      "size_bp": 9,
+      "baseline_bp": 14.04,
+      "paragraph_skip_bp": 0,
+      "indent_bp": 6
+    },
+    "korean_title": {
+      "font": "Batang",
+      "size_bp": 18,
+      "bold": true,
+      "horizontal_scale": 0.95,
+      "baseline_bp": 28.08
+    },
+    "english_title": {
+      "font": "HY Shin Myeongjo",
+      "size_bp": 12,
+      "bold": true,
+      "baseline_bp": 18.72
+    },
+    "authors": {
+      "size_bp": 10,
+      "bold": true,
+      "current_korean_font": "Hancom Batang (HBATANG.TTF in installed Hancom Office)",
+      "current_english_font": "HY Shin Myeongjo corresponding to legacy Hanyang Shin Myeongjo"
+    },
+    "section": {
+      "size_bp": 12,
+      "bold": false,
+      "alignment": "center",
+      "numbering": "Roman"
+    },
+    "subsection": {
+      "size_bp": 10,
+      "bold": false
+    },
+    "caption_and_references": {
+      "size_bp": 9,
+      "baseline_bp": 14.04,
+      "bold": false
+    },
+    "math": {
+      "font": "Cambria Math",
+      "source": "word/settings.xml m:mathPr/m:mathFont"
+    }
+  },
+  "structure": {
+    "title_order": [
+      "Korean title",
+      "Korean authors and affiliation",
+      "email",
+      "English title",
+      "English authors and affiliation"
+    ],
+    "abstract": "English Abstract in left body column",
+    "korean_summary": false,
+    "keywords": false,
+    "page_numbers": false,
+    "citations": "inline [n]"
+  },
+  "limitations": [
+    "Word and TeX shaping, line breaks and formulas are not pixel identical.",
+    "No scientific equation or data table example in this proceedings DOCX; retain existing structural layout, normalize text typography.",
+    "English author style inherits obsolete Hanyang Shin Myeongjo; corresponding installed HY Shin Myeongjo is used because fontspec cannot load its old HFT face. Hancom Batang was located and applied to Korean authors."
+  ],
+  "validation": {
+    "date": "2026-10-12",
+    "engine": "LuaHBTeX (MiKTeX 26.2)",
+    "proceedings_pages": 5,
+    "review_pages": 5,
+    "proceedings_missing_glyphs": 0,
+    "proceedings_overfull_boxes": 0,
+    "review_identifying_tokens_found": false,
+    "submission_length_complete": false,
+    "proceedings_length_complete": true,
+    "review_length_complete": false,
+    "final_typography_check": "proceedings_followup_checks_20261012.json"
+  },
+  "title_block_revision": {
+    "reference": "01_2025f_STU-0080_NODE12551200.pdf",
+    "korean_affiliations": "single line, numbered superscripts",
+    "email": "shared-domain brace notation in author order",
+    "corresponding_author": "asterisk only, no explanatory label",
+    "spacing": "title block compacted against the user-specified published reference"
+  },
+  "content_revision": "Removed repeated explanations and moved observation/encoder table details into prose; retained all 5 figures, evaluation definitions and reported result values.",
+  "local_overrides": {
+    "page_numbers": "bottom center, 9 bp; author requested",
+    "footskip_bp": 28.35,
+    "korean_title": "4\uc871 \ubcf4\ud589 \ub85c\ubd07\uc758 \uc561\ucd94\uc5d0\uc774\ud130 \ud1a0\ud06c \uc800\ud558\uc5d0 \uac15\uac74\ud55c \uad50\uc0ac\u00b7\ud559\uc0dd \uae30\ubc18 \uac15\ud654\ud559\uc2b5 \ubcf4\ud589 \uc81c\uc5b4",
+    "english_name": "Jihun Byon",
+    "geometry_rechecked_from_docx_twips": {
+      "page": [
+        11906,
+        16838
+      ],
+      "top_bottom": 1701,
+      "left_right": 1134,
+      "column_gap": 567
+    }
+  }
+}

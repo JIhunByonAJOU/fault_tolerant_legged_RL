@@ -1,0 +1,168 @@
+% !TeX root = proceedings.tex
+% Source: official theieie_conference_2column.docx, SHA256 47a1d41f8c90...
+% Word points are PDF big points (bp). Word's 1.2-line rule was measured in
+% native Word output: HY Shin Myeongjo 9 bp has a 14.04 bp baseline distance.
+\usepackage{etoolbox}
+\usepackage{xurl}
+\usepackage{cite}
+\let\originalcite\cite
+\renewcommand{\citedash}{]-[}
+% The official DOCX's m:mathPr/m:mathFont is Cambria Math.
+\usepackage{unicode-math}
+% Other machines may lack this PC's local font configuration.
+\providecommand{\proceedingstitlelatin}{\rmfamily}
+\providecommand{\proceedingstitlehangul}{}
+\providecommand{\proceedingsauthorlatin}{\rmfamily}
+\providecommand{\proceedingsauthorhangul}{}
+\urlstyle{same}
+\DeclareMathSizes{9.03374}{9}{6}{5}
+\DeclareMathSizes{9.03375}{9}{6}{5}
+\IfFontExistsTF{Cambria Math}{%
+  \setmathfont{Cambria Math}
+  \setmathfont{Cambria Math}[range=it/{Latin,latin,Greek,greek}]
+}{%
+  \setmathfont{Latin Modern Math}
+  \PackageWarningNoLine{ieie-fonts}{Cambria Math unavailable; using Latin Modern Math for editing}
+}
+% Use Unicode math alphabets throughout; legacy OML slots otherwise select
+% upright ASCII glyphs from Cambria when the old Korean setup preserves them.
+\AtBeginDocument{%
+  \let\mathrm\symup\let\mathit\symit\let\mathcal\symcal\let\mathbb\symbb
+  \begingroup
+  \count0=65
+  \loop\global\Umathcode\count0=7 \symoperators\numexpr"1D434+\count0-65\relax
+    \advance\count0 by1 \ifnum\count0<91\repeat
+  \count0=97
+  \loop\global\Umathcode\count0=7 \symoperators\numexpr"1D44E+\count0-97\relax
+    \advance\count0 by1 \ifnum\count0<123\repeat
+  \global\Umathcode`h=7 \symoperators"210E
+  \endgroup
+  \protected\def\alpha{\Umathchar7 \symoperators"1D6FC}%
+  \protected\def\gamma{\Umathchar7 \symoperators"1D6FE}%
+  \protected\def\eta{\Umathchar7 \symoperators"1D702}%
+  \protected\def\tau{\Umathchar7 \symoperators"1D70F}%
+  \protected\def\omega{\Umathchar7 \symoperators"1D714}%
+}
+% Preserve the original script loss symbol and double-struck indicator in the
+% Word math font, independently of legacy alphabet-slot remapping.
+\newcommand{\paperLoss}{\Umathchar7 \symoperators"2112 }
+\newcommand{\paperIndicator}{\Umathchar7 \symoperators"1D7D9 }
+% Centered page numbers requested by the author; footer is outside body margins.
+\setlength{\footskip}{28.35bp}
+\makeatletter
+\def\ps@plain{\let\@mkboth\@gobbletwo\let\@oddhead\@empty\let\@evenhead\@empty
+  \def\@oddfoot{\hfil{\rmfamily\mdseries\fontsize{9bp}{14.04bp}\selectfont\thepage}\hfil}
+  \let\@evenfoot\@oddfoot}
+\makeatother
+\pagestyle{plain}
+\renewcommand{\paperbodyfont}{\rmfamily\mdseries\fontsize{9bp}{14.04bp}\selectfont}
+\renewcommand{\papercaptionfont}{\rmfamily\mdseries\fontsize{9bp}{14.04bp}\selectfont}
+\renewcommand{\paperTableFont}{\rmfamily\mdseries\fontsize{9bp}{14.04bp}\selectfont}
+\renewcommand{\papersectionfont}{\rmfamily\mdseries\fontsize{12bp}{18.72bp}\selectfont}
+\renewcommand{\papersubsectionfont}{\rmfamily\mdseries\fontsize{10bp}{15.6bp}\selectfont}
+\renewcommand{\paperreferencefont}{\rmfamily\mdseries\fontsize{9bp}{14.04bp}\selectfont}
+\setlength{\parindent}{6bp} % Two literal spaces in the sample body paragraphs.
+\setlength{\parskip}{0bp}
+\setlength{\columnsep}{28.35bp}
+\setlength{\emergencystretch}{1em}
+% The local Korean body font maps bold to the regular face; synthesize weight
+% explicitly for headings so Korean headings are visibly bold too.
+\titleformat{\section}{\centering\papersectionfont\bfseries\addhangulfontfeatures{FakeBold=2}}{\Roman{section}.}{.5em}{}
+\titleformat{\subsection}{\papersubsectionfont\bfseries\addhangulfontfeatures{FakeBold=2}}{\thesubsection}{.5em}{}
+% The sample separates section headings from prose with one empty body line.
+\titlespacing{\section}{0bp}{14.04bp}{14.04bp}
+\titlespacing{\subsection}{0bp}{14.04bp}{0bp}
+\captionsetup{
+  font=paperCaption,labelfont=normalfont,textfont=normalfont,
+  labelsep=period,justification=centering,singlelinecheck=false,
+  skip=3bp
+}
+% Table captions sit directly above the top rule, without an empty body line.
+\captionsetup[table]{skip=0bp}
+\renewcommand{\arraystretch}{1}
+\setlength{\textfloatsep}{14.04bp}
+\setlength{\floatsep}{14.04bp}
+\setlength{\intextsep}{14.04bp}
+% One body-line gap outside each display block; no extra gap between its rows.
+% Reapply locally because size switches can reset LaTeX's display skips.
+\newcommand{\paperdisplayspacing}{%
+  \setlength{\abovedisplayskip}{14.04bp}%
+  \setlength{\belowdisplayskip}{14.04bp}%
+  \setlength{\abovedisplayshortskip}{14.04bp}%
+  \setlength{\belowdisplayshortskip}{14.04bp}%
+  \setlength{\jot}{0bp}%
+}
+\AtBeginDocument{\paperdisplayspacing}
+\AtBeginEnvironment{equation}{\paperdisplayspacing}
+\AtBeginEnvironment{align}{\paperdisplayspacing}
+% Fix the visible space outside the complete mathematical block, rather than
+% adding font-dependent interline glue around individual display rows.
+\makeatletter
+\newbox\paperdisplaybox
+% Optional optical offset balances visible ink above/below without changing
+% the display's total height or the spacing between its mathematical rows.
+\NewDocumentEnvironment{paperdisplay}{O{0bp}+b}{%
+  % Allow a column break after the preceding complete paragraph.
+  % Otherwise its final line can be dragged into the next column by the display.
+  \par\vskip14.04bp\nointerlineskip
+  \setbox\paperdisplaybox=\vbox{%
+    \hsize=\columnwidth
+    \setlength{\abovedisplayskip}{0bp}%
+    \setlength{\belowdisplayskip}{0bp}%
+    \setlength{\abovedisplayshortskip}{0bp}%
+    \setlength{\belowdisplayshortskip}{0bp}%
+    \setlength{\jot}{0bp}%
+    \let\paperdisplayspacing\relax
+    #2%
+  }%
+  \directlua{%
+    local boxnum=\number\paperdisplaybox
+    local box=tex.box[boxnum]
+    local head=box.head
+    local glue=node.id("glue")
+    local penalty=node.id("penalty")
+    local kern=node.id("kern")
+    local hlist=node.id("hlist")
+    while head and (head.id==glue or head.id==penalty or head.id==kern or
+      (head.id==hlist and head.height==0 and head.depth==0)) do
+      local empty=head
+      head=node.remove(head,empty)
+      node.flush_node(empty)
+    end
+    box.head=nil
+    local correction=tex.sp("#1")
+    if correction>0 or correction<0 then
+      local pad=node.new("kern")
+      pad.kern=correction
+      head=node.insert_before(head,head,pad)
+      local compensate=node.new("kern")
+      compensate.kern=-correction
+      head=node.insert_after(head,node.tail(head),compensate)
+    end
+    tex.box[boxnum]=node.vpack(head)
+  }%
+  \box\paperdisplaybox
+  \nobreak\vskip14.04bp\nointerlineskip
+  \@endpetrue
+}{}
+\makeatother
+% Keep every figure/table at a column top, in source order.
+\floatplacement{figure}{!t}
+\floatplacement{table}{!t}
+\renewcommand{\topfraction}{.9}
+\renewcommand{\textfraction}{.1}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{3}
+% The proceedings sample uses inline [n]; superscripts belong to the review.
+\let\cite\originalcite
+\renewcommand{\refname}{참고문헌}
+\makeatletter
+\patchcmd{\thebibliography}{\leftmargin\labelwidth}{\leftmargin=12.4bp}{}{
+  \PackageError{ieie-format}{Bibliography indent patch failed}{Check the document class.}}
+\patchcmd{\thebibliography}{\advance\leftmargin\labelsep}{\advance\leftmargin3bp\labelsep=3bp}{}{}
+\apptocmd{\thebibliography}{
+  \setlength{\itemsep}{0bp}\setlength{\parsep}{0bp}\setlength{\parskip}{0bp}
+  \setlength{\labelsep}{3bp}
+  \paperreferencefont
+}{}{}
+\makeatother
