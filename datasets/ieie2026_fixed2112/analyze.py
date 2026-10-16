@@ -99,33 +99,11 @@ def summaries(rows,out):
     return result
 
 
-def plots(summary,out):
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    from matplotlib.colors import Normalize
-    def value(j,d,p,key):return next(r[key] for r in summary if r['joint_index']==j and r['degradation']==d and r['policy']==p)
-    gain=np.array([[value(j,d,'Normal','vxy_rmse')-value(j,d,'Student','vxy_rmse') for d in RATES] for j in range(12)])
-    b=max(1e-8,float(np.abs(gain).max()))
-    fig,ax=plt.subplots(figsize=(5.3,5.4),layout='constrained')
-    im=ax.imshow(gain,cmap='RdBu',norm=Normalize(-b,b),aspect='auto')
-    ax.set(xticks=range(5),xticklabels=[20,40,60,80,100],yticks=range(12),yticklabels=JOINTS,
-           xlabel='Torque degradation (%)',title='Planar velocity RMSE reduction\nNormal - Student (m/s)')
-    for j in range(12):
-        for k in range(5):ax.text(k,j,'%.3f'%gain[j,k],ha='center',va='center',fontsize=8,color='white' if abs(gain[j,k])>.65*b else 'black')
-    fig.colorbar(im,ax=ax,label='Positive: Student has lower RMSE (m/s)')
-    for ext in ['png','pdf']:fig.savefig(out/('paper_single_heatmap_vxy_gain.'+ext),dpi=220)
-    plt.close(fig)
-    fig,axes=plt.subplots(1,2,figsize=(10,5.4),layout='constrained')
-    for ax,pol in zip(axes,['Normal','Student']):
-        a=np.array([[value(j,d,pol,'stall_among_survivors_percent') for d in RATES] for j in range(12)],dtype=float)
-        im=ax.imshow(a,cmap='magma',vmin=0,vmax=100,aspect='auto')
-        ax.set(xticks=range(5),xticklabels=[20,40,60,80,100],yticks=range(12),yticklabels=JOINTS,xlabel='Torque degradation (%)',title=pol)
-        for j in range(12):
-            for k in range(5):ax.text(k,j,'%.1f'%a[j,k],ha='center',va='center',fontsize=7,color='black' if a[j,k]>70 else 'white')
-    fig.colorbar(im,ax=axes,label='Surviving trials with a stagnation flag (%)')
-    fig.suptitle('Diagnostic: stagnation among surviving trials\nDenominator is each policy\'s surviving trials in that cell')
-    fig.savefig(out/'diagnostic_stagnation_among_survivors.png',dpi=200);plt.close(fig)
+def plots(summary,out,font=None):
+    from paper_figures import main as render_paper_figures
+    args=['--output',str(out)]
+    if font:args+=['--font',str(font)]
+    render_paper_figures(args)
 
 
 def inspect(rows,trial,out):
@@ -148,11 +126,12 @@ def inspect(rows,trial,out):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--verify',action='store_true');p.add_argument('--verify-raw',action='store_true')
     p.add_argument('--verify-only',action='store_true');p.add_argument('--trial');p.add_argument('--output',type=Path,default=BASE/'generated')
+    p.add_argument('--font',type=Path,help='Optional local font file for paper figures')
     a=p.parse_args();rows=json.loads((BASE/'records.json').read_text(encoding='utf-8'));a.output.mkdir(parents=True,exist_ok=True)
     if a.verify or a.verify_raw:verify(rows,a.verify_raw)
     if a.verify_only:return
     if a.trial:inspect(rows,a.trial,a.output)
-    else:plots(summaries(rows,a.output),a.output)
+    else:plots(summaries(rows,a.output),a.output,a.font)
 
 
 if __name__=='__main__':main()

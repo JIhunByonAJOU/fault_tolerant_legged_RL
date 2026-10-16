@@ -169,16 +169,16 @@
       "sha256": "150013329e71880dfa4486d9ff2c563ce925934be8c6ccf8771b347e0e17e65c"
     },
     "README.md": {
-      "bytes": 5899,
-      "sha256": "e9f446d9cba0eadd6bc782ef6dd9291411157f9f8b07079e09d13104b11cbed5"
+      "bytes": 7164,
+      "sha256": "70dbc5fe743971489637a897cf9c21c6dd0c7d9289002b3022470b7c4703ff32"
     },
     "derivation_manifest.json": {
       "bytes": 28645,
       "sha256": "6fc53cb6ab4a19529ca33ec695cd369847791111a609ac6e7fe6396f39871f8c"
     },
     "analyze.py": {
-      "bytes": 8202,
-      "sha256": "4005ba1657c28a61eb2d62b29983f3fabae70a2c0b06494cfdaed304dda04020"
+      "bytes": 6464,
+      "sha256": "01bb8761d041221e24d5e1bfb55ec716cb5ad8c67d04f8bd1caf4b4ee1d13b74"
     },
     "reports/manuscript_vs_new_by_loss.csv": {
       "bytes": 2602,
@@ -209,8 +209,8 @@
       "sha256": "51ad73d5d0a84746bdace7738d1c524379606a25f503b9338af564d93e7b6c19"
     },
     "reports/REPORT.md": {
-      "bytes": 4309,
-      "sha256": "5e3f179bc8cb66e4885451b5611e8a27f5f8c81e9e4ebd215c8d16e603d9f4d4"
+      "bytes": 4523,
+      "sha256": "429402b3ac5da5dd2f2ed418dda002d592b9b644278d9581b2be64c44074c3a6"
     },
     "reports/by_profile_loss_with_pooled_rmse.csv": {
       "bytes": 23135,
@@ -277,8 +277,8 @@
       "sha256": "01fac8039941a3a018cc82749de84c021ed2006fdca18d0fa253bd79eef29b87"
     },
     "explanatory/REPORT.md": {
-      "bytes": 3593,
-      "sha256": "735d31cedd46e46622aa8f360dfdb6b16b8ac1b5f8e73ea391ca92df895dd1a1"
+      "bytes": 3738,
+      "sha256": "f9dfa035adb17ab44e75a9b97b2b657dc08eb140e38028b214bbaa545141cfe8"
     },
     "analysis/by_seed_loss.csv": {
       "bytes": 7014,
@@ -6699,8 +6699,138 @@
     "raw/exploration_g01_s1102_Normal/trace_0046.npz": {
       "bytes": 1071921,
       "sha256": "7775608e91f5818bc76e1e64c4c3fa01b5728259883e984b43760a859da40395"
+    },
+    "DATA_DETAILS.md": {
+      "bytes": 31206,
+      "sha256": "d0f11209a8115e14f66277f515a0cf79b1703764824870cbffeb765aa108bef7"
+    },
+    "FIGURE_GUIDELINES.md": {
+      "bytes": 5103,
+      "sha256": "34e2181bc08bfda79c042f2c79e8b0b56476f3ad6bf1d479d850d39ecb5a082d"
+    },
+    "PAPER_RESULTS_PLAN.md": {
+      "bytes": 14427,
+      "sha256": "530024908cb0ec571c4059f07d21d260ab50f2f3393a10ccd7a620b814f54914"
+    },
+    "TA_GUIDANCE.md": {
+      "bytes": 5137,
+      "sha256": "04fabccca0e9a571c3384c24f4911da442189c3ab707c0121351e7033b35e3b1"
+    },
+    "explanatory/manifest.json": {
+      "bytes": 3302,
+      "sha256": "34d2649998894c1cad38a9ecb8d89d234be2171b795c205f46cb5cdb85301163"
+    },
+    "figures/VALIDATION.md": {
+      "bytes": 1411,
+      "sha256": "1ce4d107da224a15248dcee9f3faafe82281ad01c32330596edd5077f65e9f57"
+    },
+    "figures/paper_joint_vxy_gain.pdf": {
+      "bytes": 27010,
+      "sha256": "43fea7cddcc3329aae506fe8c063d16f21a6722d74484cca8a875de6ff66c1a4"
+    },
+    "figures/paper_joint_vxy_gain.png": {
+      "bytes": 274029,
+      "sha256": "f6233f0e1b6bcdc829d47a5b32da30cb65a26d8b9190c2fd0b64e973b6d01542"
+    },
+    "figures/paper_metrics_by_degradation.pdf": {
+      "bytes": 16007,
+      "sha256": "92d39b46055c2a40a642f80839796250c3fa3ed21c6d47ad22c130ec4ed83c64"
+    },
+    "figures/paper_metrics_by_degradation.png": {
+      "bytes": 225816,
+      "sha256": "f5f1be61e0213679f54b86ddc345f0b06ef6f063e4bc0ec4e3737d7f3b736e7d"
+    },
+    "figures/style_audit.json": {
+      "bytes": 1262,
+      "sha256": "547ef875fd9929717e4bb2fec3b5f7a45e0be0b4c487b11da2d024cf1af6617a"
+    },
+    "figures/terrain_heightmap_s1101.pdf": {
+      "bytes": 92003,
+      "sha256": "095d4167a89448cdc4b6f32b72b742367841e9833c7e04d559c1c4a95be1a49f"
+    },
+    "figures/terrain_heightmap_s1101.png": {
+      "bytes": 285722,
+      "sha256": "db99810485c3d13cba50d830b560ed3c5667f17db15810b04b7fc6f6f8d78ad6"
+    },
+    "paper_figures.py": {
+      "bytes": 10862,
+      "sha256": "55eede1ac7c2ad25622d1515bb0ae0b7b6a7ccb85a4b2a6afd041558f121c104"
+    },
+    "reports/manifest.json": {
+      "bytes": 3028,
+      "sha256": "c1a17ed79b318dd329774b4fb3e0a3e8d6a5f26c4d59f4a3a1009b44ca74299d"
+    },
+    "reproducibility/README.md": {
+      "bytes": 2330,
+      "sha256": "460b8509ef581e23892dc04db77227e9dba2eabad3139f34e7e291516cd0d678"
+    },
+    "reproducibility/config_reference/legged_gym/envs/a1/a1_config.py": {
+      "bytes": 3708,
+      "sha256": "d06e98eb13fc65070a4143633fde33ba0309f63483cdc81af33a38741a5b95f1"
+    },
+    "reproducibility/config_reference/legged_gym/envs/a1_official_wim/a1_official_wim_config.py": {
+      "bytes": 471,
+      "sha256": "e31bf608f158fc7306feb367ebd5a75d429dbaf97dd7b9c6d21b423411fa0614"
+    },
+    "reproducibility/config_reference/legged_gym/envs/a1_official_wim_teacher/a1_official_wim_joint_config.py": {
+      "bytes": 5676,
+      "sha256": "a040dd13d716e11b64ea0fb18cd80e89657fc1868b0451fd5f426f0b5567f9d1"
+    },
+    "reproducibility/config_reference/legged_gym/envs/a1_official_wim_teacher/a1_official_wim_teacher_config.py": {
+      "bytes": 1722,
+      "sha256": "2c9745f34a961824b5440bd2930d14fb8c0a63bbb33b0adbd017744ce189b245"
+    },
+    "reproducibility/config_reference/legged_gym/envs/a1_official_wim_teacher/a1_official_wim_teacher_failure_config.py": {
+      "bytes": 1847,
+      "sha256": "c65c10ec5cc7c4096870b683240c20b5536b977daeac7f3bbd6e0746787cf40b"
+    },
+    "reproducibility/config_reference/legged_gym/envs/a1_official_wim_teacher/joint_schema.py": {
+      "bytes": 1033,
+      "sha256": "d4fa8fdf384f1ed4e6db79090c5d5facf81d7daea32a732daf52b299af9c480e"
+    },
+    "reproducibility/config_reference/legged_gym/envs/a1_official_wim_teacher/schema.py": {
+      "bytes": 1415,
+      "sha256": "acfd369741a2c80cd15e5ffbb6f914f9e3b1d9ac729a75d798a998aed4f540fa"
+    },
+    "reproducibility/config_reference/legged_gym/envs/base/base_config.py": {
+      "bytes": 2626,
+      "sha256": "c2789af5409c82337862d78d99f82ef262d393af5dc810df6afe221d37ed2677"
+    },
+    "reproducibility/config_reference/legged_gym/envs/base/legged_robot_config.py": {
+      "bytes": 10058,
+      "sha256": "65ce2d1b647a291b4ae2bdaed7af569fcdf7a764da6d6b80d47a9ebd3a8a0f4c"
+    },
+    "reproducibility/config_reference/reference_manifest.json": {
+      "bytes": 1430,
+      "sha256": "1749c4749778cdda08ff374b4b3a3d66a91d834d135e0f2efd2fcdf9c195c7d3"
+    },
+    "reproducibility/documentation_validation.json": {
+      "bytes": 567,
+      "sha256": "2da831933b804f9f583be53cf448355145588a6b2e196bf03ed6351e9e44596d"
+    },
+    "reproducibility/reconstruct_terrain.py": {
+      "bytes": 1990,
+      "sha256": "b5ae9fb66df3ed3089fbaabe072dffa79bb5b4d2c925bc0962453ae10293cd65"
+    },
+    "reproducibility/runtime_evidence.json": {
+      "bytes": 9594,
+      "sha256": "edc5b18597d1370b932ab37c3c00047c05c99ca426cd500822d354805293d619"
+    },
+    "terrain/heightfield_s1101.npz": {
+      "bytes": 68851,
+      "sha256": "e294b556acb5be7439703232e38b99a324103bb94743f272045b00f8a4c83e0c"
+    },
+    "terrain/heightfield_s1102.npz": {
+      "bytes": 68677,
+      "sha256": "2fff8a76ba838e5767d8384df3239fd2ca8f301338f9791fefcc1db0aa2406f8"
+    },
+    "terrain/heightfield_s1103.npz": {
+      "bytes": 68650,
+      "sha256": "282302979a79ec6d7c299b11c41b51dbf56ecda385f1ae2b98c3a9bc22bfa251"
     }
   },
-  "total_bytes": 7505778617,
-  "created_at": 1792157045.4827263
+  "total_bytes": 7507025473,
+  "created_at": 1792157045.4827263,
+  "documentation_updated_at": 1792160024.2176974,
+  "documentation_revision": 2
 }

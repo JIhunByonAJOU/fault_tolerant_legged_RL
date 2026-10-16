@@ -1,0 +1,236 @@
+[
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g00_s1101_Normal.log",
+    "log_sha256": "4b98d86b79082fe070b775ce514c8035f203e4afb0e0c1e21c0b35eb28d315d6",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 680031962",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g00_s1101_Student.log",
+    "log_sha256": "8e897129bbf51815d353c11a0d35b3c67b1ba6caddcb1ba96ccdd60706da9d1c",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 680031962",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g00_s1102_Normal.log",
+    "log_sha256": "22f9ae4b9d4f805c94f41dd02247aee04226b51a68ce4c6ace4050c41cea37bb",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 1327032464",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g00_s1102_Student.log",
+    "log_sha256": "fc3e4b76bd46f2f3d5613c78dc0fc7d7accc6d4bd78b4b592ec76cd9bfda50f0",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 1327032464",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g00_s1103_Normal.log",
+    "log_sha256": "43afa2471ddd11c3c612cd36360a85327bfd493d1fdec207383d57051819928d",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 594308101",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g00_s1103_Student.log",
+    "log_sha256": "54df365c07c6e3f3cbefe61cef252c53713694726ebb50134371b72e46789f00",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 594308101",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g01_s1101_Normal.log",
+    "log_sha256": "fb204b8f6e43265b498826b72fa5b8f36ac2799df17fb11558bef98940968d36",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 680031962",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g01_s1101_Student.log",
+    "log_sha256": "78ae192d22fb3a41f65932c56cba6e1ec9d704bb23ef2d915b8a5456ce5eb160",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 680031962",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g01_s1102_Normal.log",
+    "log_sha256": "36040bb60aad2125b3484282385ce727916e9a0cc11ed9efa58a171f70accd34",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 1327032464",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g01_s1102_Student.log",
+    "log_sha256": "290c4f54fad286b48ad244eb32f3e15ab2de93075b46ce5b872ad83951ab9bcc",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 1327032464",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g01_s1103_Normal.log",
+    "log_sha256": "aaf6eb99eac87e24ac4e4f5bdcfaf4cbac3c83fd6678bad3f1be84b462207bea",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 594308101",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g01_s1103_Student.log",
+    "log_sha256": "a195d3baaf1ac2ee39bd3145a7dda4f40838fb858aa974ecff829ac8d2594c5c",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 594308101",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g02_s1101_Normal.log",
+    "log_sha256": "592de4ab8020661415d2e11aff87c0f13037a36b50b90fe706f8e0c0a4ec7b87",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 680031962",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g02_s1101_Student.log",
+    "log_sha256": "07955932d497fddc3205be81884d738a686f9f13cb7c1252dfb95986680a2092",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 680031962",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g02_s1102_Normal.log",
+    "log_sha256": "f7e6867f7ffed8a75f82edaaf22b85c3ee67309a279f1cfef0c1d3fb579db8ba",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 1327032464",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g02_s1102_Student.log",
+    "log_sha256": "73244baa03eb1de946d0caac3ac4c275251aca6d17be36429e853c94f6e8d099",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 1327032464",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g02_s1103_Normal.log",
+    "log_sha256": "f0ba9ab78703137b4d341a3a0652581b94cc931ebe340808225e8589cc00c8ba",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 594308101",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  },
+  {
+    "source_log": "logs/evaluation/ieie2026_eight_20261016/logs/exploration_g02_s1103_Student.log",
+    "log_sha256": "fe8a82eb47366d0ed90ab4351af2a8b158ca5090cb2bcd8f42a1ea34ad672304",
+    "header_lines": [
+      "Importing module 'gym_38' (/home/jihun/Capstone2/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)",
+      "PyTorch version 1.13.1+cu117",
+      "Setting seed: 594308101",
+      "+++ Using GPU PhysX",
+      "Physics Engine: PhysX",
+      "Physics Device: cuda:0",
+      "GPU Pipeline: enabled"
+    ]
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "reference_commit": "6cde37b6cfea3cac3d6f1b77a5d737fe8a7c78e2",
+  "capture": "Supplementary reference extracted from Git; not a claim that an expanded runtime cfg was saved during collection. Collector overrides take priority.",
+  "files": {
+    "legged_gym/envs/base/legged_robot_config.py": "65ce2d1b647a291b4ae2bdaed7af569fcdf7a764da6d6b80d47a9ebd3a8a0f4c",
+    "legged_gym/envs/base/base_config.py": "c2789af5409c82337862d78d99f82ef262d393af5dc810df6afe221d37ed2677",
+    "legged_gym/envs/a1/a1_config.py": "d06e98eb13fc65070a4143633fde33ba0309f63483cdc81af33a38741a5b95f1",
+    "legged_gym/envs/a1_official_wim/a1_official_wim_config.py": "e31bf608f158fc7306feb367ebd5a75d429dbaf97dd7b9c6d21b423411fa0614",
+    "legged_gym/envs/a1_official_wim_teacher/a1_official_wim_teacher_config.py": "2c9745f34a961824b5440bd2930d14fb8c0a63bbb33b0adbd017744ce189b245",
+    "legged_gym/envs/a1_official_wim_teacher/a1_official_wim_teacher_failure_config.py": "c65c10ec5cc7c4096870b683240c20b5536b977daeac7f3bbd6e0746787cf40b",
+    "legged_gym/envs/a1_official_wim_teacher/a1_official_wim_joint_config.py": "a040dd13d716e11b64ea0fb18cd80e89657fc1868b0451fd5f426f0b5567f9d1",
+    "legged_gym/envs/a1_official_wim_teacher/schema.py": "acfd369741a2c80cd15e5ffbb6f914f9e3b1d9ac729a75d798a998aed4f540fa",
+    "legged_gym/envs/a1_official_wim_teacher/joint_schema.py": "d4fa8fdf384f1ed4e6db79090c5d5facf81d7daea32a732daf52b299af9c480e"
+  }
+}

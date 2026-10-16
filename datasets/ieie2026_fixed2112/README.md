@@ -3,6 +3,17 @@
 **2,196 정책·시드 런 / 26,352 로봇 시행 / 13,176 Normal–Student 대응 쌍.**
 완료된 첫 수집(시드1101–1103)의 고정 조건 부분집합이다. 별도 시뮬레이션이나 새로운 독립 확인 평가를 수행한 데이터가 아니다. 전진/대각/횡이동/사인파를2:1:1:2로 맞췄고, 원래12개 지형 열을 유지했다. 성능 결과에 따른 시행 선택은 없다.
 
+## 상세 설명과 논문 작성
+
+- [전체 데이터 상세·지형·시드·제어기·지표·필드 사전](DATA_DETAILS.md)
+- [조교 피드백과 적용 범위](TA_GUIDANCE.md)
+- [그림 글꼴·크기·셀 가독성·생성 방법](FIGURE_GUIDELINES.md)
+- [결과 절·초록·결론 작성안과 원고 반영 계획](PAPER_RESULTS_PLAN.md)
+- [HY신명조·9 pt로 만든 새 그림 시안](figures/): 실제 폭 170 mm의 PDF와 PNG, 글꼴·가독성 검증 JSON
+- [당시 높이맵 hash와 일치하는 세 지형 배열](terrain/), [설정·런타임 근거](reproducibility/)
+
+기존 `analysis/`와 `explanatory/`의 그림은 이전 진단 자료다. 논문용 새 그림은 공통 생성기 `paper_figures.py`로 만들며, `analyze.py`의 그림 생성도 같은 기준을 사용한다. 원고 TeX의 새 결과 반영·5/4쪽 조판 완료와는 구분한다.
+
 ## Windows에서 받기
 
 저장소 루트에서 PowerShell 또는 Git Bash로 실행한다.
@@ -29,9 +40,11 @@ py analyze.py
 - `analysis/`: 전체 시행CSV, 조건별 요약, 대응 차이, 원자료 색인.
 - `reports/`: 기존 논문과의 비교, 손실률별 수치와 원래 그림. 한국어 용어는 토크 저하·토크 저하율을 사용한다.
 - `explanatory/`: 관절별5지표, 비낙상 정체 분석, 원시 기록으로 검증한 주행 예시.
-- `generated/`: `analyze.py`가 새로 만드는 평면속도RMSE 히트맵·정체 진단·CSV. Git에서 제외된다.
+- `generated/`: `analyze.py`가 새로 만드는 평면속도 RMSE 히트맵·5지표 곡선·지형 그림·정체 요약 CSV. Git에서 제외된다.
 - `source_snapshot/`: 수집 당시의실행 소스와 원래프로토콜. Isaac Gym 재실행용 출처이며 Windows에서 데이터만 분석할 때는 필요 없다.
 - `fixed_design.json`, `derivation_manifest.json`, `manifest.json`: 구성·출처·전체 파일 무결성. 원래Ubuntu의절대경로는 출처 기록이며 데이터 읽기에는 사용하지 않는다.
+
+그림은 설치된 HY신명조를 사용한다. 폰트를 찾지 못하면 자동 대체하지 않는다. 직접 지정하려면 `py analyze.py --font "C:\Windows\Fonts\H2MJSM.TTF"` 또는 `py paper_figures.py --font "C:\Windows\Fonts\H2MJSM.TTF"`를 사용한다. 글꼴 파일 자체는 저장소에 포함하지 않는다.
 
 ## 모든 원시 기록 검증
 
@@ -51,7 +64,7 @@ py analyze.py --trial exploration_s1101_S20_r0_slot10_j01_d100_Student
 
 ## raw NPZ 형식
 
-배열은 `values`(N×16,float32), `flags`(uint8), `env_id`(uint16), `step`(int32)이다. step간격0.02초. flags의bit1(값1)은alive,bit2(값2)는고장후,bit3(값4)는정체flag다. 종료 상태는각시행의`termination`에 있다. 초기2초도보존하고,낙상/완주/상한뒤표본은생성하지 않는다.
+배열은 `values`(N×16,float32), `flags`(uint8), `env_id`(uint16), `step`(int32)이다. step간격0.02초. flags의 비트값 1은 alive, 2는 고장 후, 4는 정체 flag다. 비트 위치는 각각 0, 1, 2다. 종료 상태는각시행의`termination`에 있다. 초기2초도보존하고,낙상/완주/상한뒤표본은생성하지 않는다.
 
 `values`의열: world_x,world_y,body_yaw,body_vx,body_vy,body_wz,cmd_vx,cmd_vy,cmd_wz,ref_x,ref_y,path_s,furthest_s,cross_track,world_vx,world_vy. 위치·기준경로는세계좌표,속도명령과vx/vy/wz는몸체좌표다.
 

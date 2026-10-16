@@ -29,7 +29,7 @@
 
 ## 과제·지형·관절별 결과
 
-analysis/fixed2112/all_trials.csv에 모든 시행, by_every_condition.csv에 과제·원래 열·관절·저하율별 결과, paired_differences.csv에 대응 시행 차이를 저장했다. delivery/by_profile_loss_with_pooled_rmse.csv에서 좌우·두 사인파를 구분한다. 차이가 큰 조건은largest_differences.csv와heatmap에서 확인한다.
+[all_trials.csv](../analysis/all_trials.csv)에 모든 시행, [by_every_condition.csv](../analysis/by_every_condition.csv)에 과제·원래 열·관절·저하율별 결과, [paired_differences.csv](../analysis/paired_differences.csv)에 대응 시행 차이를 저장했다. [by_profile_loss_with_pooled_rmse.csv](by_profile_loss_with_pooled_rmse.csv)에서 좌우·두 사인파를 구분한다. 전체 정의·원자료 근거는 [DATA_DETAILS.md](../DATA_DETAILS.md), 새 그림과 결과 작성 방향은 [PAPER_RESULTS_PLAN.md](../PAPER_RESULTS_PLAN.md)에 있다.
 
 ## 현재 원고와 비교
 

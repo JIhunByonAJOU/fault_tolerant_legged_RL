@@ -1,0 +1,45 @@
+{
+  "ta_guidance_source": "TA_GUIDANCE.md",
+  "ta_guidance_reviewed": true,
+  "font_and_9pt_are_project_choices": true,
+  "font_family": "HYSinMyeongJo-Medium",
+  "font_file": "/home/jihun/.local/share/fonts/ieie-paper/H2MJSM.TTF",
+  "font_sha256": "f78f538885b29f956cf84286e430898462d11430604625857ad587c0ea73925b",
+  "font_size_pt": 9,
+  "figures": {
+    "paper_joint_vxy_gain": {
+      "width_mm": 170.0,
+      "height_mm": 95.0,
+      "text_sizes_pt": [
+        9.0
+      ],
+      "outside_text": []
+    },
+    "paper_metrics_by_degradation": {
+      "width_mm": 170.0,
+      "height_mm": 112.0,
+      "text_sizes_pt": [
+        9.0
+      ],
+      "outside_text": []
+    },
+    "terrain_heightmap_s1101": {
+      "width_mm": 170.0,
+      "height_mm": 125.0,
+      "text_sizes_pt": [
+        9.0
+      ],
+      "outside_text": []
+    }
+  },
+  "heatmap": {
+    "cells": 60,
+    "trials_per_policy_cell": 216,
+    "decimals": 3,
+    "minimum_text_background_contrast": 5.131852947557338,
+    "annotations_outside_cells": [],
+    "symmetric_color_limit_mps": 0.3566866498350787,
+    "metric": "mean_i sqrt((SSE_vx_i+SSE_vy_i)/N_i), Normal minus Student"
+  },
+  "curve_bands": "Minimum to maximum of the three evaluation-seed means; not a confidence interval."
+}
