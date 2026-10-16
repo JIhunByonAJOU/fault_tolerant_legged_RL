@@ -1,13 +1,13 @@
 # 논문 LaTeX 편집과 최종 개정본
 
-2026-10-16 개정에서 예전 20 s 직진 결과를 고정 2:1:1:2의 26,352시행 결과로 교체했다. **프로시딩은 5쪽, 익명 심사용은 4쪽**이다. 두 PDF는 LuaLaTeX 실제 빌드와 시각 검수를 마쳤다. 이는 제출용 원고 개정 완료이며 학회 접수·저자 자격·사사 확인까지 완료했다는 의미는 아니다.
+2026-10-17에 `0d34639`의 서론·시스템·방법과 사진·표 1–4를 복구하고 최신 26,352시행 평가를 연결했다. **현재 프로시딩 7쪽, 익명 심사용 6쪽으로 목표 5쪽·4쪽은 미충족**이다. 두 PDF는 실제 LuaLaTeX 빌드를 마쳤다. [복구·검증 기록](../../RESTORATION_20261017.md)을 기준으로 사용한다.
 
 | 용도 | 편집 파일 | 진입 파일 | 최신 PDF |
 |---|---|---|---|
 | 프로시딩 | [body.tex](body.tex) | [proceedings.tex](proceedings.tex) | [preview/proceedings.pdf](preview/proceedings.pdf) |
 | 익명 심사용 | [body_review.tex](body_review.tex) | [main.tex](main.tex) | [preview/main.pdf](preview/main.pdf) |
 
-프로시딩은 다섯 개별 성능 곡선·Student 절대 생존율 히트맵·구조도·학습 보상 곡선을 포함한다. 심사용은 같은 수치·정의·결론을 유지하되 세 축 명령 오차를 표로 제시하고 학습 경과를 문장으로 압축했다. 익명본에서는 저자·소속·이메일과 저자를 식별하는 GitHub 링크를 제외했다.
+두 원고 모두 로봇·환경 사진, 시스템·관측·인코더·보상표, 이전 구조도와 학습 곡선을 포함한다. 프로시딩은 다섯 개별 성능 곡선과 Student 절대 낙상률 히트맵을 사용한다. 심사용은 세 축 명령 오차를 표로 제시한다. 익명본에서는 저자·소속·이메일과 저자를 식별하는 GitHub 링크를 제외했다.
 
 ## 내용과 근거
 
@@ -15,7 +15,7 @@
 - 명령·경로 RMSE는 고장 후 종료 전 유효 표본에서 시행별 계산 후 평균한다. 낙상 뒤를 0으로 채우지 않는다.
 - 정체는 결과 해석의 짧은 보조 사례이고 결론의 중심 주장이 아니다. 완주 종료 비율은 기존 기록을 재집계해 보조 확인으로 추가했다.
 - [원자료·분석](../../../../../datasets/ieie2026_fixed2112/README.md), [수치·설정·학습 계보·조건별 표](../../paper_assets/MANUSCRIPT_EVIDENCE.md), [검증 JSON](../../paper_assets/manuscript_validation.json)을 함께 제공한다.
-- [리뷰·수정 대응표](../../reviewer/revision_20261016/RESPONSE.md)는 대화 맥락 없는 교수·로보틱스·박사생 역할 AI의 첫 심사와 수정 후 재심을 보존한다. 실제 외부 전문가 승인으로 표시하지 않는다.
+- [리뷰·수정 대응표](../../reviewer/restoration_20261017/RESPONSE.md)는 대화 맥락 없는 교수·로보틱스·박사생 역할 AI의 첫 심사와 수정 후 재심을 보존한다. 실제 외부 전문가 승인으로 표시하지 않는다.
 
 ## Ubuntu와 Windows 빌드
 
@@ -33,8 +33,8 @@ Ubuntu 패키지가 필요하면 `latexmk`, `texlive-luatex`, `texlive-lang-kore
 
 - `fonts-proceedings.tex`는 설치된 HY신명조를 우선하며, 제목 바탕·저자 한컴바탕·수식 Cambria Math 설정을 사용한다. 시작 시 이미 있던 OS 공통 글꼴 선택 수정을 보존해 현재 빌드 설정으로 포함했다. 글꼴 바이너리는 배포하지 않는다.
 - 동일 글꼴이 없는 PC는 편집용 대체 글꼴을 사용하므로 쪽수·배치가 달라질 수 있다. 현재 PDF는 본문 글자·여백을 줄여 한도에 맞춘 결과가 아니다.
-- 그래프는 Times New Roman 9 pt이며 PDF 안에 글꼴을 포함한다. 성능 곡선 80×50 mm, 히트맵 80×85 mm, 구조도·학습도 80×40 mm다. 내부 제목 없이 원고 캡션으로 구별한다.
+- 그래프는 Times New Roman 9 pt이며 PDF 안에 글꼴을 포함한다. 성능 곡선 80×50 mm, 히트맵 80×85 mm, 학습 곡선은 80×40 mm다. 복구한 이전 구조도 `paper_workflow_v8.pdf`는 원래 서체·배치를 보존했다. 내부 제목 없이 원고 캡션으로 구별한다.
 - `preamble.tex`의 `graphicspath`는 저장소의 `datasets/ieie2026_fixed2112/figures/`와 `docs/submission/ieie2026/paper_assets/`를 직접 참조한다. 폴더 구조를 그대로 유지한다.
-- [그림 생성기](../../make_manuscript_figures.py)는 보존한 학습 CSV로 구조도·학습 곡선을 재생성한다. 성능 곡선은 데이터 폴더의 `paper_figures.py`를 사용한다.
+- [그림 생성기](../../make_manuscript_figures.py)는 보존한 학습 CSV로 학습 곡선과 이전 단순화 구조도 시안을 생성한다. 현재 원고의 복구 구조도는 `private/assets/paper_workflow_v8.pdf`이며 생성기가 덮어쓰지 않는다. 성능 곡선은 데이터 폴더의 `paper_figures.py`를 사용한다.
 
 공식 양식은 DOCX/HWP이며 이 TeX는 공식 LaTeX 양식이 아니다. 기존에 측정한 공식 양식의 글꼴·여백·줄 간격을 보존했다. 같은 글꼴 환경에서 최종 PDF를 확인한다. 사사 문구·과제번호는 제공되지 않아 임의로 만들지 않았으며 저자 자격과 함께 제출 전에 확인해야 한다.

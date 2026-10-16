@@ -1,4 +1,10 @@
 {
+  "restoration_base_commit": "0d34639",
+  "submission_ready": false,
+  "page_limits_met": false,
+  "heatmap_metric": "fall_rate_percent = 100 - survival_percent",
+  "heatmap_survival_complements_verified": true,
+  "active_legacy_architecture": "private/assets/paper_workflow_v8.pdf; preserved original diagram, not asserted to have new quantitative figure font styling",
   "records_sha256": "bfdb2687494cd92b84e2ef7e24944e58a4111d9e9e7e626259eff0b0c9e58411",
   "primary_d100_evidence": {
     "Normal": {
@@ -23,8 +29,11 @@
   "per_family_d100_all_primary_metrics_improved": true,
   "pdfs": {
     "proceedings": {
-      "pages": 5,
-      "sha256": "5fc8477343d7426454f6a6d3f72c84e1977531b6ac4dbe6be712b69274581fd4",
+      "pages": 7,
+      "target_pages": 5,
+      "page_limit_met": false,
+      "restored_photos_four_tables_and_dimensions_verified": true,
+      "sha256": "2891de257170fb004537a6be709feec8db84ad20cc943f74db291b6c0f09211f",
       "all_pdf_fonts_embedded": true,
       "no_overfull_or_missing_glyphs": true,
       "citations_sentence_end_attached_and_first_appearance_order": true,
@@ -33,8 +42,11 @@
       "anonymous_text_and_author_link_removed": null
     },
     "main": {
-      "pages": 4,
-      "sha256": "64bb35448b928719a008bbdbd2b4ccf8ef17dc456c1ebf61c1cddec8cf91fa14",
+      "pages": 6,
+      "target_pages": 4,
+      "page_limit_met": false,
+      "restored_photos_four_tables_and_dimensions_verified": true,
+      "sha256": "5326f7aef2ff0b484374dcabdea970fa8946ba3b8e37af1e7091f3d9a16b0818",
       "all_pdf_fonts_embedded": true,
       "no_overfull_or_missing_glyphs": true,
       "citations_sentence_end_attached_and_first_appearance_order": true,
@@ -43,11 +55,11 @@
       "anonymous_text_and_author_link_removed": true
     }
   },
-  "active_figure_font_size_pt": 9,
-  "active_figure_titles_absent": true,
+  "new_quantitative_figure_font_size_pt": 9,
+  "new_quantitative_figure_titles_absent": true,
   "all_plotted_points_csv_max_difference": 7.216449660063518e-16,
   "all_60_heatmap_counts_verified": true,
-  "asset_figure_audit": {
+  "generated_assets_audit_including_unused_simplified_architecture": {
     "paper_architecture": {
       "font_size_pt": 9,
       "width_mm": 80.0,
@@ -64,7 +76,7 @@
     }
   },
   "heatmap_cells": 60,
-  "heatmap_minimum_text_contrast": 4.603450894973763,
+  "heatmap_minimum_text_contrast": 14.012789034876363,
   "raw_simulation_reexecuted": false,
   "training_reexecuted": false
 }

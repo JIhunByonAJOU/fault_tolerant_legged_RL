@@ -31,5 +31,13 @@
     9,
     10
   ],
-  "manuscript_validation": "../../../docs/submission/ieie2026/paper_assets/manuscript_validation.json"
+  "manuscript_validation": "../../../docs/submission/ieie2026/paper_assets/manuscript_validation.json",
+  "manuscript_revision": "restoration_20261017",
+  "manuscript_pages": {
+    "proceedings": 7,
+    "anonymous": 6
+  },
+  "page_limits_met": false,
+  "heatmap_metric": "fall_rate_percent = 100 - survival_percent",
+  "new_evaluation_performed": false
 }

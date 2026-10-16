@@ -1,6 +1,6 @@
 # 2026-10-16 최신 원고
 
-새 혼합 과제 평가를 반영한 [프로시딩 5쪽](private/latex/preview/proceedings.pdf)과 [익명 심사용 4쪽](private/latex/preview/main.pdf)을 제공한다. [개정·검증 기록](REVISION_20261016.md), [AI 독립 리뷰 및 수정 대응표](reviewer/revision_20261016/RESPONSE.md)를 먼저 확인한다. 아래 내용 중 이전 직진 평가·Q 관련 기록은 과거 작업이다.
+최신은 이전 서론·시스템·방법을 복구한 [프로시딩 7쪽](private/latex/preview/proceedings.pdf)과 [익명 심사용 6쪽](private/latex/preview/main.pdf)이다. [복구·검증 기록](RESTORATION_20261017.md)과 [새 AI 리뷰 대응표](reviewer/restoration_20261017/RESPONSE.md)를 확인한다. 목표 5쪽·4쪽은 아직 미충족이다. 2026-10-16의 5쪽·4쪽 개정 기록과 아래 이전 직진·Q 기록은 과거 상태다.
 
 # 대한전자공학회 2026 추계 학부생 논문경진대회 준비
 

@@ -69,10 +69,12 @@ def heatmap(rows, output, audit):
             rs = groups[j, d]
             assert len(rs) == 216
             survived = sum(r['survived'] for r in rs)
-            values[j, k] = 100 * survived / len(rs)
+            fallen = len(rs) - survived
+            values[j, k] = 100 * fallen / len(rs)
             table.append(dict(joint_index=j, joint=JOINTS[j], degradation=d, policy='Student',
-                              episodes=len(rs), survived=survived, survival_percent=values[j, k]))
-    with (output / 'paper_student_survival_heatmap.csv').open('w', newline='', encoding='utf-8-sig') as f:
+                              episodes=len(rs), survived=survived, fallen=fallen,
+                              survival_percent=100 * survived / len(rs), fall_rate_percent=values[j, k]))
+    with (output / 'paper_student_fall_rate_heatmap.csv').open('w', newline='', encoding='utf-8-sig') as f:
         writer = csv.DictWriter(f, fieldnames=list(table[0]))
         writer.writeheader(); writer.writerows(table)
     fig, ax = plt.subplots(figsize=(80 / 25.4, 85 / 25.4), constrained_layout=True)
@@ -92,7 +94,7 @@ def heatmap(rows, output, audit):
     ax.tick_params(which='minor', bottom=False, left=False)
     ax.tick_params(axis='both', length=2, width=.5, pad=2)
     for spine in ax.spines.values(): spine.set_linewidth(.5)
-    bar = fig.colorbar(im, ax=ax, label='Survival (%)', fraction=.045, pad=.035, aspect=40,
+    bar = fig.colorbar(im, ax=ax, label='Fall rate (%)', fraction=.045, pad=.035, aspect=40,
                  ticks=[0, 20, 40, 60, 80, 100], format='%.0f')
     bar.outline.set_linewidth(.5)
     bar.ax.tick_params(length=2, width=.5, pad=2)
@@ -110,8 +112,10 @@ def heatmap(rows, output, audit):
                         'policy': 'Student', 'decimals': 1,
                         'minimum_text_background_contrast': min(contrasts),
                         'annotations_outside_cells': clipped, 'color_limits_percent': [0, 100],
-                        'metric': '100 * nonfall trials / all trials; goal and nonfall administrative cap count as survival'}
-    save(fig, 'paper_student_survival_heatmap', output, audit)
+                        'metric': '100 * fallen trials / all trials = 100 - survival percent',
+                        'visual_mapping': 'Lower fall rates are lighter; higher fall rates are darker',
+                        'survival_definition_unchanged': True}
+    save(fig, 'paper_student_fall_rate_heatmap', output, audit)
 
 
 def curves(rows, output, audit):
@@ -210,7 +214,7 @@ def main(argv=None):
              'font_file': font_path, 'font_sha256': hashlib.sha256(Path(font_path).read_bytes()).hexdigest(),
              'font_size_pt': 9, 'figure_titles': 'External manuscript captions only',
              'graphics_reference': 'https://conferences.ieeeauthorcenter.ieee.org/write-your-paper/improve-your-graphics/',
-             'heatmap_layout': 'Single-column 80 x 85 mm; single-hue Blues; thin rules; fixed 0-100 percent',
+             'heatmap_layout': 'Single-column 80 x 85 mm; single-hue Blues; fall rate = 100 - survival; lower fall rates lighter; fixed 0-100 percent',
              'figures': {}}
     rows = json.loads((BASE / 'records.json').read_text(encoding='utf-8'))
     heatmap(rows, output, audit); curves(rows, output, audit); terrain_overview(output, audit)

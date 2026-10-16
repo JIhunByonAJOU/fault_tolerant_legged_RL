@@ -72,7 +72,8 @@
 
 % Official proceedings DOCX formatting; review formatting is independent.
 \ifproceedings\input{format-proceedings.tex}\else
-\newenvironment{paperdisplay}{\par}{\par}
+\NewDocumentEnvironment{paperdisplay}{O{0bp}}{\par}{\par}
+\providecommand{\paperLoss}{\mathcal L}
 \fi
 
 \usepackage[hidelinks]{hyperref}

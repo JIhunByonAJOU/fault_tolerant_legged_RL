@@ -169,8 +169,8 @@
       "sha256": "150013329e71880dfa4486d9ff2c563ce925934be8c6ccf8771b347e0e17e65c"
     },
     "README.md": {
-      "bytes": 7502,
-      "sha256": "78b2ed3829e4bf6f239dbbaf6941b43af86ad3dd693934f431646c40ca46b32b"
+      "bytes": 7825,
+      "sha256": "fb4ca877fc1791a793e9d203c1f5843afc2bb3bc8680e266a9df87c838a15f21"
     },
     "derivation_manifest.json": {
       "bytes": 28645,
@@ -6705,12 +6705,12 @@
       "sha256": "d0f11209a8115e14f66277f515a0cf79b1703764824870cbffeb765aa108bef7"
     },
     "FIGURE_GUIDELINES.md": {
-      "bytes": 6345,
-      "sha256": "2133396ef3bf8e6bea4e77f405b1369339b403c715ac84bf9d28ba39410c9e4e"
+      "bytes": 6619,
+      "sha256": "bbaea4267a2c98bf4e4c68c2ef70989fd6c763dc22671ee52ffeadb6e019baae"
     },
     "PAPER_RESULTS_PLAN.md": {
-      "bytes": 3877,
-      "sha256": "695152c9f636074fd605809b46032c073971735ce15902c880d7145ab7eb34ab"
+      "bytes": 4305,
+      "sha256": "a0f05ba124bea2e96a95307b3fa61106bcd5cb006043e1589ce96f4c5af9e2d2"
     },
     "TA_GUIDANCE.md": {
       "bytes": 5178,
@@ -6721,8 +6721,8 @@
       "sha256": "34d2649998894c1cad38a9ecb8d89d234be2171b795c205f46cb5cdb85301163"
     },
     "figures/VALIDATION.md": {
-      "bytes": 1737,
-      "sha256": "d290afce57a24e594cd4635240fbcf8c7248b350ecaaa52fada8af433fb4c583"
+      "bytes": 2070,
+      "sha256": "28d9ac2d8ec274a45e14e1dfeeaed807402c07d507e7937709896aad0f8743b0"
     },
     "figures/paper_joint_vxy_gain.pdf": {
       "bytes": 27010,
@@ -6741,20 +6741,20 @@
       "sha256": "f5f1be61e0213679f54b86ddc345f0b06ef6f063e4bc0ec4e3737d7f3b736e7d"
     },
     "figures/style_audit.json": {
-      "bytes": 10529,
-      "sha256": "f11dbe1b8c08f2d326d959ea94a1422e44fa1fe0c356ccc09bec3884aada11f1"
+      "bytes": 10669,
+      "sha256": "1c8fce6cc0b200f587a03759682c1c39a20e3380073abace35d39fe1d7605d33"
     },
     "figures/terrain_heightmap_s1101.pdf": {
       "bytes": 121686,
-      "sha256": "085960e25b53ab50d64a8207b6a13ffe838d195f52449b5491de88291829b942"
+      "sha256": "82286f9022e9607801f0e965cf860b4b0d7314915df6c89a5d68457f768641cd"
     },
     "figures/terrain_heightmap_s1101.png": {
       "bytes": 270920,
       "sha256": "525820ec1469e32d082f57459c9644d03562705c541f56629625ffbd95acfefa"
     },
     "paper_figures.py": {
-      "bytes": 12244,
-      "sha256": "3792b97d12832b8750997eaeeb264e9271b113ea12212b9674fd365c4ed0c27d"
+      "bytes": 12552,
+      "sha256": "ab77ea35af0c4953d62c2e391d8b9874f1661851e07072b41e1164dae4e06f7b"
     },
     "reports/manifest.json": {
       "bytes": 3028,
@@ -6805,8 +6805,8 @@
       "sha256": "1749c4749778cdda08ff374b4b3a3d66a91d834d135e0f2efd2fcdf9c195c7d3"
     },
     "reproducibility/documentation_validation.json": {
-      "bytes": 670,
-      "sha256": "c7746b5589875852654b461e6c8df43e3c5c168da6c76342e498d124854a1cac"
+      "bytes": 920,
+      "sha256": "c5b015794f857057ee9a2591218f8b1bf2c7a40d9f5a2ed2f67c75b343bb0159"
     },
     "reproducibility/reconstruct_terrain.py": {
       "bytes": 1990,
@@ -6829,12 +6829,12 @@
       "sha256": "282302979a79ec6d7c299b11c41b51dbf56ecda385f1ae2b98c3a9bc22bfa251"
     },
     "figures/README.md": {
-      "bytes": 2223,
-      "sha256": "97b247daecd36d6c21870ae3885222b9cbc6bff42c2765b696cbdb593e612f7a"
+      "bytes": 2513,
+      "sha256": "89eb31e7c48eeb86777bc5d8f5489b770f5d54a47b48dd269a07c5773acf38e9"
     },
     "figures/paper_cross_track_rmse_by_degradation.pdf": {
       "bytes": 32413,
-      "sha256": "36dfe5f37def0a8706c0bf03f66a389354845558d3dbe92ddd8d701ed2cd448e"
+      "sha256": "ff3f25c22eb46f00daca13fd0ac9c57aa12c802b07acfe983687de7bdf0b3337"
     },
     "figures/paper_cross_track_rmse_by_degradation.png": {
       "bytes": 66546,
@@ -6854,7 +6854,7 @@
     },
     "figures/paper_survival_by_degradation.pdf": {
       "bytes": 28792,
-      "sha256": "3a7b168288c6e169af81e4133d7d0221debb3ad6797491a8315e209104f97c7e"
+      "sha256": "1ce71be2e7c9503b2b8b3c4a438a54991fc2eebae3dc6b3278949bc025ba512e"
     },
     "figures/paper_survival_by_degradation.png": {
       "bytes": 57791,
@@ -6862,7 +6862,7 @@
     },
     "figures/paper_vx_rmse_by_degradation.pdf": {
       "bytes": 39680,
-      "sha256": "878187abdee845cb3b2a52b75856da4d48fa87346a2b346ad80443bca908e998"
+      "sha256": "e46bce2e4975838d1bcb522af085378f33226406179b88a658edc26624dcf3d6"
     },
     "figures/paper_vx_rmse_by_degradation.png": {
       "bytes": 64213,
@@ -6870,7 +6870,7 @@
     },
     "figures/paper_vy_rmse_by_degradation.pdf": {
       "bytes": 39716,
-      "sha256": "c8a3e73bdede97323643815211c0afaff645819da2373b06a3e56dbb357dff4d"
+      "sha256": "8eb20dfcf8085269254e5969a9563f52b11590c6d1d2ed4cb4d0bda2f1247642"
     },
     "figures/paper_vy_rmse_by_degradation.png": {
       "bytes": 56161,
@@ -6878,23 +6878,35 @@
     },
     "figures/paper_yaw_rate_rmse_by_degradation.pdf": {
       "bytes": 39155,
-      "sha256": "ce0fb443e418c269ed6f5db2af6c9a0dcbd20855f596e252223cd87e6fa203f3"
+      "sha256": "34320ff867615196389100d8c941c4df86f554349be3a3df4aa6cfb53998c182"
     },
     "figures/paper_yaw_rate_rmse_by_degradation.png": {
       "bytes": 59708,
       "sha256": "b3ccbc932046a0217327f2ff54336d96c542db801a88249aad83cb0e02741479"
     },
     "reproducibility/individual_figures_validation.json": {
-      "bytes": 1655,
-      "sha256": "c04d5b7b7045985ded39411b6b6d87311971a089251dc2d54d5b3b77515c4133"
+      "bytes": 1765,
+      "sha256": "c17f1d45b30adf0fc6d317e5094949e152ee3c7e0a7e8f048161a362c9b64058"
     },
     "reports/quantitative_argument_evidence.json": {
       "bytes": 8293,
       "sha256": "abc61515e9af666581b76c5c14572e1df1e837b180688a7e2a9fa7ba0c4a0685"
+    },
+    "figures/paper_student_fall_rate_heatmap.csv": {
+      "bytes": 4305,
+      "sha256": "adb121233bed828c14d2db8be1689306c920986d2c2d72efc7675edabf7c2f74"
+    },
+    "figures/paper_student_fall_rate_heatmap.pdf": {
+      "bytes": 34097,
+      "sha256": "3db382b14b86f0d15115fe6e92b02a4c5417004427b1c7b7c7bf06303995a274"
+    },
+    "figures/paper_student_fall_rate_heatmap.png": {
+      "bytes": 144640,
+      "sha256": "ff0c52e370f034c782eae35516c59f9dc290d2609297b739d9bfca9ff1a11291"
     }
   },
-  "total_bytes": 7507756792,
+  "total_bytes": 7507942290,
   "created_at": 1792157045.4827263,
-  "documentation_updated_at": 1792162564.2416584,
-  "documentation_revision": 5
+  "documentation_updated_at": 1792167730.0490763,
+  "documentation_revision": 6
 }

@@ -1,0 +1,39 @@
+{
+  "base_commit": "0d34639",
+  "scope": "Sections I-III restored; latest results and conclusion retained",
+  "preserved_labels": {
+    "fig:environment": true,
+    "tab:system": true,
+    "tab:observation": true,
+    "tab:encoders": true,
+    "tab:reward": true,
+    "fig:architecture": true
+  },
+  "preserved_assets": [
+    "a1_robot_20261011_212425_original.png",
+    "isaac_gym_original.png",
+    "paper_workflow_v8.pdf"
+  ],
+  "dimensions": [
+    48,
+    187,
+    235,
+    45,
+    8,
+    243,
+    12
+  ],
+  "student_history": [
+    50,
+    48
+  ],
+  "original_introduction_preserved_except_citation_keys_and_RMSE_first_expansion": true,
+  "source_comparison_diff": "restored_prefix.diff",
+  "page_limit_met": false,
+  "raw_evaluation_reexecuted": false,
+  "training_reexecuted": false,
+  "tables_byte_identical_to_base": {
+    "body.tex": true,
+    "body_review.tex": true
+  }
+}

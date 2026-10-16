@@ -1,7 +1,7 @@
-2026-10-16 원고 개정 인계
+2026-10-17 원고 복구 인계
 
 브랜치 dev. 프로시딩 proceedings.tex -> body.tex, 익명 심사 main.tex -> body_review.tex.
-preview/proceedings.pdf = 5쪽. preview/main.pdf = 4쪽. 현재 build/와 같은 내용의 배포 사본.
+preview/proceedings.pdf = 7쪽. preview/main.pdf = 6쪽. 목표 5/4쪽 미충족. 현재 build/와 같은 내용의 배포 사본.
 예전 20 s 직진 수치, Q, 전방 순변위 결과는 본문에서 제거하고 새 고정 2:1:1:2 평가로 교체함.
 새 학습·시뮬레이션 없음. 기존 26,352시행과 종료 유형을 재집계함.
 
@@ -15,13 +15,15 @@ Student는 현재 관측과 이력 특징, 고장 식별값 직접 입력 없음
 
 원자료: datasets/ieie2026_fixed2112/ (LFS 포함).
 수치·구현·선택·종료·과제별 표: docs/submission/ieie2026/paper_assets/MANUSCRIPT_EVIDENCE.md
-역할 기반 AI 독립 검토와 대응: docs/submission/ieie2026/reviewer/revision_20261016/
-조교 기준 대응·전체 검증: docs/submission/ieie2026/REVISION_20261016.md
+역할 기반 AI 독립 검토와 대응: docs/submission/ieie2026/reviewer/restoration_20261017/
+복구·조교 기준 대응·전체 검증: docs/submission/ieie2026/RESTORATION_20261017.md
 
 Windows/Ubuntu에서 같은 레포 폴더 구조를 유지하고 LuaLaTeX으로 빌드.
 영문 그림 Times New Roman 9 pt, 그림 내부 제목 없음. 한글 본문은 기존 양식 글꼴 사용.
 글꼴 바이너리 제외. 새 PDF를 만들었으면 실제 쪽수와 캡션·잘림을 확인할 것.
 익명본에는 저자·학교·이메일·저자 GitHub 링크가 없음.
 공개 재현 명세는 저자를 식별하므로 익명 심사 보조자료에 그대로 첨부하지 말 것.
-이번 작업은 원고 개정·그림·AI 리뷰·검증을 완료한 것이며 학회 접수 완료가 아님.
+0d34639의 서론/시스템/방법/사진/표1-4/차원을 복구. 최신 결과/결론 유지.
+히트맵은 낙상률=100-생존율. 초록 결과는 생존율+횡오차 한 종류.
+복구·AI 리뷰·검증 완료이며 제출 분량은 미충족, 학회 접수 완료 아님.
 사사 공식 문구/과제번호와 저자 자격은 별도 확인 필요.

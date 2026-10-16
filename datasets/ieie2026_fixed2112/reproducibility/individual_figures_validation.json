@@ -6,13 +6,10 @@
   "cell_counts_match_existing_summary": true,
   "font_family": "Times New Roman",
   "font_size_pt": 9,
-  "minimum_cell_contrast": 4.603450894973763,
+  "minimum_cell_contrast": 14.012789034876363,
   "all_cell_annotations_fit": true,
   "all_active_figures_title_free": true,
   "embedded_pdf_fonts": {
-    "paper_student_survival_heatmap": [
-      "FHXFSG+TimesNewRomanPSMT"
-    ],
     "paper_survival_by_degradation": [
       "FHXFSG+TimesNewRomanPSMT"
     ],
@@ -33,14 +30,13 @@
     ],
     "terrain_heightmap_s1101": [
       "FHXFSG+TimesNewRomanPSMT"
+    ],
+    "paper_student_fall_rate_heatmap": [
+      "FHXFSG+TimesNewRomanPSMT"
     ]
   },
   "quantitative_evidence_source_hash_verified": true,
   "active_figure_dimensions_mm": {
-    "paper_student_survival_heatmap": [
-      80.0,
-      85.0
-    ],
     "paper_survival_by_degradation": [
       80.0,
       50.0
@@ -64,6 +60,12 @@
     "terrain_heightmap_s1101": [
       170.0,
       125.0
+    ],
+    "paper_student_fall_rate_heatmap": [
+      80.0,
+      85.0
     ]
-  }
+  },
+  "heatmap_metric": "fall_rate_percent = 100 - survival_percent",
+  "survival_complements_verified": true
 }

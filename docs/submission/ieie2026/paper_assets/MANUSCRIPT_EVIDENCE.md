@@ -1,6 +1,6 @@
 # 논문 수치·설정·선택 규칙의 재현 명세
 
-대상은 2026-10-16 개정 원고다. 원자료는 저장소의 [고정 2:1:1:2 데이터](../../../../datasets/ieie2026_fixed2112/README.md), 전체 조건 설명은 [DATA_DETAILS.md](../../../../datasets/ieie2026_fixed2112/DATA_DETAILS.md)에 있다. 이 명세는 새 학습이나 새 보행 평가의 결과가 아니다. 각 정책을 한 번 학습한 고정 체크포인트의 기술통계이며, 외부 방법 또는 학습 알고리즘의 일반적인 순위를 주장하지 않는다.
+대상은 2026-10-17 복구 원고다. 현재 프로시딩 7쪽·익명본 6쪽으로 제출 분량은 미충족이다. 원자료는 저장소의 [고정 2:1:1:2 데이터](../../../../datasets/ieie2026_fixed2112/README.md), 전체 조건 설명은 [DATA_DETAILS.md](../../../../datasets/ieie2026_fixed2112/DATA_DETAILS.md)에 있다. 이 명세는 새 학습이나 새 보행 평가의 결과가 아니다. 각 정책을 한 번 학습한 고정 체크포인트의 기술통계이며, 외부 방법 또는 학습 알고리즘의 일반적인 순위를 주장하지 않는다.
 
 ## 정책과 학습 계보
 
@@ -52,7 +52,7 @@ RMSE는 고장 후 첫 종료 전 pre-action 유효 표본으로 시행별 계�
 
 ## 그림과 재현 명령
 
-성능 곡선 5개와 Student 절대 생존율 히트맵은 데이터 폴더의 `paper_figures.py`로 생성한다. 구조도와 학습 곡선은 `../make_manuscript_figures.py`로 생성한다. 이 폴더의 학습 CSV는 각 학습 런에서 독립적으로 완전한 500회 trailing window를 계산해 보존한 값이며 로그를 합친 경계에서 이동평균을 만들지 않았다. 일반 재생성에는 CSV만 필요하고 원 로그는 필요 없다.
+성능 곡선 5개와 Student 절대 낙상률 히트맵은 데이터 폴더의 `paper_figures.py`로 생성한다. 학습 곡선은 `../make_manuscript_figures.py`로 생성한다. 현재 구조도는 복구한 `private/assets/paper_workflow_v8.pdf`다. 생성기의 단순화 구조도는 과거 시안이다. 이 폴더의 학습 CSV는 각 학습 런에서 독립적으로 완전한 500회 trailing window를 계산해 보존한 값이며 로그를 합친 경계에서 이동평균을 만들지 않았다. 일반 재생성에는 CSV만 필요하고 원 로그는 필요 없다.
 
 ```sh
 python3 docs/submission/ieie2026/make_manuscript_figures.py
@@ -75,3 +75,13 @@ latexmk -lualatex -outdir=build main.tex
 - Isaac Gym: https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/28dd2c7955ce926456240b2ff0100bde-Abstract-round2.html
 - PPO: https://arxiv.org/abs/1707.06347
 - 미래모빌리티공학과 공식 영문명: https://www.ajou.ac.kr/mobility/index.do — Department of Mobility Engineering
+
+## 복구본 리뷰에 따른 세부 확인 (2026-10-17)
+
+표 2는 전처리 전 물리량의 단위를 적었다. 정책 입력에는 선속도×2, 각속도×0.25, 관절각 편차×1, 관절속도×0.05를 적용하고, 명령은 해당 선·각속도와 같은 스케일을 쓴다. 지형 입력 187개는 `clip(z_base − 0.5 m − z_terrain, −1 m, 1 m) × 5`이다. 관측 전체 clipping은 ±100이다. 원본 `source_snapshot/.../base/legged_robot.py::compute_observations`와 `reproducibility/config_reference/.../base/legged_robot_config.py::normalization`에서 확인했다. 교사 물리 벡터의 질량 한 성분은 추가 몸체 질량이다.
+
+근사 투영은 현재 x±4 m의 17후보(0.5 m 간격) 중 최근접 후보에서 시작한다. 사인파 거리 제곱에 대해 Newton 갱신을 4회 수행하되 분모 최소 0.25, 1회 x보정 ±0.5 m, 경로 정의역 [−1,40.5] m로 제한한다. 그 투영점에서 단위 법선에 위치 잔차를 투영해 횡오차를 계산한다. 선행 거리 0.4 m의 접선 속도에 횡오차 이득 0.7의 법선 보정을 더한 뒤 크기 0.5 m/s로 정규화한다. 회전 명령은 `0.5 × 경로 곡률 + 1.5 × wrap(목표 yaw − 실제 yaw)`를 ±0.8 rad/s로 제한한다. 실제 yaw로 선속도를 몸체좌표로 변환한다. 전체 식은 동결 `source_snapshot/legged_gym/evaluation/course_controller.py`와 일치한다.
+
+식 (5)의 모방항은 제곱 없는 특징 L2 노름의 배치 평균이다. 동결 `source_snapshot/legged_gym/learning/joint_teacher_student_actor_critic.py::adaptation_loss`의 `torch.linalg.vector_norm(predicted − target, dim=−1).mean()`과 대조했다. 제곱평균오차로 바꾸지 않았다. 감소율 47.0%, 57.3%, 67.6%, 64.6%는 반올림 전 기록 평균에서 계산한다.
+
+낙상률 히트맵은 100−생존율이며 낮은 값은 밝고 높은 값은 진하다. 100% 열 낙상 합계 279/2,592는 생존 2,313/2,592=89.2361%와 여집합이다.

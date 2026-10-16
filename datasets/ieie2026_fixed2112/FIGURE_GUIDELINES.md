@@ -23,22 +23,22 @@
 
 ## 본문 히트맵 한 장
 
-선택한 지표는 **Student의 절대 생존율(%)**이다. 이 그림의 질문은 “제안 정책이 어느 관절의 어느 토크 저하에서 얼마나 낙상을 피하는가?”다. Normal 대비 비교는 다섯 개별 곡선에서 하고, 히트맵은 전체 평균에 가려진 Student의 관절별 취약성을 보여준다.
+선택한 지표는 **Student의 절대 낙상률(%)**이다. 이 그림의 질문은 “제안 정책이 어느 관절의 어느 토크 저하에서 얼마나 낙상하는가?”다. Normal 대비 비교는 다섯 개별 곡선에서 하고, 히트맵은 전체 평균에 가려진 Student의 관절별 취약성을 보여준다.
 
-- 세로 12관절 × 가로 5저하율. 각 셀은 Student 216시행의 생존 비율이다.
-- 값은 `100 * survived / episodes`. 색은 0–100% 고정 범위의 단일 청색(Blues)이며 차이·증가량이 아니다. 80 × 85 mm의 세로형에 얇은 경계선과 좁은 색 막대를 쓴다.
-- 셀 숫자는 소수점 한 자리, 색 막대 단위는 %. 정확한 생존 수·분모는 `paper_student_survival_heatmap.csv`에 저장한다.
+- 세로 12관절 × 가로 5저하율. 각 셀은 Student 216시행의 낙상 비율이다.
+- 값은 `100 * fallen / episodes = 100 - survival_percent`. 색은 0–100% 고정 범위의 단일 청색(Blues)이며 차이·증가량이 아니다. 80 × 85 mm의 세로형에 얇은 경계선과 좁은 색 막대를 쓴다.
+- 셀 숫자는 소수점 한 자리, 색 막대 단위는 %. 정확한 낙상 수·생존 수·분모는 `paper_student_fall_rate_heatmap.csv`에 저장한다.
 - 배경색의 실제 밝기에 따라 흰색/검은색 숫자를 선택하고 60셀의 텍스트 경계를 검사한다.
 - 정상 조건은 특정 고장 관절이 없으므로 히트맵에 12번 복제하지 않는다.
 - 생존율은 낙상 여부이며 정체한 비낙상도 포함한다. 명령·경로 수행은 네 RMSE 곡선과 정체 사례로 함께 해석한다.
 
 시안 캡션:
 
-> Student survival rate by degraded joint and torque degradation. Each cell reports the percentage of 216 trials that terminated at the goal or administrative cap without a fall. Motion-tracking errors and stagnation are evaluated separately.
+> Student fall rate by degraded joint and torque degradation. Each cell reports the percentage of 216 trials that terminated with a fall. Motion-tracking errors and stagnation are evaluated separately.
 
-100% 저하에서 FR thigh 71.76%, FL thigh 78.70%, FR hip와 RR thigh 각각 97.22%다. 이 수치 차이를 근거로 같은 토크 저하에서도 제안 정책의 생존 성능이 관절에 따라 달라진다고 설명한다. 지형이나 과제 비율의 효과를 이 그림으로 주장하지 않는다.
+100% 저하에서 FR thigh 28.24%, FL thigh 21.30%, FR hip와 RR thigh 각각 2.78%다. 이 수치 차이를 근거로 같은 토크 저하에서도 제안 정책의 생존 성능이 관절에 따라 달라진다고 설명한다. 지형이나 과제 비율의 효과를 이 그림으로 주장하지 않는다.
 
-이전 평면속도 RMSE 차이 히트맵과 5패널 진단 히트맵은 과거 시안·보조 자료로 보존한다. 현재 본문 추천은 Student 생존율 히트맵 한 장이다.
+이전 평면속도 RMSE 차이 히트맵과 5패널 진단 히트맵은 과거 시안·보조 자료로 보존한다. 현재 본문 추천은 Student 낙상률 히트맵 한 장이다.
 
 ## 저하율별 다섯 곡선
 
@@ -69,3 +69,5 @@ py paper_figures.py --font "C:\Windows\Fonts\times.ttf"
 다른 글꼴로 변경하기로 정했다면 `--font-family` 또는 `--font`를 **전체 그림에 한 번에** 적용한다. 현재 시안은 `figures/`에, 재생성 결과는 기본적으로 Git 제외 경로 `generated/paper_figures/`에 저장한다.
 
 `style_audit.json`에는 폰트 경로·SHA-256·그림 크기·실제 글자 크기·셀 대비·셀 경계·내부 제목 없음 검사 결과를 저장한다. 생성 시안의 가독성 확인은 전체 원고의 캡션 간격·익명성·5/4쪽 제한 검수를 대체하지 않는다.
+
+2026-10-17: 현재 히트맵은 낙상률(100−생존율), 낮은 값은 밝고 높은 값은 진하다. `paper_student_survival_heatmap.*`은 이전 생존율 시안으로 보존하며 현재 원고에서는 사용하지 않는다. 데이터·생존율 정의는 바꾸지 않았다.
