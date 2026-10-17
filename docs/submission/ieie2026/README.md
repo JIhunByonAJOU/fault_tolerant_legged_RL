@@ -1,10 +1,12 @@
 # 2026-10-17 최신 원고
 
+그림 4는 생존율과 완주율의 좌우 패널이며 표 6과 평가 수식 두 개는 본문 정의로 대체했다.
+
 [용어, 문단, 그림 설명 정리](TERMINOLOGY_20261017.md): 최신 용어와 표 6의 목적, 캡션 정리 및 검증 결과.
 
 [편집기 PDF 참조·인용 오류 수정 및 전체 검사](REFERENCE_FIX_20261017.md): 루트 설정의 XeLaTeX 충돌을 수정하고 canonical build와 preview를 동기화했다.
 
-최신 편집본은 [프로시딩 6쪽](private/latex/preview/proceedings.pdf)과 [익명 심사용 6쪽](private/latex/preview/main.pdf)이다. [서론·그림·결과 편집 기록](EDITORIAL_20261017.md)을 확인한다. 목표 5쪽·4쪽은 아직 미충족이다. [이전 복구·리뷰](RESTORATION_20261017.md)는 직전 7쪽·6쪽 원고에 대한 기록이다.
+최신 편집본은 [프로시딩 5쪽](private/latex/preview/proceedings.pdf)과 [익명 심사용 5쪽](private/latex/preview/main.pdf)이다. 프로시딩의 5쪽 한도는 충족하며, 익명본은 4쪽으로 추가 축약해야 한다. 현재 상태와 노트북 편집 방법은 [인계 메모](private/latex/HANDOFF.txt)와 [빌드 안내](private/latex/README.md)를 따른다. 날짜가 붙은 이전 편집 기록은 과거 상태를 설명한다. [이전 복구·리뷰](RESTORATION_20261017.md)는 직전 7쪽·6쪽 원고에 대한 기록이다.
 
 # 대한전자공학회 2026 추계 학부생 논문경진대회 준비
 
