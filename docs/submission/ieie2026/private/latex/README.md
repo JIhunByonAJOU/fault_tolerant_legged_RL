@@ -1,6 +1,6 @@
 # 논문 LaTeX 편집과 최종 개정본
 
-최신 원고는 **프로시딩 5쪽·익명본 5쪽**이다. 프로시딩의 5쪽 한도는 충족하며, 익명본은 4쪽으로 추가 축약해야 한다. 현재 편집 상태는 [HANDOFF.txt](HANDOFF.txt)를 기준으로 한다. 날짜가 붙은 이전 편집·리뷰 문서는 과거 원고의 기록이다. 로봇과 환경 사진, 시스템 모델, 관측 차원과 공동학습 수식은 유지했다.
+최신 원고는 **프로시딩 5쪽·익명본 6쪽**이다(2026-10-18 Windows 빌드). 프로시딩의 5쪽 한도는 충족하며, 익명본은 4쪽으로 추가 축약해야 한다. 현재 편집 상태는 [HANDOFF.txt](HANDOFF.txt)를 기준으로 한다. 날짜가 붙은 이전 편집·리뷰 문서는 과거 원고의 기록이다. 로봇과 환경 사진, 시스템 모델, 관측 차원과 공동학습 수식은 유지했다.
 편집기 참조 오류는 [수정 기록](../../REFERENCE_FIX_20261017.md)을 따른다. 루트 폴더를 열어도 LuaLaTeX을 사용하도록 설정을 통일했다. 자동 빌드는 저장 시 실행하며, `build/`와 검증 후 배포하는 `preview/` PDF를 동기화했다.
 
 | 용도 | 편집 파일 | 진입 파일 | 최신 PDF |
@@ -29,7 +29,7 @@ code ieie-paper.code-workspace
 ```
 
 프로시딩 편집 파일은 `docs/submission/ieie2026/private/latex/body.tex`다. 현재 파일은 저장된 상태를 기준으로 Git에 포함한다. 다른 PC에서 오래 열어 둔 파일이 있으면 미저장 변경을 먼저 확인하고, 이전 편집 버퍼로 최신 파일을 덮어쓰지 않도록 한다. PDF 미리보기는 TeX 편집창에서 `Ctrl+Alt+V`로 연다.
- Git LFS 자료까지 받으려면 원자료 README의 명령을 따른다. 그림만 포함해 원고를 빌드하는 데 원시 trace 전체나 Isaac Gym은 필요 없다.
+부분 체크아웃을 사용하는 경우 `git sparse-checkout add docs/submission datasets/ieie2026_fixed2112/figures`로 필수 그림 폴더도 받아야 한다. 그림 누락으로 빌드가 실패하면 기존 PDF가 그대로 남을 수 있다. Git LFS 자료까지 받으려면 원자료 README의 명령을 따른다. 그림만 포함해 원고를 빌드하는 데 원시 trace 전체나 Isaac Gym은 필요 없다.
 
 ```sh
 cd docs/submission/ieie2026/private/latex
